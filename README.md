@@ -4,7 +4,7 @@
 
 # Third Party assets used
 
-This project uses assets from the Unity Asset Store
+This project uses assets from the Unity Asset Store. Used under the Unity Asset Store Standard EULA.
 
 * **[Low-Poly Office Set #1](https://assetstore.unity.com/packages/3d/props/low-poly-office-set-1-140-models-vnb-327126) ** by VNB Productions - Used as a way to test player movement
 
