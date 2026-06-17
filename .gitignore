@@ -9,3 +9,6 @@ MemoryCaptures/
 .plastic/
 .vscode/
 hidden-changes.conf
+*.conf
+*.csproj
+*.slnx
