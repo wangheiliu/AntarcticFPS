@@ -1,9 +1,11 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class HUDScript : MonoBehaviour
 {
     [SerializeField] private UIDocument uIDocument;
+    [SerializeField] private PlayerMovement playerMovement;
 
     public float health = 100;
     public float stamina = 100;
@@ -12,6 +14,7 @@ public class HUDScript : MonoBehaviour
 
     private Label healthLabel;
     private Label staminaLabel;
+    public Label cooldownLabel;
     private VisualElement healthProgressElement;
     private VisualElement staminaProgressElement;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -22,6 +25,7 @@ public class HUDScript : MonoBehaviour
         staminaLabel = root.Q<Label>("stamina-label");
         healthProgressElement = root.Q<VisualElement>("health-progress-bar");
         staminaProgressElement = root.Q<VisualElement>("stamina-progress-bar");
+        cooldownLabel = root.Q<Label>("cooldown-text");
 
         root.style.display = DisplayStyle.None;
     }
@@ -48,4 +52,5 @@ public class HUDScript : MonoBehaviour
     {
         health -= damage;
     }
+
 }

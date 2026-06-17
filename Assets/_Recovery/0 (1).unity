@@ -5162,6 +5162,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HUDScript
   uIDocument: {fileID: 1411774693}
+  playerMovement: {fileID: 1544176879}
   health: 100
   stamina: 100
 --- !u!114 &1411774693
@@ -5754,7 +5755,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   playerPos: {fileID: 1544176880}
-  speed: 5
+  walkSpeed: 5
   sprintSpeed: 10
   jumpForce: 2
   slideFriction: 3
