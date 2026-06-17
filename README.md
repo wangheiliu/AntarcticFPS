@@ -21,6 +21,10 @@ This project uses assets from the Unity Asset Store. Used under the Unity Asset 
 # Project Status
 In active development
 
+# Requirements
+
+It's recommended to have Unity version 6000.4.9f1 or later installed to avoid compatability issues
+
 # Copyright
 > Copyright (c) 2026 BytePenguins Studios (William Liu)
 
