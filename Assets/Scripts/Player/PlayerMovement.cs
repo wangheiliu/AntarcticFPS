@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using System.Collections;
 using Unity.VisualScripting;
+using System;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class PlayerMovement : MonoBehaviour
     private float crouchHeight = 1f;
     private float crouchSpeed = 25f;
     [SerializeField] private float slideFriction = 3f;
+    private float slideCoolDownTimer;
+    private float slideCooldownDuration = 3f;
     public float staminaRecoveryTime;
 
     [Header("Humanoid")]
@@ -32,7 +35,7 @@ public class PlayerMovement : MonoBehaviour
     public float gravity = -25f;
     public float velocityY;
     
-    
+    //all the booleans
     private bool canSprint;
     private bool isCrouching;
     private bool canSlide;
@@ -42,11 +45,12 @@ public class PlayerMovement : MonoBehaviour
     private float targetHeight;
     private bool canRegenerateStamina = true;
 
+    // Slide setting variables
     private Vector3 slideDirection;
     private float startingSlideSpeed = 12f;
     private float slideSpeed;
     
-
+    // Player State (I will work on that when I finish the sliding mechanic)
     public enum PlayerState
     {
         Walking,
@@ -54,12 +58,10 @@ public class PlayerMovement : MonoBehaviour
         Crouching,
         Sliding
     }
-
     public PlayerState currentPlayerState;
     void Start()
     {
         charController = GetComponent<CharacterController>();
-        //cam = Camera.main.transform;
         normalHeight = charController.height;
         currentSpeed = walkSpeed;
     }
@@ -91,13 +93,14 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = camForward * moveInput.x + camRight * moveInput.y;
         move = move.normalized * currentSpeed;
 
-        //sprinting
+        // tracks the booleans
         bool isMoving = moveInput != Vector2.zero;
         isCrouching = (Keyboard.current.leftCtrlKey.isPressed || Keyboard.current.cKey.isPressed) && !Keyboard.current.leftShiftKey.isPressed;
         canSlide = Keyboard.current.leftShiftKey.isPressed && Keyboard.current.cKey.isPressed && hudScript.stamina > 15;
         canSprint = Keyboard.current.leftShiftKey.isPressed && !Keyboard.current.cKey.isPressed && isMoving && hudScript.stamina > 0 && !isCrouching && isMoving;
         targetHeight = (isCrouching || isSliding) ? crouchHeight : normalHeight;
 
+        // sprinting
         if (canSprint)
         {
             isSprinting = true;
@@ -151,6 +154,18 @@ public class PlayerMovement : MonoBehaviour
             UpdateSlide();
         }
 
+        if (slideCoolDownTimer > 0 && !isSliding)
+        {
+            slideCoolDownTimer -= Time.deltaTime;
+            hudScript.cooldownLabel.text = $"Sliding: {(float)Math.Round(slideCoolDownTimer, 1)}"; // explicitly rounds the timer to 1 decimal place, Mathf is kinda bad here, so we need System
+        } else if (isSliding)
+        {
+            hudScript.cooldownLabel.text = "Sliding";
+        } else
+        {
+            hudScript.cooldownLabel.text = "Sliding: ready";
+        }
+
         if (isSliding && Keyboard.current.cKey.wasReleasedThisFrame)
         {
             StartCoroutine(EndSlide());
@@ -182,7 +197,7 @@ public class PlayerMovement : MonoBehaviour
         {   
             if (move != Vector3.zero)
             {
-                slideDirection = Vector3.Slerp(slideDirection, move.normalized, 2.5f * Time.deltaTime); // lerps it over time if there's any movement 
+                slideDirection = Vector3.Slerp(slideDirection, move.normalized, 2.5f * Time.deltaTime); // lerps it over time if there's any movement made while sliding
             }
             
             move = slideDirection * slideSpeed;
@@ -276,7 +291,7 @@ public class PlayerMovement : MonoBehaviour
         {
             yield break;
         }
-        
+        slideCoolDownTimer = slideCooldownDuration; //sets the timer so that it will start in Update()
         isSliding = false;
         isSlideCoolDownEnabled = true;
         charController.height = Mathf.Lerp(charController.height, targetHeight, crouchSpeed * Time.deltaTime);
