@@ -1,5 +1,5 @@
 # Copyright
-> Copyright (c) 2026 BytePenguins Studio
+> Copyright (c) 2026 BytePenguins Studios (William Liu)
 
 All rights reserved.
 

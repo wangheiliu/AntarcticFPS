@@ -22,7 +22,7 @@ This project uses assets from the Unity Asset Store. Used under the Unity Asset 
 In active development
 
 # Copyright
-> Copyright (c) 2026 BytePenguins Studio
+> Copyright (c) 2026 BytePenguins Studios (William Liu)
 
 All rights reserved.
 
