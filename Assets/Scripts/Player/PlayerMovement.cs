@@ -4,6 +4,7 @@ using UnityEngine.UIElements;
 using System.Collections;
 using Unity.VisualScripting;
 using System;
+using UnityEngine.EventSystems;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -16,7 +17,7 @@ public class PlayerMovement : MonoBehaviour
     private float normalHeight;
     private float crouchHeight = 1f;
     private float crouchSpeed = 25f;
-    [SerializeField] private float slideFriction = 3f;
+    [SerializeField] private float slideFriction = 10f;
     private float slideCoolDownTimer;
     private float slideCooldownDuration = 3f;
     public float staminaRecoveryTime;
@@ -32,7 +33,7 @@ public class PlayerMovement : MonoBehaviour
     
 
     [Header("Gravity")]
-    public float gravity = -25f;
+    public float gravity = -12f;
     public float velocityY;
     
     //all the booleans
@@ -49,6 +50,10 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 slideDirection;
     private float startingSlideSpeed = 12f;
     private float slideSpeed;
+    private Vector3 downhillDirection;
+    private Vector3 slopeNormal;
+    private Vector3 lastMoveDirection;
+    private bool onSlope;
     
     // Player State (I will work on that when I finish the sliding mechanic)
     public enum PlayerState
@@ -91,6 +96,8 @@ public class PlayerMovement : MonoBehaviour
         camRight = Vector3.Cross(Vector3.up, camForward);
 
         Vector3 move = camForward * moveInput.x + camRight * moveInput.y;
+        
+        lastMoveDirection = move.normalized;
         move = move.normalized * currentSpeed;
 
         // tracks the booleans
@@ -179,14 +186,18 @@ public class PlayerMovement : MonoBehaviour
 
         
         // Jump
-        if (Keyboard.current.spaceKey.wasPressedThisFrame && charController.isGrounded && !isCrouching)
+        if (Keyboard.current.spaceKey.wasPressedThisFrame && charController.isGrounded && !isCrouching && !isSliding)
         {
             velocityY = Mathf.Sqrt(jumpForce * -2f * gravity);
         }
 
-        if (charController.collisionFlags == CollisionFlags.Above && velocityY > 0)
+        if (charController.isGrounded && velocityY < 0)
+{
+            velocityY = -2f;
+        }
+        else
         {
-            velocityY = 0; // stop upward movement if hitting ceiling
+            velocityY += gravity * Time.deltaTime;
         }
 
         
@@ -194,16 +205,42 @@ public class PlayerMovement : MonoBehaviour
         velocityY += gravity * Time.deltaTime;
 
         if (isSliding)
-        {   
-            if (move != Vector3.zero)
+        {
+            Vector3 inputDirection = lastMoveDirection;
+            slideDirection = Vector3.Slerp(
+                slideDirection,
+                inputDirection,
+                5f * Time.deltaTime
+            );
+            if (onSlope)
             {
-                slideDirection = Vector3.Slerp(slideDirection, move.normalized, 2.5f * Time.deltaTime); // lerps it over time if there's any movement made while sliding
+                Vector3 slopeMove = Vector3.ProjectOnPlane(
+                    slideDirection,
+                    slopeNormal
+                );
+
+                move = slopeMove.normalized * slideSpeed;
+                move += Vector3.ProjectOnPlane(
+                    Vector3.down,
+                    slopeNormal
+                ) * 2f;
             }
+            else
+            {
+                move = slideDirection * slideSpeed;
+                move.y = velocityY;
+            }
+
+            // keep gravity
             
-            move = slideDirection * slideSpeed;
         }
+        else
+        {
+            move.y = velocityY;
+        }
+        
         // Apply vertical movement
-        move.y = velocityY;
+        Debug.Log(velocityY);
         // Final move
         charController.Move(move * Time.deltaTime);
     }
@@ -265,11 +302,49 @@ public class PlayerMovement : MonoBehaviour
 
     private void UpdateSlide()
     {
+        onSlope = false;
+       
+        if (Physics.Raycast(
+            transform.position - Vector3.up * (charController.height / 2),
+            Vector3.down,
+            out RaycastHit hit,
+            charController.height * 0.5f + 0.5f))
+        {
+            slopeNormal = hit.normal;
+            onSlope = Vector3.Angle(slopeNormal, Vector3.up) > 5f;
+
+            if (onSlope)
+            {
+                float slopeAngle = Vector3.Angle(
+                    slopeNormal,
+                    Vector3.up
+                );
+
+                downhillDirection = Vector3.ProjectOnPlane(
+                    Vector3.down,
+                    slopeNormal
+                ).normalized;
+
+                float dot = Vector3.Dot(
+                    slideDirection,
+                    downhillDirection
+                );
+
+                if (dot < 0)
+                {
+                    slideSpeed -= Mathf.Abs(dot) * slopeAngle * 0.2f * Time.deltaTime;
+                } else
+                {
+                    slideSpeed += dot * slopeAngle * 0.5f * Time.deltaTime;
+                }
+                    
+                
+                
+            }
+        }
         if (slideSpeed > 1f)
         {
             slideSpeed -= slideFriction * Time.deltaTime;
-            
-            Debug.Log(slideSpeed);
         } else
         {
             if (Keyboard.current.cKey.isPressed)
@@ -281,8 +356,6 @@ public class PlayerMovement : MonoBehaviour
             StartCoroutine(EndSlide());
             return;
         }
-
-
     }
 
     private IEnumerator EndSlide()
