@@ -30,12 +30,12 @@ public class PlayerMovement : MonoBehaviour
     //private Transform transform;
     [Header("Camera")]
     [SerializeField] private Transform cam;
-    
+
 
     [Header("Gravity")]
     public float gravity = -12f;
     public float velocityY;
-    
+
     //all the booleans
     private bool canSprint;
     private bool isCrouching;
@@ -54,7 +54,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 slopeNormal;
     private Vector3 lastMoveDirection;
     private bool onSlope;
-    
+
     // Player State (I will work on that when I finish the sliding mechanic)
     public enum PlayerState
     {
@@ -73,9 +73,10 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        CheckSlope();
         // Movement input
         Vector2 moveInput = Vector2.zero;
-        
+
         if (Keyboard.current.wKey.isPressed)
             moveInput.x += 1;
 
@@ -88,7 +89,7 @@ public class PlayerMovement : MonoBehaviour
         if (Keyboard.current.dKey.isPressed)
             moveInput.y += 1;
 
-        
+
         Vector3 camForward = cam.forward;
         Vector3 camRight = cam.right;
 
@@ -96,7 +97,12 @@ public class PlayerMovement : MonoBehaviour
         camRight = Vector3.Cross(Vector3.up, camForward);
 
         Vector3 move = camForward * moveInput.x + camRight * moveInput.y;
-        
+
+        if (onSlope && !isSliding)
+        {
+            move = Vector3.ProjectOnPlane(move,slopeNormal);
+        }
+
         lastMoveDirection = move.normalized;
         move = move.normalized * currentSpeed;
 
@@ -118,7 +124,8 @@ public class PlayerMovement : MonoBehaviour
                 0f,
                 100f
             );
-        } else
+        }
+        else
         {
             isSprinting = false;
             currentSpeed = 5f;
@@ -128,26 +135,29 @@ public class PlayerMovement : MonoBehaviour
                 {
                     staminaRecoveryTime -= Time.deltaTime;
                 }
-            } else
+            }
+            else
             {
                 hudScript.stamina = Mathf.Clamp(hudScript.stamina + 7f * Time.deltaTime, 0f, 100f);
             }
         }
-        
+
         //crouching
         if (isCrouching && !canSlide)
         {
             Crouch();
-        } else
+        }
+        else
         {
             if (CanStand())
             {
                 UnCrouch();
-            } else
+            }
+            else
             {
                 Crouch();
             }
-        }    
+        }
 
         //slide
         if (canSlide && !isSliding && !isSlideCoolDownEnabled && !isCrouching)
@@ -165,10 +175,12 @@ public class PlayerMovement : MonoBehaviour
         {
             slideCoolDownTimer -= Time.deltaTime;
             hudScript.cooldownLabel.text = $"Sliding: {(float)Math.Round(slideCoolDownTimer, 1)}"; // explicitly rounds the timer to 1 decimal place, Mathf is kinda bad here, so we need System
-        } else if (isSliding)
+        }
+        else if (isSliding)
         {
             hudScript.cooldownLabel.text = "Sliding";
-        } else
+        }
+        else
         {
             hudScript.cooldownLabel.text = "Sliding: ready";
         }
@@ -184,7 +196,7 @@ public class PlayerMovement : MonoBehaviour
             velocityY = -2f; // keeps player "stuck" to ground slightly
         }
 
-        
+
         // Jump
         if (Keyboard.current.spaceKey.wasPressedThisFrame && charController.isGrounded && !isCrouching && !isSliding)
         {
@@ -192,7 +204,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         if (charController.isGrounded && velocityY < 0)
-{
+        {
             velocityY = -2f;
         }
         else
@@ -200,7 +212,7 @@ public class PlayerMovement : MonoBehaviour
             velocityY += gravity * Time.deltaTime;
         }
 
-        
+
         // Gravity
         velocityY += gravity * Time.deltaTime;
 
@@ -230,27 +242,38 @@ public class PlayerMovement : MonoBehaviour
                 move = slideDirection * slideSpeed;
                 move.y = velocityY;
             }
-
-            // keep gravity
-            
         }
         else
         {
-            move.y = velocityY;
+            move.y = velocityY; 
         }
-        
+
         // Apply vertical movement
         Debug.Log(velocityY);
         // Final move
         charController.Move(move * Time.deltaTime);
     }
-    bool CanStand()
+    public bool CanStand()
     {
         return !Physics.Raycast(
             transform.position,
             Vector3.up,
             1f
         );
+    }
+
+    private void CheckSlope()
+    {
+        onSlope = false;
+        if (Physics.Raycast(
+        transform.position - Vector3.up * (charController.height / 2),
+        Vector3.down,
+        out RaycastHit hit,
+        charController.height * 0.5f + 0.5f))
+        {
+            slopeNormal = hit.normal;
+            onSlope = Vector3.Angle(slopeNormal, Vector3.up) > 5f;
+        }
     }
 
     private void Crouch()
@@ -268,7 +291,8 @@ public class PlayerMovement : MonoBehaviour
         if (canSprint)
         {
             currentSpeed = sprintSpeed;
-        } else
+        }
+        else
         {
             currentSpeed = 5f;
         }
@@ -303,7 +327,7 @@ public class PlayerMovement : MonoBehaviour
     private void UpdateSlide()
     {
         onSlope = false;
-       
+
         if (Physics.Raycast(
             transform.position - Vector3.up * (charController.height / 2),
             Vector3.down,
@@ -333,19 +357,18 @@ public class PlayerMovement : MonoBehaviour
                 if (dot < 0)
                 {
                     slideSpeed -= Mathf.Abs(dot) * slopeAngle * 0.2f * Time.deltaTime;
-                } else
+                }
+                else
                 {
                     slideSpeed += dot * slopeAngle * 0.5f * Time.deltaTime;
                 }
-                    
-                
-                
             }
         }
         if (slideSpeed > 1f)
         {
             slideSpeed -= slideFriction * Time.deltaTime;
-        } else
+        }
+        else
         {
             if (Keyboard.current.cKey.isPressed)
             {
@@ -378,14 +401,14 @@ public class PlayerMovement : MonoBehaviour
         canRegenerateStamina = true;
         isSlideCoolDownEnabled = false;
         Debug.Log("End slide");
-        
+
     }
 
     private void RespawnPlayer(Vector3 position)
     {
         if (playerPos.position.y <= -100)
         {
-            playerPos.position = new Vector3(10,0,-10);
+            playerPos.position = new Vector3(10, 0, -10);
         }
     }
 }
