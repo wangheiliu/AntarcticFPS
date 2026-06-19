@@ -206,7 +206,6 @@ public class GameManager : MonoBehaviour
     }
     public void OpenItem(UIDocument document, Camera camera)
     {
-        Debug.Log(isMenuOpen);
         SetUiDocument(document);
         SetCamera(camera);
     }
