@@ -13,7 +13,7 @@ public class PlayerMovement : MonoBehaviour
     public float walkSpeed = 5f;
     private float currentSpeed;
     public float sprintSpeed = 10f;
-    public float jumpForce = 2f;
+    public float jumpForce = 5f;
     private float normalHeight;
     private float crouchHeight = 1f;
     private float crouchSpeed = 25f;
@@ -247,9 +247,6 @@ public class PlayerMovement : MonoBehaviour
         {
             move.y = velocityY; 
         }
-
-        // Apply vertical movement
-        Debug.Log(velocityY);
         // Final move
         charController.Move(move * Time.deltaTime);
     }
@@ -320,7 +317,6 @@ public class PlayerMovement : MonoBehaviour
         slideDirection = cam.forward;
         slideDirection.y = 0;
         slideDirection.Normalize();
-        Debug.Log("sliding");
 
     }
 
@@ -362,16 +358,22 @@ public class PlayerMovement : MonoBehaviour
                 {
                     slideSpeed += dot * slopeAngle * 0.5f * Time.deltaTime;
                 }
+                slideSpeed = Mathf.Max(0.1f, slideSpeed);
             }
         }
-        if (slideSpeed > 1f)
+        if (slideSpeed > 0.2f)
         {
             slideSpeed -= slideFriction * Time.deltaTime;
+            Debug.Log(slideSpeed);
         }
         else
         {
             if (Keyboard.current.cKey.isPressed)
             {
+                if (slideSpeed > 0)
+                {
+                    slideSpeed -= slideFriction * Time.deltaTime;
+                }
                 return;
             }
             canSlide = false;
