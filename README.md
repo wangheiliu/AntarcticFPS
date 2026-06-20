@@ -31,6 +31,7 @@ This project was created on Unity version 6000.4.9f1, it's recommended to have U
 * Make some basic maps
 * Revamping UI and adding settings
 * Maybe add multiplayer and/or enemy ai
+* Add a penguin model and animate it
 
 # Project Status
 In active development
