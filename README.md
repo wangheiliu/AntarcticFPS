@@ -12,18 +12,28 @@ This project uses assets from the Unity Asset Store. Used under the Unity Asset 
 * Basic player movement
 * Sprinting/crouching mechanic
 * Basic sliding mechanoc
+* Basic main menu
+
+# Requirements
+
+This project was created on Unity version 6000.4.9f1, it's recommended to have Unity version 6000.4.9f1 or later installed to avoid compatability issues.
+[Install Unity 6000.4.9f1 here](https://unity.com/releases/editor/whats-new/6000.4.9f1)
+
+# Getting Started
+
+1. Clone the repository
+2. Install Unity 6000.4.9f1
+3. Open the project
+4. Your done!
 
 # Development Goals
 * Add weapons
 * Make some basic maps
+* Revamping UI and adding settings
 * Maybe add multiplayer and/or enemy ai
 
 # Project Status
 In active development
-
-# Requirements
-
-It's recommended to have Unity version 6000.4.9f1 or later installed to avoid compatability issues
 
 # Copyright
 > Copyright (c) 2026 BytePenguins Studios (William Liu)
