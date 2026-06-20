@@ -1,0 +1,14 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/MenuGui/SettingsStyle.uss?fileID=7433441132597879392&amp;guid=482d0de9c0bc9c94faa47d214aa8bb74&amp;type=3#SettingsStyle"/>
+    <ui:VisualElement style="flex-grow: 0; align-self: center; width: 60%; height: 5%; background-color: rgb(171, 171, 171); border-bottom-left-radius: 0; border-top-left-radius: 30px; border-top-right-radius: 30px; justify-content: space-between; align-content: center; align-items: flex-start; padding-left: 1.5%; -unity-text-generator: advanced; -unity-text-auto-size: best-fit 5px 100px; padding-bottom: 0.2%; padding-top: 0.2%; padding-right: 1.5%; flex-direction: row; border-bottom-color: rgb(0, 0, 0); border-bottom-width: 3px;">
+        <ui:Label text="Settings" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0%; padding-right: 0%; padding-bottom: 0%; padding-left: 0%;"/>
+        <ui:Button text="X" style="align-self: center; width: 3.5%; aspect-ratio: 1; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; background-color: rgb(255, 18, 18); color: rgb(255, 255, 255); border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-width: 2.5px; border-right-width: 2.5px; border-bottom-width: 2.5px; border-left-width: 2.5px; border-top-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px;"/>
+    </ui:VisualElement>
+    <ui:VisualElement name="container" style="flex-grow: 0; align-self: center; width: 60%; height: 75%; justify-content: flex-start; align-items: auto; flex-direction: column; align-content: flex-start; flex-shrink: 1; translate: 0 0%; background-color: rgb(171, 171, 171); border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; padding-top: 1.5%; padding-right: 1.5%; padding-bottom: 1.5%; padding-left: 1.5%;">
+        <ui:TabView style="position: absolute; width: 95%; height: 90%;">
+            <ui:Tab label="Tab">
+                <ui:ListView style="width: 100%; height: 100%;"/>
+            </ui:Tab>
+        </ui:TabView>
+    </ui:VisualElement>
+</ui:UXML>
