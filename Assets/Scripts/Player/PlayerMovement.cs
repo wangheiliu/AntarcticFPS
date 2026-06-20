@@ -53,6 +53,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 downhillDirection;
     private Vector3 slopeNormal;
     private Vector3 lastMoveDirection;
+    private Vector3 targetDirection;
     private bool onSlope;
 
     // Player State (I will work on that when I finish the sliding mechanic)
@@ -218,10 +219,19 @@ public class PlayerMovement : MonoBehaviour
 
         if (isSliding)
         {
-            Vector3 inputDirection = lastMoveDirection;
+
+            if (targetDirection != Vector3.zero)
+            {
+                targetDirection = lastMoveDirection;
+            } else
+            {
+                targetDirection = cam.forward;
+                targetDirection.y = 0;
+                targetDirection.Normalize();
+            }
             slideDirection = Vector3.Slerp(
                 slideDirection,
-                inputDirection,
+                targetDirection,
                 5f * Time.deltaTime
             );
             if (onSlope)
