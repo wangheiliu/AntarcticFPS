@@ -1118,6 +1118,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ShopData
   templateTree: {fileID: 9197481963319205126, guid: e5fa64375fae0c346b7f5d37351026f9, type: 3}
   shopDocument: {fileID: 749289991}
+  database: {fileID: 11400000, guid: 36f46d1e5b3545a4e9d1af9d2f591683, type: 2}
+  weaponData: {fileID: 11400000, guid: 29b83a1a87915c4428f334f6b2a0f760, type: 2}
 --- !u!1 &299579410 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -4841460714562981373, guid: f1cd6800d51724d4291ee22764292e86, type: 3}
