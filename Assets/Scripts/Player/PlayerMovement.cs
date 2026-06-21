@@ -48,7 +48,6 @@ public class PlayerMovement : MonoBehaviour
 
     // Slide setting variables
     private Vector3 slideDirection;
-    private float startingSlideSpeed = 12f;
     private float slideSpeed;
     private Vector3 downhillDirection;
     private Vector3 slopeNormal;
