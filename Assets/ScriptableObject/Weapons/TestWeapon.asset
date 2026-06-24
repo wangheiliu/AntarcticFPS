@@ -16,7 +16,7 @@ MonoBehaviour:
   type: 0
   cost: 1
   shortDescription: A simple weapon used for testing
-  description: 
+  description: Test Description
   icon: {fileID: 0}
   clipSize: 30
   fireRate: 30

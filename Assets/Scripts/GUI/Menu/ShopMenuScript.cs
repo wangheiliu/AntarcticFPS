@@ -15,27 +15,41 @@ public class ShopMenuScript : MonoBehaviour
     [Header("Game Manager")]
     [SerializeField] private GameManager gameManager;
 
-    private Button closeButton;
+    
     private bool waitingForTransition;
     private bool isOpen = false;
+    private bool isInfoOpen;
     private TabView tabContainer;
     private VisualElement titleContainer;
+    private VisualElement infoElement;
+    private Button closeButton;
+    private Button infoCloseButton;
     void Start()
     {
         var root = uIDocument.rootVisualElement;
         tabContainer = root.Q<TabView>("tab-container");
         titleContainer = root.Q<VisualElement>("title-container");
+        infoElement = root.Q<VisualElement>("info-container");
+        infoCloseButton = infoElement.Q<Button>("info-close-button");
+
         root.style.display = DisplayStyle.None;
         tabContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
+        infoElement.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         StartCoroutine(InitNextFrame());
     }
 
-
     private void OnTransitionEnd(TransitionEndEvent evt)
     {
-        Debug.Log("Transition Started!");
+        if (evt.target == infoElement)
+        {
+            waitingForTransition = false;
+            if (isInfoOpen)
+                infoElement.style.display = DisplayStyle.None;
+            return;
+        }
         if (evt.target != tabContainer)
         {
+            waitingForTransition = false;
             return;
         }
 
@@ -55,36 +69,6 @@ public class ShopMenuScript : MonoBehaviour
         }
     }
 
-    public void CloseShop()
-    {
-        Debug.Log("Clicked!");
-        if (waitingForTransition)
-        {
-            Debug.Log("waitingForTransition was true");
-            return;
-        }
-        waitingForTransition = true;
-        isOpen = false;
-        tabContainer.style.translate = new Translate(Length.Percent(-110), 0, 0);
-        titleContainer.style.translate = new Translate(Length.Percent(-110), 0, 0);
-        
-    }
-
-    public void OpenShop()
-    {
-        uIDocument.rootVisualElement.style.display = DisplayStyle.Flex;
-        if (waitingForTransition)
-        {
-            Debug.Log("waitingForTransition was true");
-            return;
-        }
-        waitingForTransition = true;
-        isOpen = true;
-        tabContainer.style.translate = new Translate(Length.Percent(0), 0, 0);
-        titleContainer.style.translate = new Translate(Length.Percent(0), 0, 0);
-        
-        
-    }
     private IEnumerator InitNextFrame()
     {
         yield return null;
@@ -95,13 +79,78 @@ public class ShopMenuScript : MonoBehaviour
         if (closeButton != null)
         {
             closeButton.clicked += CloseShop;
-            Debug.Log("Button Hooked!");
-        } 
+        }
+
+        if (infoCloseButton != null)
+        {
+            infoCloseButton.clicked += CloseInfo;
+        }
     }
+
+    public void CloseShop()
+    {
+        if (waitingForTransition)
+        {
+            //Debug.Log("waitingForTransition was true");
+            return;
+        }
+        waitingForTransition = true;
+        isOpen = false;
+        tabContainer.style.translate = new Translate(Length.Percent(-110), 0, 0);
+        titleContainer.style.translate = new Translate(Length.Percent(-110), 0, 0);
+    }
+
+    public void CloseInfo()
+    {
+        isInfoOpen = false;
+        if (waitingForTransition)
+        {
+            return;
+        }
+
+        waitingForTransition = true;
+        
+        infoElement.style.translate = new Translate(Length.Percent(120),0,0);
+    }
+
+    public void OpenInfo()
+    {
+        if (isInfoOpen)
+        {
+            return;
+        }
+        isInfoOpen = true;
+        if (waitingForTransition)
+            return;
+        infoElement.style.display = DisplayStyle.Flex;
+        waitingForTransition = true;
+        infoElement.style.translate = new Translate(Length.Percent(0),0,0);
+        
+    }
+
+    public void OpenShop()
+    {
+        uIDocument.rootVisualElement.style.display = DisplayStyle.Flex;
+        if (waitingForTransition)
+        {
+            //Debug.Log("waitingForTransition was true");
+            return;
+        }
+        waitingForTransition = true;
+        isOpen = true;
+        tabContainer.style.translate = new Translate(Length.Percent(0), 0, 0);
+        titleContainer.style.translate = new Translate(Length.Percent(0), 0, 0);
+        
+        
+    }
+    
 
     private void OnDestroy()
     {
         if (tabContainer != null)
-            tabContainer.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);        
+            tabContainer.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
+
+        if (infoElement != null)
+            infoElement.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);  
     }
 }
