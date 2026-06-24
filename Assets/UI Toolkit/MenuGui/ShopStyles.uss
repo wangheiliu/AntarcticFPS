@@ -186,7 +186,7 @@ Button.close-button:enabled:hover {
 .information {
     padding-top: 0;
     padding-right: 0;
-    padding-bottom: 0;
+    padding-bottom: 1.5%;
     padding-left: 0;
     margin-top: 10px;
     margin-right: 0;
