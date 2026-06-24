@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8093ff21253d4524387f948fdd2e2ba0, type: 3}
-  m_Name: TestWeapon
+  m_Name: AK-47
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
-  title: Test Weapon
+  title: AK-47
   type: 0
-  cost: 1
-  shortDescription: A simple weapon used for testing
-  description: Test Description
+  cost: 3000
+  shortDescription: The classic weapon
+  description: A classic automatic rifle that has long lived and is classic among
+    FPS games
   icon: {fileID: 0}
   clipSize: 30
-  fireRate: 30
-  reloadTime: 4.5
+  fireRate: 20
+  reloadTime: 5
   damage: 5

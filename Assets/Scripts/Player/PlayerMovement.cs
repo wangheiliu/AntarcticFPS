@@ -162,7 +162,6 @@ public class PlayerMovement : MonoBehaviour
         //slide
         if (canSlide && !isSliding && !isSlideCoolDownEnabled && !isCrouching)
         {
-            Debug.Log("Starting to slide!");
             StartSlide();
         }
 
@@ -180,9 +179,13 @@ public class PlayerMovement : MonoBehaviour
         {
             hudScript.cooldownLabel.text = "Sliding";
         }
-        else
+        else if (slideCoolDownTimer <= 0 && hudScript.stamina > 15)
         {
             hudScript.cooldownLabel.text = "Sliding: ready";
+        } 
+        else
+        {
+            hudScript.cooldownLabel.text = "You need rest!";    
         }
 
         if (isSliding && Keyboard.current.cKey.wasReleasedThisFrame)
@@ -373,7 +376,6 @@ public class PlayerMovement : MonoBehaviour
         if (slideSpeed > 0.2f)
         {
             slideSpeed -= slideFriction * Time.deltaTime;
-            Debug.Log(slideSpeed);
         }
         else
         {
@@ -411,8 +413,6 @@ public class PlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(3);
         canRegenerateStamina = true;
         isSlideCoolDownEnabled = false;
-        Debug.Log("End slide");
-
     }
 
     private void RespawnPlayer(Vector3 position)
