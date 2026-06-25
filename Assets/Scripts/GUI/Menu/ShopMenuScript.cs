@@ -16,7 +16,8 @@ public class ShopMenuScript : MonoBehaviour
     [SerializeField] private GameManager gameManager;
 
     
-    private bool waitingForTransition;
+    private bool waitingShopTransition;
+    private bool waitingInfoTransition;
     private bool isOpen = false;
     private bool isInfoOpen;
     private TabView tabContainer;
@@ -24,46 +25,39 @@ public class ShopMenuScript : MonoBehaviour
     private VisualElement infoElement;
     private Button closeButton;
     private Button infoCloseButton;
+    private VisualElement shopContainer;
     void Start()
     {
         var root = uIDocument.rootVisualElement;
-        tabContainer = root.Q<TabView>("tab-container");
-        titleContainer = root.Q<VisualElement>("title-container");
         infoElement = root.Q<VisualElement>("info-container");
         infoCloseButton = infoElement.Q<Button>("info-close-button");
+        shopContainer = root.Q<VisualElement>("shop-container");
 
         root.style.display = DisplayStyle.None;
-        tabContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
-        infoElement.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
+        shopContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
+        infoCloseButton.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         StartCoroutine(InitNextFrame());
     }
 
     private void OnTransitionEnd(TransitionEndEvent evt)
     {
-        if (evt.target == infoElement)
+        if (evt.target == infoCloseButton)
         {
-            waitingForTransition = false;
-            if (isInfoOpen)
+            if (!waitingInfoTransition)
+            {
+                return;
+            }
+            waitingInfoTransition = false;
+            if (!isInfoOpen)
+            {
                 infoElement.style.display = DisplayStyle.None;
-            return;
-        }
-        if (evt.target != tabContainer)
+            }
+        } else if (evt.target == shopContainer)
         {
-            waitingForTransition = false;
-            return;
+            waitingShopTransition = false;
         }
 
-        if (!waitingForTransition)
-        {
-            return;
-        }
-
-        waitingForTransition = false;
-
-        if (isOpen)
-        {
-            return;
-        } else
+        if (!isOpen && !waitingShopTransition)
         {
             gameManager.OpenMenuItems(GameManager.MenuState.MainMenu);
         }
@@ -89,28 +83,27 @@ public class ShopMenuScript : MonoBehaviour
 
     public void CloseShop()
     {
-        if (waitingForTransition)
+        if (waitingShopTransition)
         {
-            //Debug.Log("waitingForTransition was true");
+            //Debug.Log("waitingShopTransition was true");
             return;
         }
-        waitingForTransition = true;
+        waitingShopTransition = true;
         isOpen = false;
-        tabContainer.style.translate = new Translate(Length.Percent(-110), 0, 0);
-        titleContainer.style.translate = new Translate(Length.Percent(-110), 0, 0);
+        shopContainer.style.translate = new Translate(Length.Percent(-120), 0, 0);
     }
 
     public void CloseInfo()
     {
-        isInfoOpen = false;
-        if (waitingForTransition)
+        
+        if (waitingInfoTransition)
         {
             return;
         }
 
-        waitingForTransition = true;
-        
+        waitingInfoTransition = true;
         infoElement.style.translate = new Translate(Length.Percent(120),0,0);
+        isInfoOpen = false;
     }
 
     public void OpenInfo()
@@ -120,10 +113,10 @@ public class ShopMenuScript : MonoBehaviour
             return;
         }
         isInfoOpen = true;
-        if (waitingForTransition)
+        if (waitingInfoTransition)
             return;
         infoElement.style.display = DisplayStyle.Flex;
-        waitingForTransition = true;
+        waitingInfoTransition = true;
         infoElement.style.translate = new Translate(Length.Percent(0),0,0);
         
     }
@@ -131,24 +124,21 @@ public class ShopMenuScript : MonoBehaviour
     public void OpenShop()
     {
         uIDocument.rootVisualElement.style.display = DisplayStyle.Flex;
-        if (waitingForTransition)
+        if (waitingShopTransition)
         {
-            //Debug.Log("waitingForTransition was true");
+            //Debug.Log("waitingShopTransition was true");
             return;
         }
-        waitingForTransition = true;
+        waitingShopTransition = true;
         isOpen = true;
-        tabContainer.style.translate = new Translate(Length.Percent(0), 0, 0);
-        titleContainer.style.translate = new Translate(Length.Percent(0), 0, 0);
-        
-        
+        shopContainer.style.translate = new Translate(Length.Percent(0), 0, 0);
     }
     
 
     private void OnDestroy()
     {
-        if (tabContainer != null)
-            tabContainer.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
+        if (shopContainer != null)
+            shopContainer.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
 
         if (infoElement != null)
             infoElement.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);  

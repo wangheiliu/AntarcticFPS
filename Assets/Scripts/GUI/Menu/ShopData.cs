@@ -161,7 +161,7 @@ public class ShopData : MonoBehaviour
     public void OnViewClick(ShopItemData item)
     {
         shopMenuScript.OpenInfo();
-        shopMenuScript.CloseInfo();
+        //shopMenuScript.CloseInfo();
         ViewItemDetails(item);
     }
 }
