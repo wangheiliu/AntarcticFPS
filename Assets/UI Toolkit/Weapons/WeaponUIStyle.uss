@@ -1,0 +1,18 @@
+.container {
+    justify-content: flex-end;
+}
+
+.stat-title {
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    -unity-text-auto-size: best-fit 5px 20px;
+    -unity-text-generator: standard;
+}
+
+.stat-display {
+    color: rgb(255, 255, 255);
+}
+
+:root {
+    display: none;
+}
