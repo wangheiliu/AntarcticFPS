@@ -12,3 +12,5 @@ hidden-changes.conf
 *.conf
 *.csproj
 *.slnx
+!*.meta
+Assets/ThirdParty/*
