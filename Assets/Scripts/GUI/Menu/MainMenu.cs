@@ -18,12 +18,12 @@ public class GameManager : MonoBehaviour
     private UnityEngine.UIElements.UIDocument uiDocument;
     private VisualElement btnContainer;
     private Label title;
-    [SerializeField] private UnityEngine.UIElements.UIDocument shopDocument;
 
     private Camera mainCamera;
     [Header("GUI Documents and Cameras")]
     [SerializeField] private Camera[] CameraArray;
     [SerializeField] private UIDocument[] documentArray;
+    [SerializeField] private UIDocument[] hudArray;
     [SerializeField] private Camera shopCamera;
     private bool isMenuOpen = true;
     private bool waitingToClose;
@@ -138,7 +138,7 @@ public class GameManager : MonoBehaviour
                 shopMenuScript.OpenShop();
                 break;
             case MenuState.Playing:
-                OpenItem(documentArray[2], CameraArray[0]);
+                OpenItemArray(hudArray, CameraArray[0]);
                 CloseMenu();
                 break;
 
@@ -158,8 +158,6 @@ public class GameManager : MonoBehaviour
                 waitingToClose = true;
                 btnContainer.style.translate = new Translate(0, 0, 0);
                 title.style.translate = new Translate(0, 0, 0);
-                
-                
                 
                 break;
             case MenuState.Playing:
@@ -198,16 +196,32 @@ public class GameManager : MonoBehaviour
 
     public void SetUiDocument(UIDocument documentToOpen)
     {
-        foreach (UIDocument document in documentArray)
-        {
-            document.rootVisualElement.style.display = DisplayStyle.None;
-        }
+        CloseAllItems();
         documentToOpen.rootVisualElement.style.display = DisplayStyle.Flex;
     }
     public void OpenItem(UIDocument document, Camera camera)
     {
         SetUiDocument(document);
         SetCamera(camera);
+    }
+
+    public void OpenItemArray(UIDocument[] documents, Camera camera)
+    {
+        CloseAllItems();
+
+        foreach (UIDocument document in documents)
+        {
+            document.rootVisualElement.style.display = DisplayStyle.Flex;
+        }
+        SetCamera(camera);
+    }
+
+    public void CloseAllItems()
+    {
+        foreach (UIDocument document in documentArray)
+        {
+            document.rootVisualElement.style.display = DisplayStyle.None;
+        }
     }
 
     public void PlayerMovementManager(bool canMove)
