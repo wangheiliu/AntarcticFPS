@@ -14,6 +14,6 @@ hidden-changes.conf
 *.slnx
 !*.meta
 Assets/ThirdParty/*
-!Assets/ThirdParty/**
+!Assets/ThirdParty/**/
 !Assets/ThirdParty.meta
 !Assets/ThirdParty/**/*.meta
