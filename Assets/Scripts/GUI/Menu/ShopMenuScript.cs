@@ -26,6 +26,7 @@ public class ShopMenuScript : MonoBehaviour
     private Button closeButton;
     private Button infoCloseButton;
     private VisualElement shopContainer;
+
     void Start()
     {
         var root = uIDocument.rootVisualElement;
@@ -35,13 +36,14 @@ public class ShopMenuScript : MonoBehaviour
 
         root.style.display = DisplayStyle.None;
         shopContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
-        infoCloseButton.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
+        infoElement.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
+        //infoCloseButton.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         StartCoroutine(InitNextFrame());
     }
 
     private void OnTransitionEnd(TransitionEndEvent evt)
     {
-        if (evt.target == infoCloseButton)
+        if (evt.target == infoElement)
         {
             if (!waitingInfoTransition)
             {
@@ -59,7 +61,7 @@ public class ShopMenuScript : MonoBehaviour
 
         if (!isOpen && !waitingShopTransition)
         {
-            gameManager.OpenMenuItems(GameManager.MenuState.MainMenu);
+            gameManager.OpenMenuItems(MenuState.MainMenu);
         }
     }
 
@@ -90,7 +92,12 @@ public class ShopMenuScript : MonoBehaviour
         }
         waitingShopTransition = true;
         isOpen = false;
+        
         shopContainer.style.translate = new Translate(Length.Percent(-120), 0, 0);
+
+        waitingInfoTransition = true;
+        isInfoOpen = false;
+        infoElement.style.translate = new Translate(Length.Percent(120), 0, 0);
     }
 
     public void CloseInfo()
