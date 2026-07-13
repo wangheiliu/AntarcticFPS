@@ -2127,9 +2127,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45373d414eab9f64ea8645a8b75a039a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseWeapon
+  playerMovementScript: {fileID: 1544176879}
   currentWeapon: {fileID: 11400000, guid: 29b83a1a87915c4428f334f6b2a0f760, type: 2}
   ammo: 0
-  weaponEquipped: 0
+  isOnCooldown: 0
+  isReloading: 0
 --- !u!1 &552841720 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7645882694643820382, guid: f1cd6800d51724d4291ee22764292e86, type: 3}
@@ -4324,10 +4326,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26badf9a214296b4881c01a1b527de85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponGui
-  currentWeapon: {fileID: 0}
-  ammo: 0
-  weaponEquipped: 0
   uiDocument: {fileID: 1157313224}
+  weaponSystem: {fileID: 528441920}
 --- !u!1 &1161942634
 GameObject:
   m_ObjectHideFlags: 0
@@ -5181,6 +5181,7 @@ MonoBehaviour:
   - {fileID: 1411774693}
   - {fileID: 1157313224}
   shopCamera: {fileID: 888919708}
+  playerState: 0
 --- !u!1 &1326851166
 GameObject:
   m_ObjectHideFlags: 0
@@ -6045,9 +6046,11 @@ MonoBehaviour:
   jumpForce: 5
   slideFriction: 3
   staminaRecoveryTime: 0
+  isPlaying: 0
   hudDocument: {fileID: 1411774693}
   hudScript: {fileID: 1411774692}
   cam: {fileID: 330585546}
+  menuScript: {fileID: 1321006702}
   gravity: -12
   velocityY: 0
   currentPlayerState: 0

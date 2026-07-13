@@ -23,6 +23,7 @@ public class PlayerMovement : MonoBehaviour
     public float staminaRecoveryTime;
 
     [Header("Humanoid")]
+    public bool isPlaying;
     private CharacterController charController;
     [Header("HUD")]
     [SerializeField] private UIDocument hudDocument;
@@ -30,7 +31,6 @@ public class PlayerMovement : MonoBehaviour
     //private Transform transform;
     [Header("Camera")]
     [SerializeField] private Transform cam;
-
 
     [Header("Gravity")]
     public float gravity = -12f;
@@ -56,6 +56,7 @@ public class PlayerMovement : MonoBehaviour
     private bool onSlope;
 
     // Player State (I will work on that when I finish the sliding mechanic)
+    
     public enum PlayerState
     {
         Walking,

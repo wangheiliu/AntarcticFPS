@@ -1,31 +1,66 @@
+using System;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[Serializable] public class Weapon
+{
+    public WeaponData data;
+    public int ammo;
+}
 public class BaseWeaponSystem : MonoBehaviour
 {
-    
-    [SerializeField] protected WeaponData currentWeapon;
+    [Header("Player Info")]
+    [SerializeField] private GameManager gameManager;
+    [SerializeField] public Weapon currentWeapon;
     [Header("Weapon Information")]
-    public int ammo;
-    public bool weaponEquipped;
-    private bool isOnCooldown;
+    
+    public static bool isWeaponEquipped;
+    public bool isOnCooldown;
+    public bool isReloading;
+    public int Ammo
+    {
+        get => currentWeapon.ammo;
+        set
+        {
+            
+            currentWeapon.ammo = value;
+            
+        }
+    }
     void Start()
     {
-        
+        Ammo = currentWeapon.data.clipSize;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!weaponEquipped)
-        {
-            return;
-        }
+        
         if (Mouse.current.leftButton.isPressed) // left click
         {
+            if (gameManager.playerState != MenuState.Playing)
+            {
+                return;
+            }
+            if (Ammo <= 0 || isReloading)
+            {
+                return;
+            }
             StartCoroutine(HandleFire(1f));
+        }
+
+        if (Keyboard.current.rKey.wasPressedThisFrame) // reload
+        {
+            if (Ammo >= currentWeapon.data.clipSize)
+            {
+                return;
+            }
+            if (!isReloading)
+            {
+                StartCoroutine(HandleReload());
+            }
         }
     }
 
@@ -35,10 +70,18 @@ public class BaseWeaponSystem : MonoBehaviour
         {
             yield break;
         }
-        ammo -= 1;
+        Ammo -= 1;
         isOnCooldown = true;
         
         yield return new WaitForSeconds(cooldown);
         isOnCooldown = false;
+    }
+
+    private IEnumerator HandleReload()
+    {
+        isReloading = true;
+        yield return new WaitForSeconds(currentWeapon.data.reloadTime);
+        Ammo = currentWeapon.data.clipSize;
+        isReloading = false;
     }
 }

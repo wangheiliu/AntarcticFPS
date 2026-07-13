@@ -3,6 +3,14 @@ using UnityEngine.UIElements;
 using UnityEngine.InputSystem;
 
 using UnityEditor;
+public enum MenuState
+    {
+        MainMenu,
+        Settings,
+        Credits,
+        Shop,
+        Playing
+    }
 public class GameManager : MonoBehaviour
 {
     [Header("Player Scripts")]
@@ -29,15 +37,8 @@ public class GameManager : MonoBehaviour
     private bool waitingToClose;
 
 
-    public enum MenuState
-    {
-        MainMenu,
-        Settings,
-        Credits,
-        Shop,
-        Playing
-    }
-    private MenuState pendingState;
+    
+    public MenuState playerState;
 
     void Start()
     {
@@ -76,7 +77,7 @@ public class GameManager : MonoBehaviour
     {
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            if (!isMenuOpen && (pendingState == MenuState.Playing))
+            if (!isMenuOpen && (playerState == MenuState.Playing))
             {
                 OpenMenuItems(MenuState.MainMenu);
             }
@@ -124,7 +125,7 @@ public class GameManager : MonoBehaviour
         }
 
         waitingToClose = false;
-        switch (pendingState)
+        switch (playerState)
         {
             case MenuState.MainMenu:
                 OpenItem(documentArray[0], CameraArray[0]);
@@ -154,7 +155,7 @@ public class GameManager : MonoBehaviour
             case MenuState.MainMenu:
                 isMenuOpen = true;
                 PlayerMovementManager(false);
-                pendingState = MenuState.MainMenu;
+                playerState = MenuState.MainMenu;
                 waitingToClose = true;
                 btnContainer.style.translate = new Translate(0, 0, 0);
                 title.style.translate = new Translate(0, 0, 0);
@@ -164,7 +165,7 @@ public class GameManager : MonoBehaviour
                 
                 isMenuOpen = false;
                 PlayerMovementManager(true);
-                pendingState = MenuState.Playing;
+                playerState = MenuState.Playing;
                 waitingToClose = true;
                 btnContainer.style.translate = new Translate(Length.Percent(-100), 0, 0);
                 title.style.translate = new Translate(Length.Percent(-100), 0, 0);
@@ -175,7 +176,7 @@ public class GameManager : MonoBehaviour
                 isMenuOpen = true;
                 PlayerMovementManager(false);
                 
-                pendingState = MenuState.Shop;
+                playerState = MenuState.Shop;
                 waitingToClose = true;
                 btnContainer.style.translate = new Translate(Length.Percent(-100), 0, 0);
                 title.style.translate = new Translate(Length.Percent(-100), 0, 0);

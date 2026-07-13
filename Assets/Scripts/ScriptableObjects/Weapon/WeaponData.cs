@@ -10,4 +10,5 @@ using UnityEngine;
     public float reloadTime;
     [StatDisplay("Damage", null, "Weapon Information")]
     public float damage;
+    public int ammo;
 }
