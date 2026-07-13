@@ -13,4 +13,7 @@ hidden-changes.conf
 *.csproj
 *.slnx
 !*.meta
-Assets/ThirdParty/*
+Assets/ThirdParty/**/*
+!Assets/ThirdParty.meta
+!Assets/ThirdParty/**/*.meta
+!Assets/ThirdParty/VNB - Office Set/**/*.meta
