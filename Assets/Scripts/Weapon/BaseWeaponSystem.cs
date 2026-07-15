@@ -24,9 +24,7 @@ public class BaseWeaponSystem : MonoBehaviour
         get => currentWeapon.ammo;
         set
         {
-            
-            currentWeapon.ammo = value;
-            
+            currentWeapon.ammo = Mathf.Clamp(value, 0, currentWeapon.data.clipSize);
         }
     }
     void Start()
@@ -64,6 +62,13 @@ public class BaseWeaponSystem : MonoBehaviour
         }
     }
 
+    private void HandleEquipWeapon(Weapon weapon)
+    {
+        // add a foreach loop to unequip all weapons before equipping the new one
+        currentWeapon = weapon;
+        Ammo = currentWeapon.data.clipSize;
+    }
+
     private IEnumerator HandleFire(float cooldown = 0.5f)
     {
         if (isOnCooldown)
@@ -84,4 +89,6 @@ public class BaseWeaponSystem : MonoBehaviour
         Ammo = currentWeapon.data.clipSize;
         isReloading = false;
     }
+
+    
 }
