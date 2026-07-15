@@ -13,7 +13,7 @@ public class PlayerMovement : MonoBehaviour
     public float walkSpeed = 5f;
     private float currentSpeed;
     public float sprintSpeed = 10f;
-    public float jumpForce = 5f;
+    public float jumpForce = 3f;
     private float normalHeight;
     private float crouchHeight = 1f;
     private float crouchSpeed = 25f;
@@ -33,7 +33,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform cam;
 
     [Header("Gravity")]
-    public float gravity = -12f;
+    public float gravity = -9.81f;
     public float velocityY;
 
     //all the booleans
@@ -43,6 +43,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isSlideCoolDownEnabled;
     private bool isSliding;
     private bool isSprinting;
+    private bool isGrounded;
     private float targetHeight;
     private bool canRegenerateStamina = true;
 
@@ -74,7 +75,8 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        CheckSlope();
+        isGrounded = IsGrounded();
+        
         // Movement input
         Vector2 moveInput = Vector2.zero;
 
@@ -98,14 +100,11 @@ public class PlayerMovement : MonoBehaviour
         camRight = Vector3.Cross(Vector3.up, camForward);
 
         Vector3 move = camForward * moveInput.x + camRight * moveInput.y;
-
-        if (onSlope && !isSliding)
-        {
-            move = Vector3.ProjectOnPlane(move,slopeNormal);
-        }
+        CheckSlope();
 
         lastMoveDirection = move.normalized;
         move = move.normalized * currentSpeed;
+        
 
         // tracks the booleans
         bool isMoving = moveInput != Vector2.zero;
@@ -202,7 +201,7 @@ public class PlayerMovement : MonoBehaviour
 
 
         // Jump
-        if (Keyboard.current.spaceKey.wasPressedThisFrame && charController.isGrounded && !isCrouching && !isSliding)
+        if (Keyboard.current.spaceKey.wasPressedThisFrame && isGrounded && !isCrouching && !isSliding)
         {
             velocityY = Mathf.Sqrt(jumpForce * -2f * gravity);
         }
@@ -211,12 +210,6 @@ public class PlayerMovement : MonoBehaviour
         {
             velocityY = -2f;
         }
-        else
-        {
-            velocityY += gravity * Time.deltaTime;
-        }
-
-
         // Gravity
         velocityY += gravity * Time.deltaTime;
 
@@ -258,10 +251,40 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            move.y = velocityY; 
+            if (onSlope)
+            {
+                Vector3 slopeMove = Vector3.ProjectOnPlane(
+                    move,
+                    slopeNormal
+                ).normalized * currentSpeed;
+                move = slopeMove;
+                //move.y = velocityY;
+                if (onSlope && velocityY < 0)
+                {
+                    move += -slopeNormal * 0.25f;
+                }
+            }
+            else
+            {
+                move.y = velocityY;
+            }
         }
         // Final move
         charController.Move(move * Time.deltaTime);
+        Debug.Log(currentSpeed);
+        if (onSlope)
+        {
+            Debug.DrawRay(
+                transform.position,
+                slopeNormal * 0.25f,
+                Color.green
+            );
+        }
+        Debug.DrawRay(
+            transform.position,
+            move,
+            Color.red
+        );
     }
     public bool CanStand()
     {
@@ -282,8 +305,19 @@ public class PlayerMovement : MonoBehaviour
         charController.height * 0.5f + 0.5f))
         {
             slopeNormal = hit.normal;
-            onSlope = Vector3.Angle(slopeNormal, Vector3.up) > 5f;
+            onSlope = Vector3.Angle(slopeNormal, Vector3.up) > 5f && charController.isGrounded && Vector3.Angle(slopeNormal, Vector3.up) < 60f;
         }
+    }
+
+    private bool IsGrounded()
+    {
+        Vector3 checkPos = transform.position + Vector3.down * (charController.height / 2 + charController.radius);
+        return Physics.CheckSphere(
+            checkPos,
+            charController.radius * 0.9f,
+            LayerMask.GetMask("Default"),
+            QueryTriggerInteraction.Ignore
+        );
     }
 
     private void Crouch()
@@ -344,7 +378,7 @@ public class PlayerMovement : MonoBehaviour
             charController.height * 0.5f + 0.5f))
         {
             slopeNormal = hit.normal;
-            onSlope = Vector3.Angle(slopeNormal, Vector3.up) > 5f;
+            onSlope = Vector3.Angle(slopeNormal, Vector3.up) > 5f && isGrounded;
 
             if (onSlope)
             {
