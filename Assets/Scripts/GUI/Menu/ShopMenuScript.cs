@@ -71,7 +71,6 @@ public class ShopMenuScript : MonoBehaviour
         var root = uIDocument.rootVisualElement;
         closeButton = root.Q<Button>("CloseButton");
 
-        Debug.Log(closeButton);
         if (closeButton != null)
         {
             closeButton.clicked += CloseShop;
