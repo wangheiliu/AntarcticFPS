@@ -1,0 +1,103 @@
+using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
+using UnityEngine.UIElements;
+
+public class HotbarScript : MonoBehaviour
+{
+    [SerializeField] private BaseWeaponSystem weaponSystem;
+    [SerializeField] private UIDocument hotbarUIDocument;
+    [SerializeField] private VisualTreeAsset hotbarItemUIDocument;
+    [Header("Weapon Info")]
+    [SerializeField] private Weapon primaryWeapon;
+    [SerializeField] private Weapon secondaryWeapon;
+    [SerializeField] private Weapon tools;
+    private List<Weapon> weapons = new();
+    private Dictionary<Weapon, VisualElement> hotbarSlotsList = new();
+    private readonly Key[] numKeys = {Key.Digit1, Key.Digit2, Key.Digit3, Key.Digit4, Key.Digit5, Key.Digit6, Key.Digit7, Key.Digit8, Key.Digit9, Key.Digit0};
+
+
+    private VisualElement root;
+    private VisualElement container;
+
+    void Awake()
+    {
+        weapons = new List<Weapon> {primaryWeapon, secondaryWeapon, tools};
+    }
+    void OnEnable()
+    {
+        root = hotbarUIDocument.rootVisualElement;       
+        container = root.Q<VisualElement>("inventory-container");
+        FillHotbar();
+        
+    }
+
+    void Start()
+    {
+        EquipTransition(weapons[0]);
+    }
+
+    void Update()
+    {
+        for (int i = 0; i < weapons.Count; i++)
+        {
+            if (Keyboard.current[numKeys[i]].wasPressedThisFrame)
+            {
+                Debug.Log($"Equipped: {weapons[i].data.name}");
+                weaponSystem.currentWeapon = weapons[i];
+                EquipTransition(weaponSystem.currentWeapon);
+                break;
+            }
+        }
+    }
+
+    public void FillHotbar()
+    {
+        container.Clear();
+        hotbarSlotsList.Clear();
+        for (int i = 0; i < weapons.Count; i++)
+        {
+            VisualElement item = hotbarItemUIDocument.Instantiate();
+            TextElement itemName = item.Q<TextElement>("title");
+            TextElement inputNumber = item.Q<TextElement>("input-label");
+            inputNumber.text = (i+1).ToString();
+            itemName.text = weapons[i].data.name;
+            
+            hotbarSlotsList.Add(weapons[i], item);
+            container.Add(item);
+        }
+    }
+
+    private void EquipTransition(Weapon weapon)
+    {
+        foreach (var (key, slot) in hotbarSlotsList)
+        {
+            Debug.Log(slot);
+            VisualElement background = slot.Q<VisualElement>("background");
+            background.style.backgroundColor = new StyleColor(new Color32(27, 27, 27, 174));
+            background.style.borderBottomWidth = 0;
+        }
+
+        VisualElement chosenElement = hotbarSlotsList[weapon];
+        if (!hotbarSlotsList.TryGetValue(weapon, out VisualElement element)) 
+            return;
+        
+        VisualElement backgroundElement = chosenElement.Q<VisualElement>("background");
+        backgroundElement.style.backgroundColor = new StyleColor(new Color32(27,27,27,255));
+        backgroundElement.style.borderBottomWidth = 5;
+    }
+
+    public void AddItem(Weapon weapon)
+    {
+        weapons.Add(weapon);
+        FillHotbar();
+    }
+
+    public void RemoveItem(Weapon weapon)
+    {
+        weapons.Remove(weapon);
+        FillHotbar();
+    }
+}

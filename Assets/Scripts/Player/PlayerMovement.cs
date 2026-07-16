@@ -271,7 +271,7 @@ public class PlayerMovement : MonoBehaviour
         }
         // Final move
         charController.Move(move * Time.deltaTime);
-        Debug.Log(currentSpeed);
+        //Debug.Log(currentSpeed);
         if (onSlope)
         {
             Debug.DrawRay(

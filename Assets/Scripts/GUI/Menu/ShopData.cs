@@ -39,7 +39,7 @@ public class ShopData : MonoBehaviour
     {
         root = shopDocument.rootVisualElement;
         infoScrollContainer = root.Q<ScrollView>("info-scroller");
-        Debug.Log(foldouts);
+        
         PopulateUI(database);
         foreach (ShopItemData item in database.itemList)
         {

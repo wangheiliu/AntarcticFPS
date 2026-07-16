@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -19,6 +20,7 @@ public class BaseWeaponSystem : MonoBehaviour
     public static bool isWeaponEquipped;
     public bool isOnCooldown;
     public bool isReloading;
+    public Dictionary<string, Weapon> weaponInventory = new();
     public int Ammo
     {
         get => currentWeapon.ammo;
@@ -60,13 +62,6 @@ public class BaseWeaponSystem : MonoBehaviour
                 StartCoroutine(HandleReload());
             }
         }
-    }
-
-    private void HandleEquipWeapon(Weapon weapon)
-    {
-        // add a foreach loop to unequip all weapons before equipping the new one
-        currentWeapon = weapon;
-        Ammo = currentWeapon.data.clipSize;
     }
 
     private IEnumerator HandleFire(float cooldown = 0.5f)

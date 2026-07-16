@@ -15,7 +15,6 @@ public class WeaponGui : MonoBehaviour
     private TextElement ammoLabel;
     private VisualElement root;
 
-
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -30,7 +29,7 @@ public class WeaponGui : MonoBehaviour
     {
         if (weaponSystem.currentWeapon == null)
         {
-            //root.style.display = DisplayStyle.None;
+            root.style.display = DisplayStyle.None;
             nameLabel.text = "No Weapon";
             ammoLabel.text = "0/0";
             return;
