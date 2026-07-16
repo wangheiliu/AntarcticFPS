@@ -1477,7 +1477,7 @@ GameObject:
   - component: {fileID: 359658489}
   - component: {fileID: 359658490}
   m_Layer: 3
-  m_Name: Inventory
+  m_Name: Hotbar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1511,11 +1511,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de69f934d2d9e6749b0e670c7702c8f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryScript
-  inventoryUIDocument: {fileID: 1908264474}
-  inventoryItemUIDocument: {fileID: 9197481963319205126, guid: 7e44e3c252865e4448e845a8176a21b5, type: 3}
-  primaryWeapon: {fileID: 11400000, guid: 9513e2e11d5bb3547927ca90155ecf48, type: 2}
-  secondaryWeapon: {fileID: 11400000, guid: 9513e2e11d5bb3547927ca90155ecf48, type: 2}
-  tools: {fileID: 11400000, guid: 29b83a1a87915c4428f334f6b2a0f760, type: 2}
+  weaponSystem: {fileID: 528441920}
+  hotbarUIDocument: {fileID: 1908264474}
+  hotbarItemUIDocument: {fileID: 9197481963319205126, guid: 7e44e3c252865e4448e845a8176a21b5, type: 3}
+  primaryWeapon:
+    data: {fileID: 11400000, guid: 9513e2e11d5bb3547927ca90155ecf48, type: 2}
+    ammo: 0
+  secondaryWeapon:
+    data: {fileID: 11400000, guid: 29b83a1a87915c4428f334f6b2a0f760, type: 2}
+    ammo: 0
+  tools:
+    data: {fileID: 11400000, guid: 29b83a1a87915c4428f334f6b2a0f760, type: 2}
+    ammo: 0
 --- !u!1 &363173088 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -8054366863278448589, guid: f1cd6800d51724d4291ee22764292e86, type: 3}

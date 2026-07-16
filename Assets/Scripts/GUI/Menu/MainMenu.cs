@@ -50,8 +50,7 @@ public class GameManager : MonoBehaviour
         playButton = btnContainer.Q<Button>("PlayButton");
         shopButton = btnContainer.Q<Button>("ShopButton");
         quitButton = btnContainer.Q<Button>("Quit");
-
-        Debug.Log(playButton);
+        
         if (playButton != null)
         {
             playButton.clicked += () => OpenMenuItems(MenuState.Playing);
