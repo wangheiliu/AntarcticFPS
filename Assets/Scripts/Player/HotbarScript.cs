@@ -37,6 +37,10 @@ public class HotbarScript : MonoBehaviour
     void Start()
     {
         EquipTransition(weapons[0]);
+        foreach (Weapon weapon in weapons)
+        {
+            weapon.ammo = weapon.data.clipSize;
+        }
     }
 
     void Update()
@@ -72,7 +76,7 @@ public class HotbarScript : MonoBehaviour
 
     private void EquipTransition(Weapon weapon)
     {
-        foreach (var (key, slot) in hotbarSlotsList)
+        foreach (var (_, slot) in hotbarSlotsList)
         {
             Debug.Log(slot);
             VisualElement background = slot.Q<VisualElement>("background");
@@ -87,6 +91,16 @@ public class HotbarScript : MonoBehaviour
         VisualElement backgroundElement = chosenElement.Q<VisualElement>("background");
         backgroundElement.style.backgroundColor = new StyleColor(new Color32(27,27,27,255));
         backgroundElement.style.borderBottomWidth = 5;
+        if (weaponSystem.isReloading)
+        {
+            if (weaponSystem.coroutine != null)
+            {
+                weaponSystem.StopCoroutine(weaponSystem.coroutine); // when stopping coroutines, it must be used in the same monobehavior instance
+            }
+            weaponSystem.isReloading = false;
+        }
+        weaponSystem.currentWeapon = weapon;
+        
     }
 
     public void AddItem(Weapon weapon)
