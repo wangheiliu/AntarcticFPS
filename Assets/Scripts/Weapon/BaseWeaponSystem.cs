@@ -21,6 +21,8 @@ public class BaseWeaponSystem : MonoBehaviour
     public bool isOnCooldown;
     public bool isReloading;
     public Dictionary<string, Weapon> weaponInventory = new();
+
+    public Coroutine coroutine;
     public int Ammo
     {
         get => currentWeapon.ammo;
@@ -48,7 +50,7 @@ public class BaseWeaponSystem : MonoBehaviour
             {
                 return;
             }
-            StartCoroutine(HandleFire(1f));
+            StartCoroutine(HandleFire(currentWeapon.data.fireRate / 60f));
         }
 
         if (Keyboard.current.rKey.wasPressedThisFrame) // reload
@@ -59,7 +61,7 @@ public class BaseWeaponSystem : MonoBehaviour
             }
             if (!isReloading)
             {
-                StartCoroutine(HandleReload());
+                coroutine = StartCoroutine(HandleReload());
             }
         }
     }
@@ -77,7 +79,7 @@ public class BaseWeaponSystem : MonoBehaviour
         isOnCooldown = false;
     }
 
-    private IEnumerator HandleReload()
+    public IEnumerator HandleReload()
     {
         isReloading = true;
         yield return new WaitForSeconds(currentWeapon.data.reloadTime);
