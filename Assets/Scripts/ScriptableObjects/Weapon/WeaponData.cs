@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Shop/Weapon")] public class WeaponData : ShopItemData //is this inheritence?
@@ -11,4 +12,5 @@ using UnityEngine;
     [StatDisplay("Damage", null, "Weapon Information")]
     public float damage;
     public int ammo;
+    public string modelName;
 }
