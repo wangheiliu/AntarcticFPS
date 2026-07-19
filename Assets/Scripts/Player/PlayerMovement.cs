@@ -42,7 +42,6 @@ public class PlayerMovement : MonoBehaviour
     private bool canSlide;
     private bool isSlideCoolDownEnabled;
     private bool isSliding;
-    private bool isSprinting;
     private bool isGrounded;
     private float targetHeight;
     private bool canRegenerateStamina = true;
@@ -55,7 +54,8 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 lastMoveDirection;
     private Vector3 targetDirection;
     private bool onSlope;
-
+    private bool isOnWalkableSlope;
+    private bool isNotOnWalkableSlope;
     // Player State (I will work on that when I finish the sliding mechanic)
     
     public enum PlayerState
@@ -76,10 +76,10 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         isGrounded = IsGrounded();
-        
+
         // Movement input
         Vector2 moveInput = Vector2.zero;
-
+        
         if (Keyboard.current.wKey.isPressed)
             moveInput.x += 1;
 
@@ -102,9 +102,10 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = camForward * moveInput.x + camRight * moveInput.y;
         CheckSlope();
 
+        isOnWalkableSlope = onSlope && Vector3.Angle(slopeNormal, Vector3.up) <= charController.slopeLimit;
+        isNotOnWalkableSlope = onSlope && !(Vector3.Angle(slopeNormal, Vector3.up) <= charController.slopeLimit);
         lastMoveDirection = move.normalized;
         move = move.normalized * currentSpeed;
-        
 
         // tracks the booleans
         bool isMoving = moveInput != Vector2.zero;
@@ -116,7 +117,6 @@ public class PlayerMovement : MonoBehaviour
         // sprinting
         if (canSprint)
         {
-            isSprinting = true;
             currentSpeed = sprintSpeed;
             staminaRecoveryTime = 1.5f;
             hudScript.stamina = Mathf.Clamp(
@@ -127,7 +127,6 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            isSprinting = false;
             currentSpeed = 5f;
             if (staminaRecoveryTime > 0)
             {
@@ -193,11 +192,7 @@ public class PlayerMovement : MonoBehaviour
             StartCoroutine(EndSlide());
         }
 
-        // Ground check (THIS replaces OnCollision)
-        if (charController.isGrounded && velocityY < 0)
-        {
-            velocityY = -2f; // keeps player "stuck" to ground slightly
-        }
+        
 
 
         // Jump
@@ -205,13 +200,17 @@ public class PlayerMovement : MonoBehaviour
         {
             velocityY = Mathf.Sqrt(jumpForce * -2f * gravity);
         }
-
-        if (charController.isGrounded && velocityY < 0)
-        {
-            velocityY = -2f;
-        }
         // Gravity
-        velocityY += gravity * Time.deltaTime;
+        if (charController.isGrounded && velocityY < 0 && !isNotOnWalkableSlope)
+        {
+            velocityY = -2f; // keeps player "stuck" to ground slightly
+        } else if (isNotOnWalkableSlope)
+        {
+            velocityY += gravity * Time.deltaTime;
+        } else
+        {
+            velocityY += gravity * Time.deltaTime;
+        }
 
         if (isSliding)
         {
@@ -251,40 +250,73 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            if (onSlope)
+            if (isOnWalkableSlope)
             {
                 Vector3 slopeMove = Vector3.ProjectOnPlane(
                     move,
                     slopeNormal
                 ).normalized * currentSpeed;
-                move = slopeMove;
+
+                downhillDirection = Vector3.ProjectOnPlane(
+                    Vector3.down,
+                    slopeNormal
+                ).normalized;
+                
                 //move.y = velocityY;
-                if (onSlope && velocityY < 0)
+                if (onSlope && isOnWalkableSlope && velocityY < 0)
                 {
-                    move += -slopeNormal * 0.25f;
+                    move = slopeMove;
+
+                    Vector3 slopeStick = -slopeNormal * 0.25f;
+                    slopeStick.x = 0;
+                    slopeStick.z = 0;
+
+                    move += slopeStick;
+                } else
+                {
+                    move.y = velocityY;
                 }
             }
             else
             {
+                if (onSlope)
+                {
+                    float slopeAngle = Vector3.Angle(slopeNormal, Vector3.up);
+
+                    downhillDirection = Vector3.ProjectOnPlane(
+                        Vector3.down,
+                        slopeNormal
+                    ).normalized;
+
+                    float dot = Vector3.Dot(
+                        move,
+                        downhillDirection
+                    );
+                    if (dot < 0)
+                    {
+                        currentSpeed -= Mathf.Abs(dot) * slopeAngle * 0.2f * Time.deltaTime;
+                    }
+                    else
+                    {
+                        currentSpeed += dot * slopeAngle * 0.5f * Time.deltaTime;
+                    }
+                    move += downhillDirection * currentSpeed;
+                    
+                }
+                
                 move.y = velocityY;
             }
         }
         // Final move
+        
         charController.Move(move * Time.deltaTime);
-        //Debug.Log(currentSpeed);
-        if (onSlope)
+
+        if ((charController.collisionFlags & CollisionFlags.Above) != 0 && velocityY > 0)
         {
-            Debug.DrawRay(
-                transform.position,
-                slopeNormal * 0.25f,
-                Color.green
-            );
+            velocityY = 0;
         }
-        Debug.DrawRay(
-            transform.position,
-            move,
-            Color.red
-        );
+        //Debug.Log(currentSpeed);
+        
     }
     public bool CanStand()
     {
@@ -299,13 +331,13 @@ public class PlayerMovement : MonoBehaviour
     {
         onSlope = false;
         if (Physics.Raycast(
-        transform.position - Vector3.up * (charController.height / 2),
+        transform.position - Vector3.up * (charController.height / 2 - 0.1f),
         Vector3.down,
         out RaycastHit hit,
         charController.height * 0.5f + 0.5f))
         {
             slopeNormal = hit.normal;
-            onSlope = Vector3.Angle(slopeNormal, Vector3.up) > 5f && charController.isGrounded && Vector3.Angle(slopeNormal, Vector3.up) < 60f;
+            onSlope = Vector3.Angle(slopeNormal, Vector3.up) > 5f && charController.isGrounded;
         }
     }
 

@@ -41,10 +41,6 @@ public class ShopData : MonoBehaviour
         infoScrollContainer = root.Q<ScrollView>("info-scroller");
         
         PopulateUI(database);
-        foreach (ShopItemData item in database.itemList)
-        {
-            Debug.Log(item.name);
-        }
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public void PopulateUI(ShopDatabase database)
@@ -131,7 +127,6 @@ public class ShopData : MonoBehaviour
                 Value = value,
                 Unit = unit
             });
-            Debug.Log($"{statName}: {value}");
         }
         // use a foreach loop to clone these cards for the group
         foreach (var group in groups)
