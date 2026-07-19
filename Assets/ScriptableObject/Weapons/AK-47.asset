@@ -23,3 +23,5 @@ MonoBehaviour:
   fireRate: 20
   reloadTime: 5
   damage: 5
+  ammo: 0
+  modelName: AK74
