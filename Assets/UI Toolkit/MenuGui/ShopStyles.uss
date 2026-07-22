@@ -202,3 +202,115 @@ Button.close-button:enabled:hover {
     white-space: normal;
     flex-shrink: 1;
 }
+
+TextField > Label {
+    display: none;
+}
+
+IntegerField > Label {
+    display: none;
+}
+
+#unity-text-input {
+    opacity: 1;
+    background-color: rgb(49, 65, 89);
+    color: white;
+    padding: 5px;
+}
+
+#filter-button {
+    color: black;
+    border-width: 0;
+    scale: 1;
+    background-color: rgb(255, 255, 255);
+}
+
+#filter-button:hover {
+    background-color: rgb(27, 47, 76);
+    color: white;
+    border-width: 3px;
+    scale: 1.1;
+}
+
+.search-field {
+    background-color: rgb(49, 65, 89);
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    width: 95%;
+    height: 5%;
+    margin-top: 5px;
+    margin-right: 2px;
+    margin-bottom: 5px;
+    margin-left: 2px;
+    color: rgb(255, 255, 255);
+    -unity-text-align: middle-left;
+    font-size: 25px;
+    -unity-text-generator: advanced;
+    -unity-text-auto-size: best-fit 10px 30px;
+}
+
+.filter-category {
+    background-color: rgb(49, 65, 89);
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    margin-top: 5px;
+    margin-left: 2px;
+    margin-right: 2px;
+    margin-bottom: 5px;
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+}
+
+.filter-enums > .unity-enum-field__input {
+    background-color: rgb(49, 65, 89);
+    border-width: 3px;
+    border-color: white;
+    border-radius: 5px;
+}
+
+.filter-enums > Label {
+    -unity-font-style: bold;
+    font-size: 20px;
+}
+
+.filter-enums > VisualElement {
+    margin: 0 2px 10px 2px;
+}
+
+.unity-enum-field__text {
+    margin-right: 3px;
+}
+
+.unity-enum-field__arrow {
+    -unity-background-image-tint-color: white;
+}
+
+.field-price-container {
+    flex-grow: 0;
+    border-bottom-width: 2px;
+    border-bottom-color: rgb(255, 255, 255);
+    margin-top: 0;
+    margin-bottom: 7px;
+}

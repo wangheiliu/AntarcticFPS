@@ -5,7 +5,6 @@ using UnityEngine.UIElements;
 public class HUDScript : MonoBehaviour
 {
     [SerializeField] private UIDocument uIDocument;
-    [SerializeField] private PlayerMovement playerMovement;
 
     public float health = 100;
     public float stamina = 100;
@@ -48,7 +47,7 @@ public class HUDScript : MonoBehaviour
         }
     }
 
-    public void DamageHealth(int damage)
+    public void DamageHealth(float damage)
     {
         health -= damage;
     }

@@ -11,7 +11,7 @@ using Unity.VisualScripting.Antlr3.Runtime.Misc;
 public enum Catagories
 {
     Automatics,
-    SMGs,
+    SMG,
     Shotguns,
     Pistols,
     Knives
@@ -139,8 +139,10 @@ public class ShopData : MonoBehaviour
             infoTitleElement.text = group.Key; //gets the key
             foreach (var stat in group.Value)
             {
-                Label infoTextClone = new();
-                infoTextClone.text = $"{stat.Name}: {stat.Display}";
+                Label infoTextClone = new()
+                {
+                    text = $"{stat.Name}: {stat.Display}"
+                };
                 foreach (string classes in infoTextTemplate.GetClasses())
                 {
                     infoTextClone.AddToClassList(classes);

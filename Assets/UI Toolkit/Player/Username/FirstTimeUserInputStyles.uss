@@ -1,0 +1,41 @@
+:root {
+    display: flex;
+}
+
+.unity-text-field__input {
+    background-color: rgb(49, 65, 89);
+    border-radius: 20px;
+    border-color: white;
+    border-width: 5px;
+}
+
+#username-input > Label {
+    display: none;
+}
+
+.unity-text-field #unity-text-input {
+    --unity-cursor-color: rgb(255, 255, 255);
+}
+
+.unity-text-field__input > TextElement {
+    -unity-text-align: middle-center;
+    -unity-text-generator: advanced;
+    -unity-text-auto-size: best-fit 10px 100px;
+    color: white;
+}
+
+#submit-button {
+    background-color: white;
+    color: rgb(0, 0, 0);
+}
+
+#submit-button:hover {
+    background-color: rgb(27, 47, 76);
+    color: white;
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+}
+
+
