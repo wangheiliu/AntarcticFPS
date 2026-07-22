@@ -19,13 +19,17 @@ public class ShopMenuScript : MonoBehaviour
     private bool waitingShopTransition;
     private bool waitingInfoTransition;
     private bool isOpen = false;
-    private bool isInfoOpen;
+    private bool isInfoOpen = false;
+    private bool isFiltersOpen = false;
     private TabView tabContainer;
     private VisualElement titleContainer;
     private VisualElement infoElement;
+    private VisualElement shopContainer;
+    private VisualElement filtersContainer;
     private Button closeButton;
     private Button infoCloseButton;
-    private VisualElement shopContainer;
+    private Button filtersButton;
+    
 
     void Start()
     {
@@ -33,11 +37,19 @@ public class ShopMenuScript : MonoBehaviour
         infoElement = root.Q<VisualElement>("info-container");
         infoCloseButton = infoElement.Q<Button>("info-close-button");
         shopContainer = root.Q<VisualElement>("shop-container");
+        filtersButton = root.Q<Button>("filter-button");
+        filtersContainer = root.Q<VisualElement>("filter-container");
 
         root.style.display = DisplayStyle.None;
         shopContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         infoElement.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         //infoCloseButton.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
+
+        if (filtersButton != null && filtersContainer != null)
+        {
+            filtersButton.clicked += FiltersTransition;
+        }
+        
         StartCoroutine(InitNextFrame());
     }
 
@@ -139,14 +151,24 @@ public class ShopMenuScript : MonoBehaviour
         isOpen = true;
         shopContainer.style.translate = new Translate(Length.Percent(0), 0, 0);
     }
-    
+
+    public void FiltersTransition()
+    {
+        if (!isFiltersOpen)
+        {
+            filtersContainer.style.translate = new Translate(Length.Percent(0), 0, 0);
+            isFiltersOpen = true;
+        } else
+        {
+            filtersContainer.style.translate = new Translate(Length.Percent(-75), 0, 0);
+            isFiltersOpen = false;
+        }
+    }
 
     private void OnDestroy()
     {
-        if (shopContainer != null)
-            shopContainer.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
+        shopContainer?.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
 
-        if (infoElement != null)
-            infoElement.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);  
+        infoElement?.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);  
     }
 }

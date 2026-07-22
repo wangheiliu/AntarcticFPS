@@ -87,9 +87,18 @@ public class BaseWeaponSystem : MonoBehaviour
         {
             Vector3 muzzleDir = (hit.point - muzzle.position).normalized;
             Ray ray = new(muzzle.position, muzzleDir);
-            if (Physics.Raycast(ray, out RaycastHit targetHit, 300f, ~LayerMask.GetMask("Player")))
+            if (Physics.Raycast(ray, out RaycastHit targetHit, 300f))
             {
-                Debug.Log(targetHit.transform.name);
+                if (IsHittingOwnChar(targetHit))
+                {
+                    yield break;
+                }
+
+                HUDScript healthManager = hit.transform.GetComponentInChildren<HUDScript>();
+                if (healthManager != null)
+                {
+                    healthManager.DamageHealth(currentWeapon.data.damage);
+                }
             }
         }
 
@@ -132,5 +141,10 @@ public class BaseWeaponSystem : MonoBehaviour
             Vector3 targetPos = hit.point - weaponModel.transform.position;
             weaponModel.transform.rotation = Quaternion.LookRotation(targetPos) * Quaternion.Euler(0,180,0);
         }
+    }
+
+    private bool IsHittingOwnChar(RaycastHit hit)
+    {
+        return hit.transform.root == playerCharacter.transform;
     }
 }
