@@ -33,7 +33,7 @@ public class ShopData : MonoBehaviour
     private VisualElement root;
     private ScrollView infoScrollContainer;
     private Dictionary<string, Foldout> foldouts = new();
-    public Dictionary<Foldout, (ShopItemData, VisualElement)> lookUpTable = new();
+    public List<(Foldout, ShopItemData, VisualElement)> lookUpTable = new();
     private Action viewButtonLambda;
     
 
@@ -88,7 +88,7 @@ public class ShopData : MonoBehaviour
             viewButtonLambda = () => OnViewClick(item);
             viewButton.clicked += viewButtonLambda;
             foldoutContainer.Add(templateUI);
-            lookUpTable.TryAdd(foldoutContainer, (item, templateUI));
+            lookUpTable.Add((foldoutContainer, item, templateUI));
         }
     }
 
