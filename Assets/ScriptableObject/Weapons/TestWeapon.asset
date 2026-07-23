@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TestWeapon
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   title: Test Weapon
-  type: 0
+  type: 1
   cost: 1
   shortDescription: A simple weapon used for testing
   description: Test Description
@@ -22,3 +22,5 @@ MonoBehaviour:
   fireRate: 30
   reloadTime: 4.5
   damage: 5
+  ammo: 0
+  modelName: 

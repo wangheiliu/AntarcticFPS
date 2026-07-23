@@ -7,6 +7,8 @@ using System.Collections;
 
 public class ShopMenuScript : MonoBehaviour
 {
+    [Header("Shop Scripts")]
+    [SerializeField] private ShopFilter shopFilterScript;
     [Header("UI Documents")]
     [SerializeField] private UIDocument uIDocument;
     [SerializeField] private UIDocument menuDocument;
@@ -20,7 +22,7 @@ public class ShopMenuScript : MonoBehaviour
     private bool waitingInfoTransition;
     private bool isOpen = false;
     private bool isInfoOpen = false;
-    private bool isFiltersOpen = false;
+    public bool isFiltersOpen = false;
     private TabView tabContainer;
     private VisualElement titleContainer;
     private VisualElement infoElement;
@@ -109,6 +111,8 @@ public class ShopMenuScript : MonoBehaviour
         waitingInfoTransition = true;
         isInfoOpen = false;
         infoElement.style.translate = new Translate(Length.Percent(120), 0, 0);
+        filtersContainer.style.translate = new Translate(Length.Percent(-75), 0, 0);
+        isFiltersOpen = false;
     }
 
     public void CloseInfo()
@@ -162,6 +166,7 @@ public class ShopMenuScript : MonoBehaviour
         {
             filtersContainer.style.translate = new Translate(Length.Percent(-75), 0, 0);
             isFiltersOpen = false;
+            shopFilterScript.ResetFilters();
         }
     }
 

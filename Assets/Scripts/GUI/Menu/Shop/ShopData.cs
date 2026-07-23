@@ -7,9 +7,11 @@ using System.Reflection;
 using Unity.VisualScripting;
 using System.Linq;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
+using JetBrains.Annotations;
 
 public enum Catagories
 {
+    Any,
     Automatics,
     SMG,
     Shotguns,
@@ -31,6 +33,7 @@ public class ShopData : MonoBehaviour
     private VisualElement root;
     private ScrollView infoScrollContainer;
     private Dictionary<string, Foldout> foldouts = new();
+    public Dictionary<Foldout, (ShopItemData, VisualElement)> lookUpTable = new();
     private Action viewButtonLambda;
     
 
@@ -49,6 +52,10 @@ public class ShopData : MonoBehaviour
         string[] catagories = Enum.GetNames(typeof(Catagories)).ToArray(); //select is basically .map() from JavaScript, nice
         foreach (string str in catagories)
         {
+            if (str == "Any")
+            {
+                continue;
+            }
             Foldout foldout = root.Q<Foldout>(str);
             if (foldout != null)
             {
@@ -64,7 +71,7 @@ public class ShopData : MonoBehaviour
 
             
             // shop cards in foldouts
-            var foldoutContainer = root.Q(itemType.ToLower());
+            var foldoutContainer = root.Q<Foldout>(itemType.ToLower());
             TemplateContainer templateUI = shopCardTemplate.Instantiate();
             Label title = templateUI.Q<Label>("Title");
             Label descriptionElement = templateUI.Q<Label>("Description");
@@ -81,6 +88,7 @@ public class ShopData : MonoBehaviour
             viewButtonLambda = () => OnViewClick(item);
             viewButton.clicked += viewButtonLambda;
             foldoutContainer.Add(templateUI);
+            lookUpTable.TryAdd(foldoutContainer, (item, templateUI));
         }
     }
 
