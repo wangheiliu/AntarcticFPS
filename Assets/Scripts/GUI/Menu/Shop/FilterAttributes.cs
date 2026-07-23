@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 [UxmlElement]
 public partial class FilterAttributes : VisualElement
 {
-    [UxmlAttribute] private string key {get; set;}
+    [UxmlAttribute] public string key {get; set;}
 
     public void Display()
     {

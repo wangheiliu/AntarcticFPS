@@ -45,8 +45,6 @@ public class HotbarScript : MonoBehaviour
         foreach (Transform child in weaponContainer.transform)
         {
             GameObject childObj = child.gameObject;
-            Debug.Log(childObj);
-            Debug.Log(weaponContainer);
             try
             {
                 weaponModels.Add(childObj);

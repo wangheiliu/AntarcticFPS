@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,7 +14,7 @@ public class ShopFilter : MonoBehaviour
     private TextField searchField;
     private EnumField enumField;
     private TabView shopTabView;
-    private List<VisualElement> filterFields = new();
+    private List<FilterAttributes> filterFields = new();
     private Foldout[] allFoldouts;
 
     private readonly Dictionary<string, Func<ShopItemData, object>> selectors = new()
@@ -34,15 +35,25 @@ public class ShopFilter : MonoBehaviour
         searchField = root.Q<TextField>("search-field");
         enumField = root.Q<EnumField>("type-enum");
         shopTabView = root.Q<TabView>("tab-container");
-        filterFields = root.Query<VisualElement>(className: "field-price-container").ToList();
+        filterFields = root.Query<FilterAttributes>().ToList();
         allFoldouts = root.Query<Foldout>(className: "shop-foldout").ToList().ToArray();
 
-        foreach (VisualElement fields in filterFields)
+        foreach (FilterAttributes fields in filterFields)
         {
             if (fields.ClassListContains("int-field"))
             {
                 var intField = fields.Q<IntegerField>();
-                intField?.RegisterValueChangedCallback(IntFieldFormChange);
+                intField?.RegisterValueChangedCallback(evt =>
+                {
+                    IntFieldFormChange(evt, fields.key);
+                });
+            } else if (fields.ClassListContains("str-field"))
+            {
+                var field = fields.Q<TextField>();
+                field?.RegisterValueChangedCallback(evt =>
+                {
+                    TextFieldChange(evt, fields.key);
+                });
             }
         }
 
@@ -99,9 +110,16 @@ public class ShopFilter : MonoBehaviour
 
     private void FilterShopSlots(string statName, object value)
     {
+        int integerValue = 0;
+        if (int.TryParse(value.ToString(), out int res))
+        {
+            integerValue = res;
+        }
+        string strValue = value == null ? "" : value.ToString();
+        
         if (!shopMenuScript.isFiltersOpen)
         {
-            foreach ((Foldout _, (ShopItemData _, VisualElement element)) in shopData.lookUpTable)
+            foreach ((Foldout _, ShopItemData _, VisualElement element) in shopData.lookUpTable)
             {
                 element.style.display = DisplayStyle.Flex;
                 // foldout.value = false;
@@ -109,7 +127,7 @@ public class ShopFilter : MonoBehaviour
             return;
         }
 
-        foreach ((Foldout _, (ShopItemData _, VisualElement element)) in shopData.lookUpTable)
+        foreach ((Foldout _, ShopItemData _, VisualElement element) in shopData.lookUpTable)
         {
             element.style.display = DisplayStyle.None;
         }
@@ -118,10 +136,18 @@ public class ShopFilter : MonoBehaviour
 
         if (selectors.TryGetValue(statName, out var selector))
         {
-            foreach ((Foldout foldout, (ShopItemData itemData, VisualElement element)) in shopData.lookUpTable)
+            foreach ((Foldout foldout, ShopItemData itemData, VisualElement element) in shopData.lookUpTable)
             {
-                if (Equals(selector(itemData), value))
+                object selected = selector(itemData);
+                if (selected is string strData && strData.Contains(strValue))
                 {
+                    element.style.display = DisplayStyle.Flex;
+                    foldout.value = true;
+                }
+                
+                if (selected is int intData && integerValue <= intData)
+                {
+                    Debug.Log($"Weapon name: {itemData.name}. Selected: {selected}");
                     element.style.display = DisplayStyle.Flex;
                     foldout.value = true;
                 }
@@ -137,7 +163,7 @@ public class ShopFilter : MonoBehaviour
             f.style.display = DisplayStyle.Flex;
         }
 
-        foreach ((Foldout _, (ShopItemData _, VisualElement element)) in shopData.lookUpTable)
+        foreach ((Foldout _, ShopItemData _, VisualElement element) in shopData.lookUpTable)
         {
             element.style.display = DisplayStyle.Flex;
             // foldout.value = false;
@@ -150,9 +176,14 @@ public class ShopFilter : MonoBehaviour
         DisplayFoldouts(enumName);
     }
 
-    private void IntFieldFormChange(ChangeEvent<int> evt)
+    private void IntFieldFormChange(ChangeEvent<int> evt, string key)
     {
-        
+        FilterShopSlots(key,evt.newValue);
+    }
+
+    private void TextFieldChange(ChangeEvent<string> evt, string key)
+    {
+        FilterShopSlots(key, evt.newValue);
     }
 
     private void OnDisable()
