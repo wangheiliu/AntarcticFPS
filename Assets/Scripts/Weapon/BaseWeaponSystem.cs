@@ -5,7 +5,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[Serializable] public class Weapon
+[Serializable]
+public class Weapon
 {
     public WeaponData data;
     public int ammo;
@@ -42,13 +43,12 @@ public class BaseWeaponSystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (gameManager.playerState != MenuState.Playing)
+        {
+            return;
+        }
         if (Mouse.current.leftButton.isPressed) // left click
         {
-            if (gameManager.playerState != MenuState.Playing)
-            {
-                return;
-            }
             if (Ammo <= 0 || isReloading)
             {
                 return;
@@ -73,7 +73,7 @@ public class BaseWeaponSystem : MonoBehaviour
 
     private IEnumerator HandleFire(float cooldown = 0.5f)
     {
-        if (isOnCooldown)
+        if (isOnCooldown || gameManager.playerState != MenuState.Playing)
         {
             yield break;
         }
@@ -102,12 +102,12 @@ public class BaseWeaponSystem : MonoBehaviour
             }
         }
 
-        
+
 
         Debug.DrawRay(muzzle.position, Mouse.current.position.ReadValue(), Color.red);
         Ammo -= 1;
         isOnCooldown = true;
-        
+
         yield return new WaitForSeconds(cooldown);
         isOnCooldown = false;
     }
@@ -130,16 +130,16 @@ public class BaseWeaponSystem : MonoBehaviour
 
         if (gameCam.enabled == false) // if no camera in a tag is enabled, returns nullreferenceexception
         {
-            weaponModel.transform.rotation = Quaternion.Euler(0,180,0);
+            weaponModel.transform.rotation = Quaternion.Euler(0, 180, 0);
             return;
         }
 
         Ray ray = gameCam.ScreenPointToRay(Mouse.current.position.ReadValue());
-        
+
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
         {
             Vector3 targetPos = hit.point - weaponModel.transform.position;
-            weaponModel.transform.rotation = Quaternion.LookRotation(targetPos) * Quaternion.Euler(0,180,0);
+            weaponModel.transform.rotation = Quaternion.LookRotation(targetPos) * Quaternion.Euler(0, 180, 0);
         }
     }
 

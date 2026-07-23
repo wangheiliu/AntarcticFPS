@@ -7,6 +7,9 @@ using UnityEngine.UIElements;
 
 public class HotbarScript : MonoBehaviour
 {
+    [Header("Main Menu")]
+    [SerializeField] private GameManager gameManager;
+    [Header("Weapon System")]
     [SerializeField] private BaseWeaponSystem weaponSystem;
     [SerializeField] private GameObject weaponContainer;
     [Header("GUI")]
@@ -67,6 +70,10 @@ public class HotbarScript : MonoBehaviour
         {
             if (Keyboard.current[numKeys[i]].wasPressedThisFrame)
             {
+                if (gameManager.playerState != MenuState.Playing)
+                {
+                    return;
+                }
                 Debug.Log($"Equipped: {weapons[i].data.name}");
                 weaponSystem.currentWeapon = weapons[i];
                 EquipTransition(weaponSystem.currentWeapon);

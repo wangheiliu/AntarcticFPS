@@ -314,3 +314,7 @@ IntegerField > Label {
     margin-top: 0;
     margin-bottom: 7px;
 }
+
+.unity-base-text-field #unity-text-input {
+    --unity-cursor-color: rgb(255, 255, 255);
+}

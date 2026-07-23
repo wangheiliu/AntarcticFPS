@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: AK-47
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   title: AK-47
-  type: 0
+  type: 1
   cost: 3000
   shortDescription: The classic weapon
   description: A classic automatic rifle that has long lived and is classic among
