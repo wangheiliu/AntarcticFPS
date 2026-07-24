@@ -1,0 +1,45 @@
+SlideToggle {
+    padding: 5px;
+    font-size: 25px;
+}
+
+.slide-toggle-title {
+    max-width: 70%;
+    width: auto;
+    color: white;
+    flex-grow: 0;
+    -unity-text-align: middle-right;
+    font-size: 25px;
+}
+
+.slide-toggle__input {
+    max-height: 100%;
+    width: 30%;
+    min-width: 70px;
+    padding: 0.5%;
+    justify-content: center;
+    border-radius: 10px;
+    border-width: 3px;
+    border-color: white;
+    margin-left: 10%;
+    flex-grow: 0;
+    flex-shrink: 1;
+
+    transition-property: background-color;
+    transition-duration: 0.3s;
+}
+
+.slide-toggle__input--checked > .slide-toggle__input-knob {
+    align-self: flex-end;
+}
+
+.slide-toggle__input-knob {
+    height: auto;
+    width: 20px;
+    background-color: white;
+    border-radius: 50%;
+    aspect-ratio: 1;
+
+    transition-property: translation;
+    transition-duration: 0.2s;
+}
