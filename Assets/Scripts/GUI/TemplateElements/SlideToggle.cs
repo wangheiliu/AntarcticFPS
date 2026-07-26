@@ -12,14 +12,21 @@ namespace BasicUIControls
         private static readonly string checkedInputClassName = "slide-toggle__input--checked";
         private static readonly string knobClassName = "slide-toggle__input-knob"; 
         private static readonly string titleClassName = "slide-toggle-title";
+        private static readonly string valueLabelClassName = "slide-toggle__value";
+        private static readonly string inputContainerClassName = "slide-toggle-container";
 
+        VisualElement inputContainer;
         VisualElement inputElement;
         VisualElement knobElement;
+        Label valueElement;
         Label titleElement;
 
         Color disabledColor = new Color32(0, 0, 0, 255);
         Color enabledColor = new Color32(150,150,150,255);
         string title = "Title";
+
+        string toggled = "On";
+        string untoggled = "Off";
         [UxmlAttribute] public Color DisabledColor {
             get => disabledColor;
             set => disabledColor = value;
@@ -42,6 +49,35 @@ namespace BasicUIControls
             }
         }
 
+        [UxmlAttribute] public string ToggleText
+        {
+            get => toggled;
+            set
+            {
+                if (toggled == value)
+                {
+                    return;
+                }
+                toggled = value;
+                UpdateVisuals();
+            }
+        }
+
+        [UxmlAttribute] public string UnToggleText
+        {
+            get => untoggled;
+            set
+            {
+                if (untoggled == value)
+                {
+                    return;
+                }
+                untoggled = value;
+
+                UpdateVisuals();
+            }
+        }
+
         //constructor class
         public SlideToggle(): base(null, new VisualElement()) // the basefield provides us with the label and the input visual element
         {
@@ -53,6 +89,17 @@ namespace BasicUIControls
             titleElement.AddToClassList(titleClassName);
             Add(titleElement);
 
+            inputContainer = new VisualElement();
+            inputContainer.AddToClassList(inputContainerClassName);
+            inputContainer.style.flexDirection = FlexDirection.Row;
+            Add(inputContainer);
+
+            valueElement = new Label{
+                text = untoggled
+            };
+            valueElement.AddToClassList(valueLabelClassName);
+            inputContainer.Add(valueElement);
+
             inputElement = this.Q(className: inputUssClassName);
             inputElement.AddToClassList(inputClassName);
             inputElement.style.backgroundColor = disabledColor;
@@ -60,7 +107,7 @@ namespace BasicUIControls
             knobElement = new VisualElement();
             knobElement.AddToClassList(knobClassName);
             inputElement.Add(knobElement);
-            Add(inputElement);
+            inputContainer.Add(inputElement);
 
             RegisterCallback<ClickEvent>(OnToggle);
             UpdateVisuals();
@@ -82,6 +129,8 @@ namespace BasicUIControls
         {
             inputElement.EnableInClassList(checkedInputClassName, value);
             inputElement.style.backgroundColor = value ? EnabledColor : DisabledColor;
+            
+            valueElement.text = value ? toggled : untoggled;
         }
     }
 }

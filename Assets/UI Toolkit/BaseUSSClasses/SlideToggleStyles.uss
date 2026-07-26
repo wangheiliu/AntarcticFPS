@@ -4,25 +4,24 @@ SlideToggle {
 }
 
 .slide-toggle-title {
-    max-width: 70%;
+    max-width: none;
     width: auto;
     color: white;
-    flex-grow: 0;
-    -unity-text-align: middle-right;
+    flex-grow: 1;
     font-size: 25px;
 }
 
 .slide-toggle__input {
     max-height: 100%;
     width: 30%;
-    min-width: 70px;
-    padding: 0.5%;
+    min-width: 75px;
+    padding: 5%;
     justify-content: center;
     border-radius: 10px;
     border-width: 3px;
     border-color: white;
     margin-left: 10%;
-    flex-grow: 0;
+    flex-grow: 1;
     flex-shrink: 1;
 
     transition-property: background-color;
@@ -42,4 +41,18 @@ SlideToggle {
 
     transition-property: translation;
     transition-duration: 0.2s;
+}
+
+.slide-toggle-container {
+    width: auto;
+    margin-right: 1%;
+}
+
+.slide-toggle__value {
+    flex-shrink: 1;
+    flex-grow: 1;
+    font-size: 18px;
+    -unity-text-align: middle-right;
+    color: white;
+    min-width: 5%;
 }
