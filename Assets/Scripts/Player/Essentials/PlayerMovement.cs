@@ -115,7 +115,6 @@ public class PlayerMovement : MonoBehaviour
         canSlide = Keyboard.current.leftShiftKey.isPressed && Keyboard.current.cKey.isPressed && hudScript.stamina > 15;
         canSprint = Keyboard.current.leftShiftKey.isPressed && !Keyboard.current.cKey.isPressed && isMoving && hudScript.stamina > 0 && !isCrouching && isMoving;
         targetHeight = (isCrouching || isSliding) ? crouchHeight : normalHeight;
-        Debug.Log($"Is not on walkable slope, {isNotOnWalkableSlope}. is grounded: {isGrounded}");
 
         if (!isNotOnWalkableSlope)
         {
