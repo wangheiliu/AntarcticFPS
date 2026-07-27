@@ -49,7 +49,6 @@ public class TooltipScript : MonoBehaviour
             container.style.left = mousePos.x + offsetX;
             container.style.top = mousePos.y + offsetY;
         }
-        Debug.Log($"Left: {container.resolvedStyle.left}. Top: {container.resolvedStyle.top}");
 
     }
 

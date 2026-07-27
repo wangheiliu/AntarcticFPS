@@ -11,6 +11,7 @@
                 <ui:Tab label="General">
                     <ui:ScrollView name="general-container" horizontal-scroller-visibility="Hidden" class="settings-container">
                         <BasicUIControls.SlideToggle name="" enabled-color="rgb(49, 65, 89)" style="flex-shrink: 1; flex-grow: 1; align-content: auto;"/>
+                        <BasicUIControls.CustomIntSlider value="15" title="Slider Setting" highest-value="100"/>
                     </ui:ScrollView>
                 </ui:Tab>
                 <ui:Tab label="General">
