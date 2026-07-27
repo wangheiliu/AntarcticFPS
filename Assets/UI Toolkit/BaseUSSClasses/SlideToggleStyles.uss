@@ -1,6 +1,7 @@
 SlideToggle {
     padding: 5px;
     font-size: 25px;
+    margin: 2px 4px 2px 4px;
 }
 
 .slide-toggle-title {
@@ -55,4 +56,52 @@ SlideToggle {
     -unity-text-align: middle-right;
     color: white;
     min-width: 5%;
+}
+
+.custom-int-slider {
+    padding: 5px;
+    margin: 2px 4px 2px 4px;
+}
+
+.custom-int-slider-title {
+    font-size: 25px;
+    color: white;
+}
+
+.custom-int-slider-field-container {
+    flex-direction: row;
+}
+
+.custom-int-slider__input {
+    min-width: 20px;
+    width: 95%;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.custom-int-slider__input-field {
+    flex-grow: 1;
+    flex-shrink: 1;
+    focusable: false;
+}
+
+.custom-int-slider__input-field > #unity-text-input {
+    border-width: 3px;
+    border-color: rgb(0,0,0);
+    border-radius: 7px;
+}
+
+.custom-int-slider__input #unity-dragger {
+    border-radius: 4px;
+}
+
+.custom-int-slider__input #unity-dragger:hover {
+    border-width: 2px;
+    border-color: black;
+    scale: 1.2;
+}
+
+.custom-int-slider__input #unity-tracker {
+    border-radius: 3px;
+    background-color: rgb(25,25,25);
 }
