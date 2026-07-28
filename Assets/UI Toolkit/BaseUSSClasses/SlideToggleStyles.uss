@@ -108,3 +108,32 @@ SlideToggle {
     border-radius: 3px;
     background-color: rgb(25,25,25);
 }
+
+.custom-horizontal-dropdown-container {
+    flex-direction: row;
+    width: 100%;
+    margin: 2px 4px;
+    padding: 5px;
+}
+
+.custom-horizontal-dropdown-title {
+    color: white;
+    flex-grow: 1;
+    max-width: 80%;
+    font-size: 25px;
+    flex-shrink: 1;
+    -unity-text-align: middle-left;
+}
+
+.custom-horizontal-dropdown__option {
+    color: white;
+}
+
+.custom-horizontal-dropdown__option-container {
+    width: 20%;
+    flex-shrink: 1;
+    flex-grow: 1;
+    border-radius: 5px;
+    border-color: white;
+    border-width: 3px;
+}

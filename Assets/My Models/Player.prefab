@@ -85,7 +85,7 @@ CharacterController:
   m_Height: 2
   m_Radius: 0.5
   m_SlopeLimit: 45
-  m_StepOffset: 0.1
+  m_StepOffset: 0.45
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
@@ -509,6 +509,75 @@ MonoBehaviour:
   infoCardTemplate: {fileID: 9197481963319205126, guid: 41b28310ef3c6204581ad03b69dc4caa, type: 3}
   shopDocument: {fileID: 4290241802347617792}
   database: {fileID: 11400000, guid: 36f46d1e5b3545a4e9d1af9d2f591683, type: 2}
+--- !u!1 &1887507915893578818
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7913167112095883431}
+  - component: {fileID: 1788268919099575119}
+  - component: {fileID: 1280323914717792022}
+  m_Layer: 3
+  m_Name: TooltipUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7913167112095883431
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1887507915893578818}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1443141298329890882}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1788268919099575119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1887507915893578818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: f6a8d40bf7a2ff84fb43ac7ef6e9bd74, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: aea12593b14735a47af0423692b623b0, type: 3}
+  m_SortingOrder: 100
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &1280323914717792022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1887507915893578818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd0f6cb8bffe613469f3ee04bf7b8244, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TooltipScript
+  tooltipDocument: {fileID: 1788268919099575119}
 --- !u!1 &2018275287407024970
 GameObject:
   m_ObjectHideFlags: 0
@@ -520,6 +589,7 @@ GameObject:
   - component: {fileID: 3545914585184992014}
   - component: {fileID: 4290241802347617792}
   - component: {fileID: 6389043884433603103}
+  - component: {fileID: 640099450502397232}
   m_Layer: 0
   m_Name: ShopUI
   m_TagString: Untagged
@@ -577,10 +647,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69e304551c1f71c40afd53a0c26fb604, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopMenuScript
+  shopFilterScript: {fileID: 640099450502397232}
   uIDocument: {fileID: 4290241802347617792}
   menuDocument: {fileID: 485323141598021644}
   menuCamera: {fileID: 7285181132938258446}
   gameManager: {fileID: 3852551257452437950}
+  isFiltersOpen: 0
+--- !u!114 &640099450502397232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2018275287407024970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a6f43a8bed66f3428e879b8d3b8db74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopFilter
+  shopData: {fileID: 869477414835593945}
+  shopMenuScript: {fileID: 6389043884433603103}
+  shopDocument: {fileID: 4290241802347617792}
 --- !u!1 &2613927524722944838
 GameObject:
   m_ObjectHideFlags: 0
@@ -909,6 +996,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de69f934d2d9e6749b0e670c7702c8f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryScript
+  gameManager: {fileID: 3852551257452437950}
   weaponSystem: {fileID: 3050106478022906307}
   weaponContainer: {fileID: 1705213797617607948}
   hotbarUIDocument: {fileID: 2660725151418084545}
@@ -934,7 +1022,7 @@ GameObject:
   - component: {fileID: 853086985681976612}
   - component: {fileID: 2660725151418084545}
   m_Layer: 3
-  m_Name: GUI
+  m_Name: HotbarGui
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1009,6 +1097,7 @@ Transform:
   m_Children:
   - {fileID: 2817949987123584532}
   - {fileID: 1542944212808393885}
+  - {fileID: 7913167112095883431}
   m_Father: {fileID: 5474894314067739932}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8709571085898804822
