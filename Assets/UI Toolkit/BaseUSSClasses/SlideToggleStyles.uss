@@ -93,6 +93,9 @@ SlideToggle {
 
 .custom-int-slider__input #unity-dragger {
     border-radius: 4px;
+
+    transition-property: translate;
+    transition-duration: 0.2s;
 }
 
 .custom-int-slider__input #unity-dragger:hover {
