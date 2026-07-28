@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviour
     private VisualElement btnContainer;
     private Label title;
 
-    private Camera mainCamera;
+
     [Header("GUI Documents and Cameras")]
     [SerializeField] private Camera[] CameraArray;
     [SerializeField] private UIDocument[] documentArray;
@@ -46,7 +46,6 @@ public class GameManager : MonoBehaviour
         var root = uiDocument.rootVisualElement;
         btnContainer = root.Q<VisualElement>(className: "container");
         title = root.Q<Label>(className: "title");
-        mainCamera = Camera.main;
         playButton = btnContainer.Q<Button>("PlayButton");
         shopButton = btnContainer.Q<Button>("ShopButton");
         quitButton = btnContainer.Q<Button>("Quit");
