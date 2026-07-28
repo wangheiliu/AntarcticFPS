@@ -12,13 +12,105 @@ namespace BasicUIControls
     {
         private static readonly string className = "custom-horizontal-dropdown";
         private static readonly string containerClass = "custom-horizontal-dropdown-container";
+        private static readonly string dropdownContainerClass = "custom-horizontal-dropdown__option-container";
         private static readonly string optionClass = "custom-horizontal-dropdown__option";
         private static readonly string selectedClass = "custom-horizontal-dropdown__option-selected";
+        private static readonly string titleClass = "custom-horizontal-dropdown-title";
+
+        // GUIs
         private VisualElement container;
+        private VisualElement dropdownContainer;
         private Label dropDown;
+        private Label titleLabel;
 
         private ObservableCollection<string> options = new();
         private List<Label> buttonOptions = new();
+
+        private Color selectedColor = new Color32(0, 0, 0, 255);
+        [UxmlAttribute]
+        public Color SelectedColor
+        {
+            get
+            {
+                if (selected != null)
+                {
+                    selected.style.backgroundColor = selectedColor;
+                    selected.style.color = GetTextColor(selectedColor);
+                }
+                return selectedColor;
+            }
+            set
+            {
+                if (selectedColor == value)
+                {
+                    return;
+                }
+                selectedColor = value;
+
+                if (selected != null)
+                {
+                    selected.style.backgroundColor = selectedColor;
+                    selected.style.color = GetTextColor(selectedColor);
+                }
+            }
+        }
+
+        private Color defaultColor = new Color32(255, 255, 255, 255);
+        [UxmlAttribute]
+        public Color UncheckedColor
+        {
+            get
+            {
+                foreach (Label label in buttonOptions)
+                {
+                    if (label == selected)
+                    {
+                        continue;
+                    }
+
+                    label.style.backgroundColor = defaultColor;
+                    label.style.color = GetTextColor(defaultColor);
+                }
+                return defaultColor;
+            }
+            set
+            {
+                if (defaultColor == value)
+                {
+                    return;
+                }
+
+                defaultColor = value;
+
+                foreach (Label label in buttonOptions)
+                {
+                    if (label == selected)
+                    {
+                        continue;
+                    }
+
+                    label.style.backgroundColor = defaultColor;
+                    label.style.color = GetTextColor(defaultColor);
+                }
+            }
+        }
+        private string title = "Title";
+        [UxmlAttribute]
+        public string Title
+        {
+            get => title;
+            set
+            {
+                if (title == value)
+                {
+                    return;
+                }
+
+                title = value;
+                titleLabel.text = title;
+            }
+        }
+
         [UxmlAttribute]
         public List<string> Options
         {
@@ -38,10 +130,8 @@ namespace BasicUIControls
 
             }
         }
-        private string selected;
-        private Label selectedLabel;
-        [UxmlAttribute]
-        public string Selected
+        private Label selected;
+        public Label Selected
         {
             get => selected;
             set
@@ -62,6 +152,18 @@ namespace BasicUIControls
             container = new();
             container.AddToClassList(containerClass);
 
+            titleLabel = new()
+            {
+                text = "Title"
+            };
+            titleLabel.AddToClassList(titleClass);
+            container.Add(titleLabel);
+
+            dropdownContainer = new();
+            dropdownContainer.AddToClassList(dropdownContainerClass);
+            container.Add(dropdownContainer);
+
+            Add(container);
 
             if (Options is null || !Options.Any())
             {
@@ -69,20 +171,59 @@ namespace BasicUIControls
             }
 
             OnListChanged();
-            Add(container);
+            if (buttonOptions.Count > 0 && buttonOptions != null)
+            {
+
+                selected = buttonOptions[0];
+                Debug.Log(selected.text);
+                //selected.style.backgroundColor = selectedColor;
+            }
         }
         private void OnListChanged()
         {
-            container.Clear();
+            dropdownContainer.Clear();
             buttonOptions.Clear();
             foreach (string option in options)
             {
                 dropDown = new();
                 dropDown.AddToClassList(optionClass);
-                dropDown.name = option;
+                dropDown.text = option;
+                dropDown.style.backgroundColor = UncheckedColor;
+                dropDown.RegisterCallback<ClickEvent>(OnSelect);
                 buttonOptions.Add(dropDown);
-                container.Add(dropDown);
+                dropdownContainer.Add(dropDown);
             }
+        }
+
+        private void OnSelect(ClickEvent evt)
+        {
+            foreach (Label label in buttonOptions)
+            {
+                label.style.backgroundColor = defaultColor;
+                label.style.color = GetTextColor(defaultColor);
+            }
+            var selectElement = evt.target as Label;
+            if (selectElement == null || selectElement is not Label)
+            {
+                return;
+            }
+            selected = selectElement;
+            selected.style.backgroundColor = selectedColor;
+            selected.style.color = GetTextColor(selectedColor);
+        }
+
+        private Color GetTextColor(Color32 color)
+        {
+            float luminance = (0.299f * color.r) + (0.587f + color.g) + (0.114f * color.b);
+            if (luminance < 128f)
+            {
+                return new Color32(255, 255, 255, 255);
+            }
+            else
+            {
+                return new Color32(0, 0, 0, 255);
+            }
+
         }
     }
 }
