@@ -71,7 +71,7 @@ public class BaseWeaponSystem : MonoBehaviour
         }
     }
 
-    private IEnumerator HandleFire(float cooldown = 0.5f)
+    public virtual IEnumerator HandleFire(float cooldown = 0.5f)
     {
         if (isOnCooldown || gameManager.playerState != MenuState.Playing)
         {
@@ -120,7 +120,7 @@ public class BaseWeaponSystem : MonoBehaviour
         isReloading = false;
     }
 
-    private void FaceWeaponOrientation()
+    public void FaceWeaponOrientation()
     {
         GameObject weaponModel = hotbarScript.weaponModels.Find(f => f.name == currentWeapon.data.modelName);
         if (weaponModel == null)
@@ -143,7 +143,7 @@ public class BaseWeaponSystem : MonoBehaviour
         }
     }
 
-    private bool IsHittingOwnChar(RaycastHit hit)
+    public bool IsHittingOwnChar(RaycastHit hit)
     {
         return hit.transform.root == playerCharacter.transform;
     }
