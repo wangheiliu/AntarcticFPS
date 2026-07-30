@@ -23,8 +23,8 @@ namespace BasicUIControls
         private Label dropDown;
         private Label titleLabel;
 
-        private ObservableCollection<string> options = new();
-        private List<Label> buttonOptions = new();
+        private List<string> options = new();
+        private List<Label> labelOptions = new();
 
         private Color selectedColor = new Color32(0, 0, 0, 255);
         [UxmlAttribute]
@@ -32,11 +32,6 @@ namespace BasicUIControls
         {
             get
             {
-                if (selected != null)
-                {
-                    selected.style.backgroundColor = selectedColor;
-                    selected.style.color = GetTextColor(selectedColor);
-                }
                 return selectedColor;
             }
             set
@@ -51,6 +46,7 @@ namespace BasicUIControls
                 {
                     selected.style.backgroundColor = selectedColor;
                     selected.style.color = GetTextColor(selectedColor);
+                    SetBorderColor(selected);
                 }
             }
         }
@@ -61,16 +57,6 @@ namespace BasicUIControls
         {
             get
             {
-                foreach (Label label in buttonOptions)
-                {
-                    if (label == selected)
-                    {
-                        continue;
-                    }
-
-                    label.style.backgroundColor = defaultColor;
-                    label.style.color = GetTextColor(defaultColor);
-                }
                 return defaultColor;
             }
             set
@@ -82,7 +68,7 @@ namespace BasicUIControls
 
                 defaultColor = value;
 
-                foreach (Label label in buttonOptions)
+                foreach (Label label in labelOptions)
                 {
                     if (label == selected)
                     {
@@ -91,7 +77,10 @@ namespace BasicUIControls
 
                     label.style.backgroundColor = defaultColor;
                     label.style.color = GetTextColor(defaultColor);
+                    SetBorderColor(label);
                 }
+
+                dropdownContainer.style.backgroundColor = new Color(defaultColor.r, defaultColor.g, defaultColor.b, 0.5f);
             }
         }
         private string title = "Title";
@@ -117,17 +106,8 @@ namespace BasicUIControls
             get => options.ToList();
             set
             {
-                options.Clear();
-                if (value != null)
-                {
-                    foreach (string option in value)
-                    {
-                        options.Add(option);
-                    }
-
-                    OnListChanged();
-                }
-
+                options = value ?? new List<string>();  
+                OnListChanged();
             }
         }
         private Label selected;
@@ -161,6 +141,7 @@ namespace BasicUIControls
 
             dropdownContainer = new();
             dropdownContainer.AddToClassList(dropdownContainerClass);
+            dropdownContainer.style.backgroundColor = new Color(defaultColor.r, defaultColor.g, defaultColor.b, 0.5f);
             container.Add(dropdownContainer);
 
             Add(container);
@@ -171,50 +152,67 @@ namespace BasicUIControls
             }
 
             OnListChanged();
-            if (buttonOptions.Count > 0 && buttonOptions != null)
-            {
-
-                selected = buttonOptions[0];
-                Debug.Log(selected.text);
-                //selected.style.backgroundColor = selectedColor;
-            }
         }
         private void OnListChanged()
         {
+            if (labelOptions.Count > 0 && labelOptions != null)
+            {
+                foreach (Label label in labelOptions)
+                {
+                    label.UnregisterCallback<ClickEvent>(OnSelect);
+                }
+            }
             dropdownContainer.Clear();
-            buttonOptions.Clear();
-            foreach (string option in options)
+            labelOptions.Clear();
+            foreach (string option in options) 
             {
                 dropDown = new();
                 dropDown.AddToClassList(optionClass);
                 dropDown.text = option;
-                dropDown.style.backgroundColor = UncheckedColor;
+                dropDown.style.backgroundColor = defaultColor;
+                dropDown.style.color = GetTextColor(defaultColor);
                 dropDown.RegisterCallback<ClickEvent>(OnSelect);
-                buttonOptions.Add(dropDown);
+                labelOptions.Add(dropDown);
                 dropdownContainer.Add(dropDown);
             }
+
+            if (selected == null && labelOptions.Count > 0 && labelOptions != null)
+            {
+                Select(labelOptions[0]);
+            }
+        }
+
+        private void Select(Label label)
+        {
+            foreach (Label option in labelOptions)
+            {
+                option.style.backgroundColor = defaultColor;
+                option.style.color = GetTextColor(defaultColor);
+            }
+
+            if (label == null)
+            {
+                selected = labelOptions[0];
+            }
+            selected = label;
+            selected.style.backgroundColor = selectedColor;
+            selected.EnableInClassList(selectedClass, true);
+            selected.style.color = GetTextColor(selectedColor);
         }
 
         private void OnSelect(ClickEvent evt)
         {
-            foreach (Label label in buttonOptions)
+            if (evt.target is Label label)
             {
-                label.style.backgroundColor = defaultColor;
-                label.style.color = GetTextColor(defaultColor);
+                Select(label);
             }
-            var selectElement = evt.target as Label;
-            if (selectElement == null || selectElement is not Label)
-            {
-                return;
-            }
-            selected = selectElement;
-            selected.style.backgroundColor = selectedColor;
-            selected.style.color = GetTextColor(selectedColor);
         }
+
+        
 
         private Color GetTextColor(Color32 color)
         {
-            float luminance = (0.299f * color.r) + (0.587f + color.g) + (0.114f * color.b);
+            float luminance = (0.299f * color.r) + (0.587f * color.g) + (0.114f * color.b);
             if (luminance < 128f)
             {
                 return new Color32(255, 255, 255, 255);
@@ -224,6 +222,15 @@ namespace BasicUIControls
                 return new Color32(0, 0, 0, 255);
             }
 
+        }
+
+        private void SetBorderColor(VisualElement element)
+        {
+            Color borderColor = GetTextColor(element.style.backgroundColor.value);
+            element.style.borderBottomColor = borderColor;
+            element.style.borderLeftColor = borderColor;
+            element.style.borderTopColor = borderColor;
+            element.style.borderRightColor = borderColor;
         }
     }
 }

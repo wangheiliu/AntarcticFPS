@@ -1,4 +1,5 @@
 :root {
+    display: none;
 }
 
 .unity-tab__header {

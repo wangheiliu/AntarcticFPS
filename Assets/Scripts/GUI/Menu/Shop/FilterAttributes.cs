@@ -1,6 +1,3 @@
-using System.Runtime.CompilerServices;
-using Unity.VisualScripting;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 // this script creates the custom "keys" element for a lookup function in ShopFilter

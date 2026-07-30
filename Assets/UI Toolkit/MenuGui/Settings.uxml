@@ -1,7 +1,7 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI%20Toolkit/MenuGui/SettingsStyle.uss?fileID=7433441132597879392&amp;guid=482d0de9c0bc9c94faa47d214aa8bb74&amp;type=3#SettingsStyle"/>
-    <Style src="project://database/Assets/UI%20Toolkit/BaseUSSClasses/SlideToggleStyles.uss?fileID=7433441132597879392&amp;guid=d784091658c31ce488f2cd2cc8ab3785&amp;type=3#SlideToggleStyles"/>
-    <ui:VisualElement name="main-container" style="flex-grow: 1; justify-content: center;">
+    <Style src="project://database/Assets/UI%20Toolkit/BaseUSSClasses/BaseTemplateStyles.uss?fileID=7433441132597879392&amp;guid=d784091658c31ce488f2cd2cc8ab3785&amp;type=3#BaseTemplateStyles"/>
+    <ui:VisualElement name="main-container" picking-mode="Ignore" style="flex-grow: 1; justify-content: center;">
         <ui:VisualElement picking-mode="Ignore" style="flex-grow: 0; align-self: center; width: 60%; height: 5%; background-color: rgb(171, 171, 171); border-bottom-left-radius: 0; border-top-left-radius: 30px; border-top-right-radius: 30px; justify-content: space-between; align-content: center; align-items: flex-start; padding-left: 1.5%; -unity-text-generator: advanced; -unity-text-auto-size: best-fit 5px 100px; padding-bottom: 0.2%; padding-top: 0.2%; padding-right: 1.5%; flex-direction: row; border-bottom-color: rgb(0, 0, 0); border-bottom-width: 3px;">
             <ui:Label text="Settings" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0%; padding-right: 0%; padding-bottom: 0%; padding-left: 0%;"/>
             <ui:Button text="X" style="align-self: center; width: 3.5%; aspect-ratio: 1; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; background-color: rgb(255, 18, 18); color: rgb(255, 255, 255); border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-width: 2.5px; border-right-width: 2.5px; border-bottom-width: 2.5px; border-left-width: 2.5px; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; transition-property: scale, background-color; transition-duration: 0.3s, 0.3s;"/>
@@ -12,7 +12,8 @@
                     <ui:ScrollView name="general-container" horizontal-scroller-visibility="Hidden" class="settings-container">
                         <BasicUIControls.SlideToggle name="" enabled-color="rgb(49, 65, 89)" style="flex-shrink: 1; flex-grow: 1; align-content: auto;"/>
                         <BasicUIControls.CustomIntSlider value="15" title="Slider Setting" highest-value="100"/>
-                        <BasicUIControls.CustomDropDownOption options="fizz,buzz" selected-color="rgb(0, 0, 0)"/>
+                        <BasicUIControls.CustomDropDownOption options="Fizz,Buzz" selected-color="rgb(0, 0, 0)" unchecked-color="rgb(255, 255, 255)"/>
+                        <BasicUIControls.CustomDropDownOption options="Hello,Buzz" selected-color="rgb(0, 0, 0)"/>
                     </ui:ScrollView>
                 </ui:Tab>
                 <ui:Tab label="General">

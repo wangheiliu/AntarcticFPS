@@ -1,9 +1,5 @@
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEngine.InputSystem;
-using Unity.VisualScripting;
-using System.Threading.Tasks;
-using System.Collections;
 
 public class ShopMenuScript : MonoBehaviour
 {
@@ -17,12 +13,19 @@ public class ShopMenuScript : MonoBehaviour
     [Header("Game Manager")]
     [SerializeField] private GameManager gameManager;
 
-    
+
     private bool waitingShopTransition;
     private bool waitingInfoTransition;
+
+    // maybe use a ternrary operator for these?
     private bool isOpen = false;
     private bool isInfoOpen = false;
     public bool isFiltersOpen = false;
+
+    private static readonly Translate defaultTransitionValue = new(Length.Percent(0), 0, 0);
+    private static readonly Translate shopClosedTransitionValue = new(Length.Percent(-120), 0, 0);
+    private static readonly Translate infoClosedTransitionValue = new(Length.Percent(120), 0, 0);
+    private static readonly Translate filtersClosedTransition = new(Length.Percent(-75), 0, 0);
     private TabView tabContainer;
     private VisualElement titleContainer;
     private VisualElement infoElement;
@@ -31,16 +34,19 @@ public class ShopMenuScript : MonoBehaviour
     private Button closeButton;
     private Button infoCloseButton;
     private Button filtersButton;
-    
 
-    void Start()
+
+    void OnEnable()
     {
         var root = uIDocument.rootVisualElement;
         infoElement = root.Q<VisualElement>("info-container");
-        infoCloseButton = infoElement.Q<Button>("info-close-button");
-        shopContainer = root.Q<VisualElement>("shop-container");
-        filtersButton = root.Q<Button>("filter-button");
         filtersContainer = root.Q<VisualElement>("filter-container");
+        shopContainer = root.Q<VisualElement>("shop-container");
+
+        infoCloseButton = infoElement.Q<Button>("info-close-button");
+        filtersButton = root.Q<Button>("filter-button");
+        closeButton = root.Q<Button>("CloseButton");
+
 
         root.style.display = DisplayStyle.None;
         shopContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
@@ -51,39 +57,6 @@ public class ShopMenuScript : MonoBehaviour
         {
             filtersButton.clicked += FiltersTransition;
         }
-        
-        StartCoroutine(InitNextFrame());
-    }
-
-    private void OnTransitionEnd(TransitionEndEvent evt)
-    {
-        if (evt.target == infoElement)
-        {
-            if (!waitingInfoTransition)
-            {
-                return;
-            }
-            waitingInfoTransition = false;
-            if (!isInfoOpen)
-            {
-                infoElement.style.display = DisplayStyle.None;
-            }
-        } else if (evt.target == shopContainer)
-        {
-            waitingShopTransition = false;
-        }
-
-        if (!isOpen && !waitingShopTransition)
-        {
-            gameManager.OpenMenuItems(MenuState.MainMenu);
-        }
-    }
-
-    private IEnumerator InitNextFrame()
-    {
-        yield return null;
-        var root = uIDocument.rootVisualElement;
-        closeButton = root.Q<Button>("CloseButton");
 
         if (closeButton != null)
         {
@@ -93,6 +66,26 @@ public class ShopMenuScript : MonoBehaviour
         if (infoCloseButton != null)
         {
             infoCloseButton.clicked += CloseInfo;
+        }
+
+    }
+
+    private void OnTransitionEnd(TransitionEndEvent evt)
+    {
+        if (evt.target == shopContainer)
+        {
+            waitingShopTransition = false;
+            if (!isOpen)
+            {
+                gameManager.OpenMenuItems(MenuState.MainMenu);
+            }
+        } else if (evt.target == infoElement)
+        {
+            waitingInfoTransition = false;
+            if (!isInfoOpen)
+            {
+                infoElement.style.display = DisplayStyle.None;
+            }
         }
     }
 
@@ -105,26 +98,27 @@ public class ShopMenuScript : MonoBehaviour
         }
         waitingShopTransition = true;
         isOpen = false;
-        
-        shopContainer.style.translate = new Translate(Length.Percent(-120), 0, 0);
 
-        waitingInfoTransition = true;
+        shopContainer.style.translate = shopClosedTransitionValue;
+
+
         isInfoOpen = false;
-        infoElement.style.translate = new Translate(Length.Percent(120), 0, 0);
-        filtersContainer.style.translate = new Translate(Length.Percent(-75), 0, 0);
+        infoElement.style.translate = infoClosedTransitionValue;
+
+        filtersContainer.style.translate = filtersClosedTransition;
         isFiltersOpen = false;
     }
 
     public void CloseInfo()
     {
-        
+
         if (waitingInfoTransition)
         {
             return;
         }
 
         waitingInfoTransition = true;
-        infoElement.style.translate = new Translate(Length.Percent(120),0,0);
+        infoElement.style.translate = infoClosedTransitionValue;
         isInfoOpen = false;
     }
 
@@ -139,8 +133,8 @@ public class ShopMenuScript : MonoBehaviour
             return;
         infoElement.style.display = DisplayStyle.Flex;
         waitingInfoTransition = true;
-        infoElement.style.translate = new Translate(Length.Percent(0),0,0);
-        
+        infoElement.style.translate = defaultTransitionValue;
+
     }
 
     public void OpenShop()
@@ -148,32 +142,32 @@ public class ShopMenuScript : MonoBehaviour
         uIDocument.rootVisualElement.style.display = DisplayStyle.Flex;
         if (waitingShopTransition)
         {
-            //Debug.Log("waitingShopTransition was true");
             return;
         }
         waitingShopTransition = true;
         isOpen = true;
-        shopContainer.style.translate = new Translate(Length.Percent(0), 0, 0);
+        shopContainer.style.translate = defaultTransitionValue;
     }
 
     public void FiltersTransition()
     {
         if (!isFiltersOpen)
         {
-            filtersContainer.style.translate = new Translate(Length.Percent(0), 0, 0);
+            filtersContainer.style.translate = defaultTransitionValue;
             isFiltersOpen = true;
-        } else
+        }
+        else
         {
-            filtersContainer.style.translate = new Translate(Length.Percent(-75), 0, 0);
+            filtersContainer.style.translate = filtersClosedTransition;
             isFiltersOpen = false;
             shopFilterScript.ResetFilters();
         }
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
         shopContainer?.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
 
-        infoElement?.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);  
+        infoElement?.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
     }
 }

@@ -20,10 +20,10 @@ public class GameManager : MonoBehaviour
     [Header("Other Menu Scripts")]
     [SerializeField] private ShopMenuScript shopMenuScript;
 
-    private UnityEngine.UIElements.Button playButton;
-    private UnityEngine.UIElements.Button shopButton;
+    private Button playButton;
+    private Button shopButton;
     private Button quitButton;
-    private UnityEngine.UIElements.UIDocument uiDocument;
+    private UIDocument uiDocument;
     private VisualElement btnContainer;
     private Label title;
 
@@ -36,8 +36,8 @@ public class GameManager : MonoBehaviour
     private bool isMenuOpen = true;
     private bool waitingToClose;
 
-
-    
+    private Translate shopClosedTransition = new(Length.Percent(-100), 0, 0);
+    private Translate shopOpenTranslation = new(Length.Percent(0), 0, 0);
     public MenuState playerState;
 
     void Start()
@@ -136,6 +136,12 @@ public class GameManager : MonoBehaviour
                 UnityEngine.Cursor.visible = true;
                 shopMenuScript.OpenShop();
                 break;
+            case MenuState.Settings:
+                OpenItem(documentArray[2], CameraArray[0]);
+                CloseMenu();
+                UnityEngine.Cursor.lockState = CursorLockMode.None;
+                UnityEngine.Cursor.visible = true;
+                break;
             case MenuState.Playing:
                 OpenItemArray(hudArray, CameraArray[0]);
                 CloseMenu();
@@ -146,6 +152,7 @@ public class GameManager : MonoBehaviour
         
     }
 
+    // this method handles translation and player states while OpenItems() handle opening individual ui documents
     public void OpenMenuItems(MenuState menuState)
     {
         switch (menuState)
@@ -155,8 +162,7 @@ public class GameManager : MonoBehaviour
                 PlayerMovementManager(false);
                 playerState = MenuState.MainMenu;
                 waitingToClose = true;
-                btnContainer.style.translate = new Translate(0, 0, 0);
-                title.style.translate = new Translate(0, 0, 0);
+                ShopTranslate(shopOpenTranslation);
                 
                 break;
             case MenuState.Playing:
@@ -165,8 +171,7 @@ public class GameManager : MonoBehaviour
                 PlayerMovementManager(true);
                 playerState = MenuState.Playing;
                 waitingToClose = true;
-                btnContainer.style.translate = new Translate(Length.Percent(-100), 0, 0);
-                title.style.translate = new Translate(Length.Percent(-100), 0, 0);
+                ShopTranslate(shopClosedTransition);
                 
                 
                 break;
@@ -176,8 +181,16 @@ public class GameManager : MonoBehaviour
                 
                 playerState = MenuState.Shop;
                 waitingToClose = true;
-                btnContainer.style.translate = new Translate(Length.Percent(-100), 0, 0);
-                title.style.translate = new Translate(Length.Percent(-100), 0, 0);
+                ShopTranslate(shopClosedTransition);
+                
+                break;
+            case MenuState.Settings:
+                isMenuOpen = true;
+                PlayerMovementManager(false);
+                
+                playerState = MenuState.Settings;
+                waitingToClose = true;
+                ShopTranslate(shopClosedTransition);
                 
                 break;
         }
@@ -238,6 +251,12 @@ public class GameManager : MonoBehaviour
             UnityEngine.Cursor.lockState = CursorLockMode.None;
             UnityEngine.Cursor.visible = true;
         }
+    }
+
+    public void ShopTranslate(Translate translate)
+    {
+        btnContainer.style.translate = translate;
+        title.style.translate = translate;
     }
     
     public void QuitGame()

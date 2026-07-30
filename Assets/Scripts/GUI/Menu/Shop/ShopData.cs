@@ -2,12 +2,8 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 using System;
-using System.ComponentModel;
 using System.Reflection;
-using Unity.VisualScripting;
 using System.Linq;
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
-using JetBrains.Annotations;
 
 public enum Catagories
 {
