@@ -18,6 +18,7 @@ MonoBehaviour:
   shortDescription: A simple weapon used for testing
   description: Test Description
   icon: {fileID: 0}
+  dataName: testWeapon
   clipSize: 30
   fireRate: 30
   reloadTime: 4.5

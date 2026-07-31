@@ -12,4 +12,5 @@ public abstract class ShopItemData : ScriptableObject
     [StatDisplay("Description", null, "Description")]
     public string description;
     public Sprite icon;
+    public string dataName;
 }
