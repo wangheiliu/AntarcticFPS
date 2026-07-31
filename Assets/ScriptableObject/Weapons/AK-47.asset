@@ -19,6 +19,7 @@ MonoBehaviour:
   description: A classic automatic rifle that has long lived and is classic among
     FPS games
   icon: {fileID: 0}
+  dataName: ak47
   clipSize: 30
   fireRate: 20
   reloadTime: 5
