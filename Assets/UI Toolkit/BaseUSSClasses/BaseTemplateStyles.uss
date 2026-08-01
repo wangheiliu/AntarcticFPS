@@ -96,7 +96,7 @@ SlideToggle {
 .custom-int-slider__input #unity-dragger {
     border-radius: 4px;
 
-    transition-property: translate;
+    transition-property: translate, scale, border-width;
     transition-duration: 0.2s;
 }
 
@@ -104,6 +104,12 @@ SlideToggle {
     border-width: 2px;
     border-color: black;
     scale: 1.2;
+}
+
+.custom-int-slider__input #unity-dragger:focus {
+    border-width: 1.5px;
+    border-color: gray;
+    scale: 1.15;
 }
 
 .custom-int-slider__input #unity-tracker {
@@ -145,6 +151,11 @@ SlideToggle {
 
 .custom-horizontal-dropdown__option:hover {
     border-width: 2px;
+}
+
+.custom-horizontal-dropdown__option:active {
+    border-width: 2px;
+    background-color: rgb(128,128,128);
 }
 
 .custom-horizontal-dropdown__option-container {

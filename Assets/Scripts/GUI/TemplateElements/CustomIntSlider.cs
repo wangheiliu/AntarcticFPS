@@ -160,7 +160,8 @@ namespace BasicUIControls
             {
                 lowValue = lowestValue,
                 highValue = highestValue,
-                value = intValue
+                value = intValue,
+                focusable = false
             };
             
             slider.AddToClassList(intSliderClassName);

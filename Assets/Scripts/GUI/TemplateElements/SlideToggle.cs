@@ -130,6 +130,7 @@ namespace BasicUIControls
             inputElement.EnableInClassList(checkedInputClassName, value);
             inputElement.style.backgroundColor = value ? EnabledColor : DisabledColor;
             
+            
             valueElement.text = value ? toggled : untoggled;
         }
     }

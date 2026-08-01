@@ -171,6 +171,7 @@ namespace BasicUIControls
                 dropDown.text = option;
                 dropDown.style.backgroundColor = defaultColor;
                 dropDown.style.color = GetTextColor(defaultColor);
+                SetBorderWidth(dropDown, 0);
                 dropDown.RegisterCallback<ClickEvent>(OnSelect);
                 labelOptions.Add(dropDown);
                 dropdownContainer.Add(dropDown);
@@ -188,6 +189,7 @@ namespace BasicUIControls
             {
                 option.style.backgroundColor = defaultColor;
                 option.style.color = GetTextColor(defaultColor);
+                SetBorderWidth(option, 0);
             }
 
             if (label == null)
@@ -198,6 +200,8 @@ namespace BasicUIControls
             selected.style.backgroundColor = selectedColor;
             selected.EnableInClassList(selectedClass, true);
             selected.style.color = GetTextColor(selectedColor);
+
+            SetBorderWidth(selected, 2);
         }
 
         private void OnSelect(ClickEvent evt)
@@ -231,6 +235,14 @@ namespace BasicUIControls
             element.style.borderLeftColor = borderColor;
             element.style.borderTopColor = borderColor;
             element.style.borderRightColor = borderColor;
+        }
+
+        private void SetBorderWidth(VisualElement element,float value)
+        {
+            element.style.borderLeftWidth = value;
+            element.style.borderTopWidth = value;
+            element.style.borderRightWidth = value;
+            element.style.borderBottomWidth = value;
         }
     }
 }

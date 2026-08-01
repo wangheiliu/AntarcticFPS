@@ -38,4 +38,13 @@
     border-left-width: 3px;
 }
 
+#submit-button:active {
+    background-color: rgb(93, 117, 152);
+    color: white;
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+}
+
 
