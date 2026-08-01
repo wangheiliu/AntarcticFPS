@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Player.PlayerData;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public static class SaveData
 {
@@ -12,6 +13,11 @@ public static class SaveData
     public static string BackupSavePath => Path.Combine(Application.persistentDataPath, "saveData.bak");
     public static void Save(PlayerData data) // i can push default data using this method
     {
+        if (data == null)
+        {
+            Debug.LogError("Cannot save null data.");
+            return;
+        }
         string json = JsonUtility.ToJson(data, true);
 
         byte[] plainText = Encoding.UTF8.GetBytes(json);
@@ -49,17 +55,17 @@ public static class SaveData
         File.Move(TempSavePath, SavePath);
     }
 
-    public static PlayerData Load()
+    public static PlayerData TryLoad(string path)
     {
         try
         {
-            if (!File.Exists(SavePath))
+            if (!File.Exists(path))
             {
                 return null;
             }
-            byte[] fileData = File.ReadAllBytes(SavePath);
+            byte[] fileData = File.ReadAllBytes(path);
 
-            if (fileData.Length < 28)
+            if (fileData.Length <= 28)
             {
                 return null;
             }
@@ -79,31 +85,59 @@ public static class SaveData
 
             string json = Encoding.UTF8.GetString(plainText);
             return JsonUtility.FromJson<PlayerData>(json);
-        } catch (CryptographicException ex)
+        }
+        catch (CryptographicException ex)
         {
             Debug.LogError($"Save authentication failed: {ex.Message}");
             return null;
-        } catch (IOException ex)
+        }
+        catch (IOException ex)
         {
             Debug.LogError($"Save IO failed: {ex.Message}");
             return null;
-        } 
+        }
         catch (Exception ex)
         {
             Debug.LogError($"Error: {ex.Message}");
             return null;
-        } finally
+        }
+    }
+
+    public static PlayerData Load()
+    {
+        PlayerData data;
+        data = TryLoad(SavePath);
+        if (data != null)
         {
-            if (File.Exists(TempSavePath))
-            {
-                File.Delete(TempSavePath);
-            }
+            return data;
         }
 
+        data = TryLoad(BackupSavePath);
+        if (data != null)
+        {
+            return data;
+        }
 
+        data = TryLoad(TempSavePath);
+        if (data != null)
+        {
+            try
+            {
+                File.Move(TempSavePath, SavePath);
+                File.Delete(BackupSavePath);
+            }
+            catch (IOException ex)
+            {
+                Debug.LogError($"Failed to restore temp save: {ex.Message}");
+            }
+            return data;
+        }
 
+        return null;
     }
 }
+
+
 
 public static class SavePlayerKey
 {
