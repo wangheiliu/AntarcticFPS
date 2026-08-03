@@ -15,9 +15,7 @@ public class TooltipScript : MonoBehaviour
 
     void OnEnable()
     {
-        Debug.Log("Running");
         var root = tooltipDocument.rootVisualElement;
-        Debug.Log($"Root = {root}");
         tooltipText = root.Q<Label>(className: "tooltip-label");
         container = root.Q<VisualElement>(className: "tooltip-container");
 
@@ -31,7 +29,6 @@ public class TooltipScript : MonoBehaviour
         float offsetY = 15f;
         if (panel == null || Mouse.current == null)
         {
-            Debug.LogWarning("panel is null");
             return;
         }
         Vector2 mousePos = Mouse.current.position.ReadValue();

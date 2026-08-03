@@ -1076,6 +1076,7 @@ GameObject:
   m_Component:
   - component: {fileID: 803845466897618394}
   - component: {fileID: 8899572009520084057}
+  - component: {fileID: 5330929717508149775}
   m_Layer: 0
   m_Name: SettingsMenu
   m_TagString: Untagged
@@ -1121,6 +1122,20 @@ MonoBehaviour:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &5330929717508149775
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7187060919373053074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 666fd543f4c995945b7b63ed18aef859, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SettingsScript
+  gameManager: {fileID: 3852551257452437950}
+  uIDocument: {fileID: 8899572009520084057}
 --- !u!1 &7967625456629013783
 GameObject:
   m_ObjectHideFlags: 0
@@ -1226,6 +1241,7 @@ MonoBehaviour:
   playerMovement: {fileID: 1434896115984838486}
   cameraLook: {fileID: 4174408434270433362}
   shopMenuScript: {fileID: 6389043884433603103}
+  settingsScript: {fileID: 5330929717508149775}
   CameraArray:
   - {fileID: 7285181132938258446}
   - {fileID: 0}
