@@ -3,6 +3,7 @@ using UnityEngine.UIElements;
 using UnityEngine.InputSystem;
 
 using UnityEditor;
+using System;
 public enum MenuState
     {
         MainMenu,
@@ -19,9 +20,11 @@ public class GameManager : MonoBehaviour
 
     [Header("Other Menu Scripts")]
     [SerializeField] private ShopMenuScript shopMenuScript;
+    [SerializeField] private SettingsScript settingsScript;
 
     private Button playButton;
     private Button shopButton;
+    private Button settingsButton;
     private Button quitButton;
     private UIDocument uiDocument;
     private VisualElement btnContainer;
@@ -40,7 +43,7 @@ public class GameManager : MonoBehaviour
     private Translate shopOpenTranslation = new(Length.Percent(0), 0, 0);
     public MenuState playerState;
 
-    void Start()
+    void OnEnable()
     {
         uiDocument = GetComponent<UIDocument>();
         var root = uiDocument.rootVisualElement;
@@ -48,21 +51,13 @@ public class GameManager : MonoBehaviour
         title = root.Q<Label>(className: "title");
         playButton = btnContainer.Q<Button>("PlayButton");
         shopButton = btnContainer.Q<Button>("ShopButton");
+        settingsButton = btnContainer.Q<Button>("SettingsButton");
         quitButton = btnContainer.Q<Button>("Quit");
         
-        if (playButton != null)
-        {
-            playButton.clicked += () => OpenMenuItems(MenuState.Playing);
-        }
-        if (shopButton != null)
-        {
-            shopButton.clicked += () => OpenMenuItems(MenuState.Shop);
-        }
-
-        if (quitButton != null)
-        {
-            quitButton.clicked += QuitGame;
-        }
+        playButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Playing));
+        shopButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Shop));
+        settingsButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Settings));
+        quitButton?.RegisterCallback<ClickEvent>(evt => QuitGame());
 
         btnContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
 
@@ -84,19 +79,10 @@ public class GameManager : MonoBehaviour
 
     void OnDisable()
     {
-        if (playButton != null)
-        {
-            playButton.clicked -= () => OpenMenuItems(MenuState.Playing);
-        }
-        if (shopButton != null)
-        {
-            shopButton.clicked -= () => OpenMenuItems(MenuState.Shop);
-        }
-
-        if (quitButton != null)
-        {
-            quitButton.clicked -= QuitGame;
-        }
+        playButton?.UnregisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Playing));
+        shopButton?.UnregisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Shop));
+        settingsButton?.UnregisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Settings));
+        quitButton?.UnregisterCallback<ClickEvent>(evt => QuitGame());
     }
 
     
@@ -141,6 +127,7 @@ public class GameManager : MonoBehaviour
                 CloseMenu();
                 UnityEngine.Cursor.lockState = CursorLockMode.None;
                 UnityEngine.Cursor.visible = true;
+                settingsScript.SettingsTransition();
                 break;
             case MenuState.Playing:
                 OpenItemArray(hudArray, CameraArray[0]);
@@ -162,6 +149,8 @@ public class GameManager : MonoBehaviour
                 PlayerMovementManager(false);
                 playerState = MenuState.MainMenu;
                 waitingToClose = true;
+                CloseAllItems();
+                uiDocument.rootVisualElement.style.display = DisplayStyle.Flex;
                 ShopTranslate(shopOpenTranslation);
                 
                 break;
