@@ -16,9 +16,12 @@ public class SettingsScript : MonoBehaviour
     [SerializeField] private UIDocument uIDocument;
     private VisualElement settingsContainer;
     private Button closeButton;
+    private Button saveButton;
+    private Button resetButton;
+    private Button restoreDefaultsButton;
     private ScrollView[] settingsScrollView;
     private List<ISettingAttributes> settingElements = new List<ISettingAttributes>(); 
-    private Dictionary<string, dynamic> settingElementsDictionary = new Dictionary<string, dynamic>(); // load in settings first, then load in the data to the settings elements
+    private Dictionary<string, object> settingElementsDictionary = new Dictionary<string, object>(); // load in settings first, then load in the data to the settings elements
     private bool waitingTransition;
     private bool isOpen = false;
     private PlayerSettings settingData;
@@ -27,12 +30,18 @@ public class SettingsScript : MonoBehaviour
     {
         settingsContainer = uIDocument.rootVisualElement.Q<VisualElement>("main-container");
         closeButton = settingsContainer.Q<Button>("close-button");
+        saveButton = settingsContainer.Q<Button>("save-button");
+        resetButton = settingsContainer.Q<Button>("last-saved-button");
+        restoreDefaultsButton = settingsContainer.Q<Button>("restore-defaults-button");
         settingsScrollView = settingsContainer.Query<ScrollView>(className: "settings-container").ToList().ToArray();
 
-        GetSettingsElement();
+        LoadSettingsElement();
 
         settingsContainer?.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         closeButton.clicked += SettingsTransition;
+        saveButton.clicked += SaveSettings;
+        restoreDefaultsButton.clicked += ResetToDefault;
+        resetButton.clicked += ResetSettings;
     }
 
     void Start()
@@ -78,6 +87,7 @@ public class SettingsScript : MonoBehaviour
             waitingTransition = false;
             if (isOpen == false)
             {
+                ResetSettings();
                 settingsContainer.style.display = DisplayStyle.None;
                 gameManager.OpenMenuItems(MenuState.MainMenu);
             }
@@ -105,7 +115,7 @@ public class SettingsScript : MonoBehaviour
         }
     }
 
-    private void GetSettingsElement()
+    private void LoadSettingsElement()
     {
         foreach (ScrollView scrollView in settingsScrollView)
         {
@@ -114,6 +124,15 @@ public class SettingsScript : MonoBehaviour
                 if (element is ISettingAttributes && element.ClassListContains("setting-item"))
                 {
                     settingElements.Add(element as ISettingAttributes);
+                    if (element is SlideToggle toggle)
+                    {
+                        element.RegisterCallback<ChangeEvent<bool>>(evt => OnToggleEvent(evt, (element as ISettingAttributes).DataName), CallbackOptions.Removable);
+                    }
+                    else if (element is CustomIntSlider slider)
+                    {
+                        element.RegisterCallback<ChangeEvent<int>>(evt => OnSliderEvent(evt, (element as ISettingAttributes).DataName), CallbackOptions.Removable);
+                    }
+                    
                 }
             }
         }
@@ -128,7 +147,7 @@ public class SettingsScript : MonoBehaviour
             string fieldName = field.Name;
             object fieldValue = field.GetValue(settingData);
             RangeAttribute rangeAttribute = field.GetCustomAttribute<RangeAttribute>();
-            
+            settingElementsDictionary[fieldName] = fieldValue;
             if (settingElement == null)
             {
                 continue;
@@ -157,9 +176,68 @@ public class SettingsScript : MonoBehaviour
         }
     }
 
+    private void ValueChanged(string dataName, object newValue)
+    {
+        FieldInfo field = typeof(PlayerSettings).GetField(dataName, BindingFlags.Public | BindingFlags.Instance);
+        newValue = Convert.ChangeType(newValue, field.FieldType);
+        if (field != null)
+        {
+            field.SetValue(settingData, newValue);
+            settingElementsDictionary[dataName] = newValue;
+        }
+        else
+        {
+            Debug.LogWarning($"Field '{dataName}' not found in PlayerSettings.");
+        }
+    }
+
+    private void SaveSettings()
+    {
+        playerData.settings = settingData;
+        SaveData.Save(playerData);
+    }
+
+    private void ResetToDefault()
+    {
+        SaveDefaultSettingsData();
+        playerData = SaveData.Load();
+        settingData = playerData.settings;
+        LoadSettings();
+    }
+
+    private void ResetSettings()
+    {
+        playerData = SaveData.Load();
+        settingData = playerData.settings;
+        LoadSettings();
+    }
+
+    private void OnToggleEvent(ChangeEvent<bool> evt, string dataName)
+    {
+        ValueChanged(dataName, evt.newValue);
+    }
+
+    private void OnSliderEvent(ChangeEvent<int> evt, string dataName)
+    {
+        ValueChanged(dataName, evt.newValue);
+    }
+
     void OnDisable()
     {
         closeButton.clicked -= SettingsTransition;
+        saveButton.clicked -= SaveSettings;
+        restoreDefaultsButton.clicked -= ResetToDefault;
         settingsContainer?.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
+
+        foreach (ScrollView scrollView in settingsScrollView)
+        {
+            foreach (var element in scrollView.contentContainer.Children())
+            {
+                if (element is ISettingAttributes && element.ClassListContains("setting-item"))
+                {
+                    element.UnregisterAllRemovableCallbacks();
+                }
+            }
+        }
     }
 }
