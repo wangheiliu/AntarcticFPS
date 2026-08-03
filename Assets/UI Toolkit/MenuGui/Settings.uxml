@@ -10,7 +10,7 @@
             <ui:TabView style="position: relative; width: 100%; height: 100%;">
                 <ui:Tab label="General">
                     <ui:ScrollView name="general-container" horizontal-scroller-visibility="Hidden" class="settings-container">
-                        <BasicUIControls.SlideToggle name="" enabled-color="rgb(49, 65, 89)" data-name="vsync" class="setting-item" style="flex-shrink: 1; flex-grow: 1; align-content: auto;"/>
+                        <BasicUIControls.SlideToggle name="" enabled-color="rgb(49, 65, 89)" data-name="vSync" class="setting-item" style="flex-shrink: 1; flex-grow: 1; align-content: auto;"/>
                         <BasicUIControls.CustomIntSlider value="15" title="Slider Setting" highest-value="100" data-name="volume" class="setting-item"/>
                         <BasicUIControls.CustomDropDownOption options="Fizz,Buzz" selected-color="rgb(0, 0, 0)" unchecked-color="rgb(255, 255, 255)" class="setting-item"/>
                         <BasicUIControls.CustomDropDownOption options="Hello,Buzz" selected-color="rgb(0, 0, 0)" class="setting-item"/>
@@ -23,9 +23,9 @@
                 </ui:Tab>
             </ui:TabView>
             <ui:VisualElement style="flex-grow: 0; align-self: flex-end; flex-direction: row-reverse; align-items: flex-end; height: 15%; width: auto; max-width: 100%;">
-                <ui:Button text="Save Settings" class="save-buttons"/>
-                <ui:Button text="Reset to last saved" class="save-buttons"/>
-                <ui:Button text="Reset to defaults" class="save-buttons" style="min-width: auto;"/>
+                <ui:Button text="Save Settings" name="save-button" class="save-buttons"/>
+                <ui:Button text="Reset to last saved" name="last-saved-button" class="save-buttons"/>
+                <ui:Button text="Reset to defaults" name="restore-defaults-button" class="save-buttons" style="min-width: auto;"/>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
