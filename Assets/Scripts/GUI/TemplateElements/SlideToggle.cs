@@ -1,11 +1,12 @@
 using System.ComponentModel;
+using BaseUIControls;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace BasicUIControls
 {
     [UxmlElement]
-    public partial class SlideToggle : BaseField<bool> // base refers to the parent class you inherit from, in this case, it's BaseField
+    public partial class SlideToggle : BaseField<bool>, ISettingAttributes // base refers to the parent class you inherit from, in this case, it's BaseField
     {
         private static readonly string className = "slide-toggle";
         private static readonly string inputClassName = "slide-toggle__input";
@@ -77,6 +78,8 @@ namespace BasicUIControls
                 UpdateVisuals();
             }
         }
+
+        [UxmlAttribute] public string DataName { get; set; } = "";
 
         //constructor class
         public SlideToggle(): base(null, new VisualElement()) // the basefield provides us with the label and the input visual element

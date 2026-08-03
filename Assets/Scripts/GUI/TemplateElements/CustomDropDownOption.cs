@@ -1,14 +1,16 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UIElements;
+using BaseUIControls;
 
 namespace BasicUIControls
 {
     [UxmlElement]
-    public partial class CustomDropDownOption : VisualElement
+    public partial class CustomDropDownOption : VisualElement, ISettingAttributes
     {
         private static readonly string className = "custom-horizontal-dropdown";
         private static readonly string containerClass = "custom-horizontal-dropdown-container";
@@ -110,7 +112,8 @@ namespace BasicUIControls
                 OnListChanged();
             }
         }
-        private Label selected;
+        [UxmlAttribute] public string DataName {get; set;} = "";
+        public Label selected;
         public Label Selected
         {
             get => selected;

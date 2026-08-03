@@ -3,12 +3,13 @@ using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
+using BaseUIControls;
 
 
 namespace BasicUIControls
 {
     [UxmlElement]
-    public partial class CustomIntSlider : VisualElement
+    public partial class CustomIntSlider : VisualElement, ISettingAttributes
     {
         private readonly string className = "custom-int-slider";
         private readonly string intSliderClassName = "custom-int-slider__input";
@@ -120,7 +121,7 @@ namespace BasicUIControls
             }
         }
 
-        [UxmlAttribute] public string SettingName { get; set; }
+        [UxmlAttribute] public string DataName { get; set; } = "";
 
         public void OnFieldChanged(ChangeEvent<int> evt)
         {

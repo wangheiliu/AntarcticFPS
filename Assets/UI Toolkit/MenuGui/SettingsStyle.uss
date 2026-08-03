@@ -1,5 +1,5 @@
 :root {
-    display: none;
+    display: flex;
 }
 
 .unity-tab__header {
@@ -133,4 +133,7 @@
     border-width: 3px;
     color: white;
     scale: 1.05;
+}
+
+.setting-item {
 }

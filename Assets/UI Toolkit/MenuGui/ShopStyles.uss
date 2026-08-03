@@ -41,11 +41,13 @@ Image {
     justify-content: center;
 }
 
-.unity-scroller .unity-base-slider__dragger {
+.unity-base-slider--vertical .unity-base-slider__dragger {
     border-radius: 6px;
     min-height: 10px;
     height: 10px;
     width: 65%;
+    left: 3px;
+    right: 3px;
     margin: 0 auto;
     align-self: center;
 }
@@ -56,7 +58,7 @@ Image {
 }
 
 #unity-drag-container {
-    align-content: center;
+    align-items: center;
 }
 
 #unity-tracker {
@@ -78,12 +80,39 @@ Image {
     padding: 0.75%;
 }
 
+.shop-scroller .unity-scroll-view__content-container {
+    flex-grow: 1;
+    min-width: 0;
+    min-height: 0;
+}
+
 #unity-checkmark {
     -unity-background-image-tint-color: rgb(255, 255, 255);
 }
 
 .unity-foldout__toggle:focus * {
     color: white;
+}
+
+.category-foldouts {
+    flex-grow: 1;
+    flex-shrink: 0;
+    width: 100%;
+    min-width: 0;
+
+}
+
+.category-foldouts > .unity-toggle__input {
+    flex-grow: 1;
+    width: 100%;
+    min-width: 0;
+    min-height: 20px;
+}
+
+.unity-tab-view__content-container {
+    flex-grow: 1;
+    min-width: 0;
+    min-height: 0;
 }
 
 #title-container,
@@ -343,7 +372,7 @@ IntegerField > Label {
 }
 
 .item-template > #view-button {
-    background-color: rgb(255,255,255);
+    background-color: rgb(255, 255, 255);
     color: black;
     transition-property: background-color, scale;
     transition-duration: 0.25s;
@@ -355,6 +384,9 @@ IntegerField > Label {
 }
 
 .item-template > #view-button:active {
-    background-color: rgb(200,200,200);
+    background-color: rgb(200, 200, 200);
     scale: 1.05;
+}
+
+.category-foldouts {
 }
