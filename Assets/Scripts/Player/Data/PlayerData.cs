@@ -36,11 +36,15 @@ namespace Player.PlayerData
     [Serializable]
     public class PlayerSettings
     {
-        [Range(0, 100)]
+        [Range(0, 100)] [SettingsAttribute("Volume")]
         public int volume = 50;
+        [SettingsAttribute("Field of View")]
         public int fov = 90;
+        [SettingsAttribute("V-Sync")]
         public bool vSync = true;
+        [SettingsAttribute("Fullscreen")]
         public bool fullscreen = true;
+        [SettingsAttribute("Shadows")]
         public bool shadowsEnabled = true;
     }
 

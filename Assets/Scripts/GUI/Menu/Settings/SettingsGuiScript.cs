@@ -156,6 +156,7 @@ public class SettingsScript : MonoBehaviour
             if (settingElement is CustomIntSlider slider)
             {
                 slider.Value = Convert.ToInt32(fieldValue);
+                slider.Title = field.GetCustomAttribute<SettingsAttribute>()?.settingName ?? fieldName;
                 if (rangeAttribute != null)
                 {
                     slider.LowestValue = (int)rangeAttribute.min;
@@ -167,6 +168,7 @@ public class SettingsScript : MonoBehaviour
                 }
             } else if (settingElement is SlideToggle toggle)
             {
+                toggle.TitleName = field.GetCustomAttribute<SettingsAttribute>()?.settingName ?? fieldName;
                 toggle.value = Convert.ToBoolean(fieldValue);
             }
             else
