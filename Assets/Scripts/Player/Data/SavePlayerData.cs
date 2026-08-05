@@ -1,8 +1,13 @@
 using UnityEngine;
 using Player.PlayerData;
+using System.Data.Common;
 public class SavePlayerData : MonoBehaviour
 {
-    private PlayerData playerData;
+    void Awake()
+    {
+        CurrentPlayerData.Initialize();
+        CurrentPlayerData.Data = SaveData.UpdateData(CurrentPlayerData.Data);
+    }
     void Start()
     {
         

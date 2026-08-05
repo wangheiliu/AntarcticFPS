@@ -16,7 +16,7 @@ public class WeaponGui : MonoBehaviour
     private VisualElement root;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void OnEnable()
     {
         root = uiDocument.rootVisualElement;
         nameLabel = root.Q<TextElement>("weapon-name");

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System;
 using System.Reflection;
 using System.Linq;
+using System.ComponentModel.Design.Serialization;
+using Unity.VisualScripting;
 
 public enum Catagories
 {
@@ -28,9 +30,15 @@ public class ShopData : MonoBehaviour
     
     private VisualElement root;
     private ScrollView infoScrollContainer;
+    private Button purchaseButton;
+    private Button infoPurchaseButton;
+    private Label purchasePromptTitle;
+
     private Dictionary<string, Foldout> foldouts = new();
     public List<(Foldout, ShopItemData, VisualElement)> lookUpTable = new();
     private Action viewButtonLambda;
+
+    private ShopItemData currentItem;
     
 
     
@@ -38,6 +46,11 @@ public class ShopData : MonoBehaviour
     {
         root = shopDocument.rootVisualElement;
         infoScrollContainer = root.Q<ScrollView>("info-scroller");
+        purchaseButton = root.Q<Button>("prompt-purchase-button");
+        purchasePromptTitle = root.Q<Label>("prompt-message-label");
+        infoPurchaseButton = root.Q<Button>("purchase-button");
+
+        purchaseButton.RegisterCallback<ClickEvent>(OnPurchaseButtonClicked);
         
         PopulateUI(database);
     }
@@ -100,6 +113,9 @@ public class ShopData : MonoBehaviour
         
         Label infoTitle = root.Q<Label>("info-title");
         infoTitle.text = item.title;
+        purchasePromptTitle.text = $"Would you like to buy: {item.title ?? "item"}? (${item.cost})";
+        currentItem = item;
+        CheckItemPurchased(item);
         // gets the values from the item parameter
         foreach (FieldInfo field in fields)
         {
@@ -159,6 +175,71 @@ public class ShopData : MonoBehaviour
         }
         
     }
+
+    private void HandlePurchase(ShopItemData item)
+    {
+        if (CurrentPlayerData.Data != null)
+        {
+            if (CheckItemPurchased(item))
+            {
+                return;
+            }
+            var data = CurrentPlayerData.Data;
+            if (data.progressionData.money < item.cost)
+            {
+                Debug.LogWarning("Player is too poor");
+                return;
+            }
+            if (data.weaponsOwned.Find(m => m.weaponName == item.dataName) != null)
+            {
+                return;
+            }
+            data.progressionData.money -= item.cost;
+
+            // work with other data models
+            data.weaponsOwned.Add(new()
+            {
+               weaponName = item.dataName,
+               weaponLevel = 1,
+               attachments = new List<string>() 
+            });
+
+            CurrentPlayerData.Data = data;
+
+            CurrentPlayerData.Save();
+            shopMenuScript.HandlePrompt(false);
+            CheckItemPurchased(item);
+        }
+    }
+
+    private bool CheckItemPurchased(ShopItemData item)
+    {
+        var data = CurrentPlayerData.Data;
+        if (item is WeaponData weaponData)
+        {
+            if (data.weaponsOwned.Find(m => m.weaponName == item.dataName) != null)
+            {
+                infoPurchaseButton.SetEnabled(false);
+                return true;
+            } else
+            {
+                infoPurchaseButton.SetEnabled(true);
+                return false;
+            }
+        }
+        return false;
+    }
+
+    private void OnPurchaseButtonClicked(ClickEvent evt)
+    {
+        // use this data to check if the name is on the player's data, if so, then return it
+        
+        if (currentItem != null)
+        {
+            HandlePurchase(currentItem);
+        }
+    }
+
     public void OnViewClick(ShopItemData item)
     {
         shopMenuScript.OpenInfo();
