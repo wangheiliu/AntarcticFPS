@@ -1,13 +1,16 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 
 namespace Player.PlayerData
 {
     [Serializable]
     public class PlayerData
     {
+        public int saveVersion = 1;
         public string username = $"GuestPenguin";
+        public bool hasSetUserName = false;
         public ProgressionData progressionData = new ProgressionData();
         public PlayerStats playerStats = new PlayerStats();
 
@@ -38,7 +41,7 @@ namespace Player.PlayerData
     {
         [Range(0, 100)] [SettingsAttribute("Volume")]
         public int volume = 50;
-        [SettingsAttribute("Field of View")]
+        [Range(0, 100)][SettingsAttribute("Field of View")]
         public int fov = 90;
         [SettingsAttribute("V-Sync")]
         public bool vSync = true;
@@ -52,7 +55,7 @@ namespace Player.PlayerData
     public class WeaponsInventory
     {
         public string weaponName = "";
-        public string levels = "";
+        [FormerlySerializedAs("level")] public int weaponLevel = 1;
         public List<string> attachments = new List<string>();
     }
 }

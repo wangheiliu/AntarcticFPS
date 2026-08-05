@@ -72,7 +72,6 @@ public class HotbarScript : MonoBehaviour
                 {
                     return;
                 }
-                Debug.Log($"Equipped: {weapons[i].data.name}");
                 weaponSystem.currentWeapon = weapons[i];
                 EquipTransition(weaponSystem.currentWeapon);
                 break;

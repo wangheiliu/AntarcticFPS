@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using Player.PlayerData;
@@ -33,7 +34,7 @@ public static class SaveData
                 File.Move(SavePath, BackupSavePath);
 
                 File.Delete(SavePath);
-                
+
             }
 
             if (File.Exists(SavePath))
@@ -43,10 +44,12 @@ public static class SaveData
 
             File.Move(TempSavePath, SavePath);
 
-        } catch (IOException ex)
+        }
+        catch (IOException ex)
         {
             Debug.LogError($"Failed to save data: {ex.Message}");
-        } finally
+        }
+        finally
         {
             if (File.Exists(TempSavePath))
             {
@@ -83,12 +86,14 @@ public static class SaveData
         data = TryLoad(SavePath);
         if (data != null)
         {
+            Debug.Log("Loaded normal data");
             return data;
         }
 
         data = TryLoad(BackupSavePath);
         if (data != null)
         {
+            Debug.Log("Loaded backup");
             return data;
         }
 
@@ -112,9 +117,69 @@ public static class SaveData
 
         return null;
     }
+
+    public static PlayerData UpdateData(PlayerData data)
+    {
+        var defaultData = new PlayerData();
+        FieldInfo[] fields = typeof(PlayerData).GetFields(BindingFlags.Public | BindingFlags.Instance); // this should get the current data model's fields
+
+        foreach (var field in fields)
+        {
+            object name = field.Name;
+            object saveValue = field.GetValue(data);
+            object defaultValue = field.GetValue(defaultData);
+            RangeAttribute rangeAttribute = field.GetCustomAttribute<RangeAttribute>();
+
+            if (saveValue == null)
+            {
+                try
+                {
+                    object converted = Convert.ChangeType(saveValue, defaultValue.GetType());
+                    field.SetValue(saveValue, defaultData);
+                    if (rangeAttribute != null && (saveValue is float || saveValue is int))
+                    {
+                        field.SetValue(saveValue, Mathf.Clamp(Convert.ToSingle(saveValue), rangeAttribute.min, rangeAttribute.max));
+                    }
+                } catch (InvalidCastException) {
+                    continue;
+                }
+            }
+
+            if (defaultValue == null)
+            {
+                continue;
+            }
+
+            if (saveValue.GetType() != defaultValue.GetType()) {
+                try {
+                    object converted = Convert.ChangeType(saveValue, defaultValue.GetType());
+                    field.SetValue(saveValue, converted);
+                } catch (InvalidCastException) {
+                    continue;
+                } 
+            }
+        }
+
+        Save(data);
+        return data;
+    }
 }
 
+public static class CurrentPlayerData
+{
+    public static PlayerData Data {get; set;}
+    public static void Initialize()
+    {
+        Data = SaveData.Load() ?? new PlayerData();
+    }
 
+    public static void Save()
+    {
+        Debug.Log("Saving data...");
+        SaveData.Save(Data);
+        Data = SaveData.Load();
+    }
+}
 
 public static class SavePlayerKey
 {

@@ -32,21 +32,31 @@ public class NametagScript : MonoBehaviour
     private bool isValidUsername;
     private readonly string pattern = @"^[a-zA-Z0-9]{3,15}$";
 
-    void Start()
+    void OnEnable()
     {
         // set the username and last username to be the player's preferred username if possible
         UIInputDocument.rootVisualElement.style.display = DisplayStyle.Flex;
         nameElement = nameUI.rootVisualElement.Q<TextElement>("username-text");
-        
-    }
-
-    void OnEnable()
-    {
         submitButton = UIInputDocument.rootVisualElement.Q<Button>("submit-button");
         usernameInputField = UIInputDocument.rootVisualElement.Q<TextField>("username-input");
         errorMessageText = UIInputDocument.rootVisualElement.Q<TextElement>("error-message");
         submitButton.RegisterCallback<ClickEvent>(OnSubmit);
         usernameInputField.RegisterValueChangedCallback(CheckUsername);
+
+        
+
+    }
+
+    void Start()
+    {
+        if (CurrentPlayerData.Data != null)
+        {
+            if (CurrentPlayerData.Data.hasSetUserName)
+            {
+                UIInputDocument.rootVisualElement.style.display = DisplayStyle.None;
+                nameElement.text = CurrentPlayerData.Data.username;
+            }
+        }
     }
 
     void OnValidate()
@@ -70,7 +80,17 @@ public class NametagScript : MonoBehaviour
             return;
         }
         Username = usernameInputField.text;
+
+        if (CurrentPlayerData.Data != null)
+        {
+            CurrentPlayerData.Data.username = Username;
+            CurrentPlayerData.Data.hasSetUserName = true;
+            CurrentPlayerData.Save();
+        }
+
         UIInputDocument.rootVisualElement.style.display = DisplayStyle.None;
+
+
     }
 
     private void CheckUsername(ChangeEvent<string> evt)
@@ -81,7 +101,8 @@ public class NametagScript : MonoBehaviour
             ChangeBorderColors(usernameInputField.Q<VisualElement>("unity-text-input"), Color.red);
             errorMessageText.style.color = Color.red;
             errorMessageText.text = "Username should be 3-25 characters long, should not contain any unique symbols, and no spaces";
-        } else
+        }
+        else
         {
             isValidUsername = true;
             ChangeBorderColors(usernameInputField.Q<VisualElement>("unity-text-input"), Color.white);

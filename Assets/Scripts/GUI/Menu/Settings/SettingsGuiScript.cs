@@ -26,6 +26,7 @@ public class SettingsScript : MonoBehaviour
     private bool isOpen = false;
     private PlayerSettings settingData;
     private PlayerData playerData;
+    private PlayerSettings lastSavedSettings;
     void OnEnable()
     {
         settingsContainer = uIDocument.rootVisualElement.Q<VisualElement>("main-container");
@@ -46,25 +47,26 @@ public class SettingsScript : MonoBehaviour
 
     void Start()
     {
-        playerData = SaveData.Load();
+        playerData = CurrentPlayerData.Data;
         if (playerData == null)
         {
             Debug.LogWarning("No save data found. Creating default settings data.");
             SaveDefaultSettingsData();
-            playerData = SaveData.Load();
+            playerData = CurrentPlayerData.Data;
             settingData = playerData.settings;
         }
         else
         {
             settingData = playerData.settings;
         }
+
+        lastSavedSettings = CloneSettings(settingData);
         LoadSettings();
     }
 
     // data display
     private void SaveDefaultSettingsData()
     {
-        playerData ??= new PlayerData();
         settingData = new PlayerSettings()
         {
             volume = 75,
@@ -75,7 +77,24 @@ public class SettingsScript : MonoBehaviour
         };
 
         playerData.settings = settingData;
+        lastSavedSettings = CloneSettings(settingData);
         SaveData.Save(playerData);
+    }
+
+    private PlayerSettings CloneSettings(PlayerSettings source)
+    {
+        if (source == null)
+        {
+            return null;
+        }
+
+        PlayerSettings clone = new PlayerSettings();
+        foreach (FieldInfo field in typeof(PlayerSettings).GetFields(BindingFlags.Public | BindingFlags.Instance))
+        {
+            field.SetValue(clone, field.GetValue(source));
+        }
+
+        return clone;
     }
     
 
@@ -90,6 +109,9 @@ public class SettingsScript : MonoBehaviour
                 ResetSettings();
                 settingsContainer.style.display = DisplayStyle.None;
                 gameManager.OpenMenuItems(MenuState.MainMenu);
+            } else
+            {
+                LoadSettings();
             }
         }
     }
@@ -181,37 +203,51 @@ public class SettingsScript : MonoBehaviour
     private void ValueChanged(string dataName, object newValue)
     {
         FieldInfo field = typeof(PlayerSettings).GetField(dataName, BindingFlags.Public | BindingFlags.Instance);
-        newValue = Convert.ChangeType(newValue, field.FieldType);
-        if (field != null)
-        {
-            field.SetValue(settingData, newValue);
-            settingElementsDictionary[dataName] = newValue;
-        }
-        else
+        if (field == null)
         {
             Debug.LogWarning($"Field '{dataName}' not found in PlayerSettings.");
+            return;
         }
+
+        object convertedValue = Convert.ChangeType(newValue, field.FieldType);
+        field.SetValue(settingData, convertedValue);
+        settingElementsDictionary[dataName] = convertedValue;
     }
 
     private void SaveSettings()
     {
+        lastSavedSettings = CloneSettings(settingData);
         playerData.settings = settingData;
-        SaveData.Save(playerData);
+        CurrentPlayerData.Save();
     }
 
     private void ResetToDefault()
     {
         SaveDefaultSettingsData();
-        playerData = SaveData.Load();
-        settingData = playerData.settings;
-        LoadSettings();
+        playerData = CurrentPlayerData.Data;
+        if (playerData != null)
+        {
+            settingData = playerData.settings;
+            LoadSettings();
+        }
+        
     }
 
     private void ResetSettings()
     {
-        playerData = SaveData.Load();
-        settingData = playerData.settings;
-        LoadSettings();
+        if (lastSavedSettings != null)
+        {
+            settingData = CloneSettings(lastSavedSettings);
+            LoadSettings();
+            return;
+        }
+
+        playerData = CurrentPlayerData.Data;
+        if (playerData != null)
+        {
+            settingData = playerData.settings;
+            LoadSettings();
+        }
     }
 
     private void OnToggleEvent(ChangeEvent<bool> evt, string dataName)
