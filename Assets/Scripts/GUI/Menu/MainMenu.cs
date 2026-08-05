@@ -35,6 +35,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Camera[] CameraArray;
     [SerializeField] private UIDocument[] documentArray;
     [SerializeField] private UIDocument[] hudArray;
+    [SerializeField] private UIDocument profileDisplay;
     [SerializeField] private Camera shopCamera;
     private bool isMenuOpen = true;
     private bool waitingToClose;
@@ -113,6 +114,7 @@ public class GameManager : MonoBehaviour
         {
             case MenuState.MainMenu:
                 OpenItem(documentArray[0], CameraArray[0]);
+                
                 OpenMenu();
                 break;
             case MenuState.Shop:
@@ -152,7 +154,7 @@ public class GameManager : MonoBehaviour
                 CloseAllItems();
                 uiDocument.rootVisualElement.style.display = DisplayStyle.Flex;
                 ShopTranslate(shopOpenTranslation);
-                
+                profileDisplay.rootVisualElement.style.display = DisplayStyle.Flex;
                 break;
             case MenuState.Playing:
                 
@@ -171,7 +173,7 @@ public class GameManager : MonoBehaviour
                 playerState = MenuState.Shop;
                 waitingToClose = true;
                 ShopTranslate(shopClosedTransition);
-                
+                profileDisplay.rootVisualElement.style.display = DisplayStyle.None;
                 break;
             case MenuState.Settings:
                 isMenuOpen = true;
@@ -180,7 +182,7 @@ public class GameManager : MonoBehaviour
                 playerState = MenuState.Settings;
                 waitingToClose = true;
                 ShopTranslate(shopClosedTransition);
-                
+                profileDisplay.rootVisualElement.style.display = DisplayStyle.Flex;
                 break;
         }
     }
