@@ -33,28 +33,44 @@ public class ShopData : MonoBehaviour
     private Button purchaseButton;
     private Button infoPurchaseButton;
     private Label purchasePromptTitle;
+    private Label moneyDisplay;
 
     private Dictionary<string, Foldout> foldouts = new();
     public List<(Foldout, ShopItemData, VisualElement)> lookUpTable = new();
     private Action viewButtonLambda;
 
     private ShopItemData currentItem;
-    
-
+    Action CheckPurchasedLambda;
     
     void OnEnable()
     {
         root = shopDocument.rootVisualElement;
         infoScrollContainer = root.Q<ScrollView>("info-scroller");
         purchaseButton = root.Q<Button>("prompt-purchase-button");
-        purchasePromptTitle = root.Q<Label>("prompt-message-label");
         infoPurchaseButton = root.Q<Button>("purchase-button");
+        purchasePromptTitle = root.Q<Label>("prompt-message-label");
+        moneyDisplay = root.Q<Label>("money-counter");
+
+        CheckPurchasedLambda = () => CheckItemPurchased(currentItem);
 
         purchaseButton.RegisterCallback<ClickEvent>(OnPurchaseButtonClicked);
+
+        if (CheckPurchasedLambda != null)
+        {
+            ProgressionDataManager.OnProgressionDataChanged += CheckPurchasedLambda;
+        }
+        ProgressionDataManager.OnProgressionDataChanged += MoneyDisplay;
+        
         
         PopulateUI(database);
+        
     }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    void Start()
+    {
+        MoneyDisplay();
+    }
+
     public void PopulateUI(ShopDatabase database)
     {
         //adds the foldouts first
@@ -185,7 +201,7 @@ public class ShopData : MonoBehaviour
                 return;
             }
             var data = CurrentPlayerData.Data;
-            if (data.progressionData.money < item.cost)
+            if (ProgressionDataManager.Money < item.cost)
             {
                 Debug.LogWarning("Player is too poor");
                 return;
@@ -194,7 +210,7 @@ public class ShopData : MonoBehaviour
             {
                 return;
             }
-            data.progressionData.money -= item.cost;
+            ProgressionDataManager.Money -= item.cost;
 
             // work with other data models
             data.weaponsOwned.Add(new()
@@ -208,6 +224,7 @@ public class ShopData : MonoBehaviour
 
             CurrentPlayerData.Save();
             shopMenuScript.HandlePrompt(false);
+            
             CheckItemPurchased(item);
         }
     }
@@ -215,6 +232,10 @@ public class ShopData : MonoBehaviour
     private bool CheckItemPurchased(ShopItemData item)
     {
         var data = CurrentPlayerData.Data;
+        if (item == null || data == null)
+        {
+            return false;
+        }
         if (item is WeaponData weaponData)
         {
             if (data.weaponsOwned.Find(m => m.weaponName == item.dataName) != null)
@@ -245,5 +266,20 @@ public class ShopData : MonoBehaviour
         shopMenuScript.OpenInfo();
         //shopMenuScript.CloseInfo();
         ViewItemDetails(item);
+    }
+
+    public void MoneyDisplay()
+    {
+        moneyDisplay.text = $"$ {ProgressionDataManager.Money}";
+    }
+
+    void OnDisable()
+    {
+        purchaseButton?.UnregisterCallback<ClickEvent>(OnPurchaseButtonClicked);
+        if (CheckPurchasedLambda != null)
+        {
+            ProgressionDataManager.OnProgressionDataChanged -= CheckPurchasedLambda;
+        }
+        ProgressionDataManager.OnProgressionDataChanged -= MoneyDisplay;
     }
 }
