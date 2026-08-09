@@ -6,15 +6,10 @@
     color: white;
 }
 
-.stat-display-text {
-}
+
 
 .stat-display-text {
-    color: rgb(255, 255, 255);
-}
-
-.stat-display-text {
-    overflow: hidden;
-    -unity-text-generator: advanced;
-    -unity-text-auto-size: best-fit 10px 17px;
+    display: flex;
+    text-overflow: ellipsis;
+    color: white;
 }

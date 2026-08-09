@@ -15,7 +15,7 @@ public class PlayerDataManager : MonoBehaviour
 public static class GeneralPlayerDataManager
 {
     public static event Action OnUsernameChanged;
-    public static string Username 
+    public static string Username
     {
         get => CurrentPlayerData.Data.username;
         set
@@ -33,10 +33,11 @@ public static class GeneralPlayerDataManager
 public static class ProgressionDataManager
 {
     public static event Action OnProgressionDataChanged;
-    public static int Money
+    [DataStatDisplay("Money")] public static int Money
     {
         get => CurrentPlayerData.Data.progressionData.money;
-        set {
+        set
+        {
             if (CurrentPlayerData.Data.progressionData.money == value)
             {
                 return;
@@ -47,10 +48,11 @@ public static class ProgressionDataManager
         }
     }
 
-    public static int Level
+    [DataStatDisplay("Level")] public static int Level
     {
         get => CurrentPlayerData.Data.progressionData.level;
-        set {
+        set
+        {
             if (CurrentPlayerData.Data.progressionData.level == value)
             {
                 return;
@@ -59,6 +61,12 @@ public static class ProgressionDataManager
             CurrentPlayerData.Data.progressionData.level = value;
             OnProgressionDataChanged?.Invoke();
         }
+    }
+
+    [DataStatDisplay("XP")] public static int XP
+    {
+        get => CurrentPlayerData.Data.progressionData.xp;
+        set => CurrentPlayerData.Data.progressionData.xp = value;
     }
 
     public static List<string> LevelsCompleted
@@ -73,5 +81,15 @@ public static class ProgressionDataManager
             CurrentPlayerData.Data.progressionData.levelsCompleted = value;
             OnProgressionDataChanged?.Invoke();
         }
+    }
+}
+
+public class DataStatDisplay : Attribute
+{
+    public string DisplayName { get; set; }
+
+    public DataStatDisplay(string displayName)
+    {
+        DisplayName = displayName;
     }
 }

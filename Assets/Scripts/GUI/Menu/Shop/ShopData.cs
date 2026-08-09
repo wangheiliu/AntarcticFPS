@@ -131,7 +131,9 @@ public class ShopData : MonoBehaviour
         infoTitle.text = item.title;
         purchasePromptTitle.text = $"Would you like to buy: {item.title ?? "item"}? (${item.cost})";
         currentItem = item;
-        CheckItemPurchased(item);
+        
+
+        
         // gets the values from the item parameter
         foreach (FieldInfo field in fields)
         {
@@ -189,7 +191,17 @@ public class ShopData : MonoBehaviour
             infoTextTemplate.RemoveFromHierarchy();
             infoScrollContainer.Add(infoCardClone);
         }
-        
+        if (ProgressionDataManager.Money < item.cost)
+        {
+            infoPurchaseButton.text = "You can't afford this!";
+            infoPurchaseButton.SetEnabled(false);
+        } else
+        {
+            infoPurchaseButton.text = "Purchase";
+            infoPurchaseButton.SetEnabled(true);
+        }
+
+        CheckItemPurchased(item);
     }
 
     private void HandlePurchase(ShopItemData item)
@@ -241,10 +253,12 @@ public class ShopData : MonoBehaviour
             if (data.weaponsOwned.Find(m => m.weaponName == item.dataName) != null)
             {
                 infoPurchaseButton.SetEnabled(false);
+                infoPurchaseButton.text = "Equip in inventory";
                 return true;
             } else
             {
                 infoPurchaseButton.SetEnabled(true);
+                infoPurchaseButton.text = "Purchase";
                 return false;
             }
         }

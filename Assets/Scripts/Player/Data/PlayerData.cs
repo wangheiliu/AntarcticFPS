@@ -58,4 +58,6 @@ namespace Player.PlayerData
         [FormerlySerializedAs("level")] public int weaponLevel = 1;
         public List<string> attachments = new List<string>();
     }
+
+    
 }
