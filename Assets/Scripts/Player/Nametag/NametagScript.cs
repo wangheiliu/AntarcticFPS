@@ -3,6 +3,7 @@ using UnityEngine.UIElements;
 using System;
 using System.Text.RegularExpressions;
 using Unity.VisualScripting;
+using UnityEngine.Rendering;
 
 public class NametagScript : MonoBehaviour
 {
@@ -43,8 +44,7 @@ public class NametagScript : MonoBehaviour
         submitButton.RegisterCallback<ClickEvent>(OnSubmit);
         usernameInputField.RegisterValueChangedCallback(CheckUsername);
 
-        
-
+        GeneralPlayerDataManager.OnUsernameChanged += SetUsernameDisplay;
     }
 
     void Start()
@@ -81,9 +81,9 @@ public class NametagScript : MonoBehaviour
         }
         Username = usernameInputField.text;
 
-        if (CurrentPlayerData.Data != null)
+        if (GeneralPlayerDataManager.Username != null)
         {
-            CurrentPlayerData.Data.username = Username;
+            GeneralPlayerDataManager.Username = Username;
             CurrentPlayerData.Data.hasSetUserName = true;
             CurrentPlayerData.Save();
         }
@@ -111,6 +111,11 @@ public class NametagScript : MonoBehaviour
         }
     }
 
+    private void SetUsernameDisplay()
+    {
+        nameElement.text = GeneralPlayerDataManager.Username;
+    }
+
     private void ChangeBorderColors(VisualElement element, Color color)
     {
         element.style.borderBottomColor = color;
@@ -121,6 +126,7 @@ public class NametagScript : MonoBehaviour
 
     void OnDisable()
     {
+        GeneralPlayerDataManager.OnUsernameChanged -= SetUsernameDisplay;
         submitButton.UnregisterCallback<ClickEvent>(OnSubmit);
         usernameInputField.UnregisterValueChangedCallback(CheckUsername);
     }
