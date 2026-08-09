@@ -1,0 +1,111 @@
+:root {
+    justify-content: center;
+    padding-top: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+    flex-direction: row;
+    align-self: auto;
+    align-items: center;
+}
+
+.weapon-slot {
+    flex-basis: auto;
+    flex-grow: 1;
+}
+
+.weapon-slot-placeholder {
+}
+
+.slot-number {
+    color: rgb(255, 255, 255);
+    font-size: 12px;
+}
+
+.unity-tab__header-underline {
+    display: none;
+}
+
+.unity-tab__header {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-color: white;
+    border-width: 2px;
+    color: black;
+    background-color: white;
+}
+
+#outer-tab-view > .unity-tab-view__content-viewport .unity-tab__header:checked {
+    background-color: #222222;
+    color: white;
+}
+
+#inner-tab-view > .unity-tab-view__content-viewport .unity-tab__header:checked {
+    background-color: #525252;
+    color: white;
+}
+
+.weapon-slot-image {
+    max-height: 20%;
+}
+
+.inventory {
+    flex-grow: 1;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    background-color: rgba(55, 55, 55, 0.784);
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
+    border-top-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 5px;
+    border-left-width: 5px;
+    padding-top: 1.5%;
+    padding-right: 1.5%;
+    padding-bottom: 1.5%;
+    padding-left: 1.5%;
+    margin-top: 5%;
+    margin-right: 0%;
+    margin-bottom: 5%;
+    margin-left: 0%;
+    flex-basis: 0;
+}
+
+.outer-tab {
+    padding-top: 3%;
+    padding-right: 3%;
+    padding-bottom: 3%;
+    padding-left: 3%;
+    border-left-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(255, 255, 255);
+    border-bottom-color: rgb(255, 255, 255);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.inner-tab {
+    flex-grow: 1;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
+    background-color: rgb(82, 82, 82);
+}
+
+.outer-tab-view {
+}
+
+.inner-tab-view {
+}
