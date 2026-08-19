@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using Player.PlayerData;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -135,10 +136,10 @@ public static class SaveData
                 try
                 {
                     object converted = Convert.ChangeType(saveValue, defaultValue.GetType());
-                    field.SetValue(saveValue, defaultData);
+                    field.SetValue(data, defaultData); // the object PlayerData, NOT saveValue
                     if (rangeAttribute != null && (saveValue is float || saveValue is int))
                     {
-                        field.SetValue(saveValue, Mathf.Clamp(Convert.ToSingle(saveValue), rangeAttribute.min, rangeAttribute.max));
+                        field.SetValue(data, Mathf.Clamp(Convert.ToSingle(saveValue), rangeAttribute.min, rangeAttribute.max));
                     }
                 } catch (InvalidCastException) {
                     continue;
@@ -153,10 +154,14 @@ public static class SaveData
             if (saveValue.GetType() != defaultValue.GetType()) {
                 try {
                     object converted = Convert.ChangeType(saveValue, defaultValue.GetType());
-                    field.SetValue(saveValue, converted);
+                    field.SetValue(data, converted);
                 } catch (InvalidCastException) {
                     continue;
                 } 
+            }
+
+            if ((string)name == "saveVersion") {
+                field.SetValue(data, defaultValue);
             }
         }
 

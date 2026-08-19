@@ -1,43 +1,64 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI%20Toolkit/MenuGui/MenuInventoryGui.uss?fileID=7433441132597879392&amp;guid=4816b70f4849751408b9bb5addf754ed&amp;type=3#MenuInventoryGui"/>
-    <ui:VisualElement name="equip-section" style="flex-grow: 1; max-height: 50%; width: 20%; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-width: 5px; border-right-width: 5px; border-bottom-width: 5px; border-left-width: 5px; background-color: rgba(55, 55, 55, 0.784); padding-top: 0.5%; padding-right: 0.5%; padding-bottom: 0.5%; padding-left: 0.5%; max-width: 20%;">
+    <ui:VisualElement name="equip-section" style="flex-grow: 1; max-height: 75%; width: 20%; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-width: 5px; border-right-width: 5px; border-bottom-width: 5px; border-left-width: 5px; background-color: rgba(55, 55, 55, 0.784); padding-top: 0.5%; padding-right: 0.5%; padding-bottom: 0.5%; padding-left: 0.5%; max-width: 20%; translate: -110% 0; display: none; transition-property: translate; transition-duration: 0.25s;">
         <ui:VisualElement name="weapon-equip-container" style="flex-grow: 0; flex-direction: column;">
             <ui:VisualElement name="primary-slot" class="weapon-slot" style="flex-grow: 1; margin-bottom: 5px; margin-top: 5px; background-color: rgb(34, 34, 34); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
-                <ui:Label text="+" picking-mode="Ignore" name="placeholder-text" class="weapon-slot-placeholder" style="position: absolute; width: 100%; height: 100%; color: rgb(255, 255, 255); -unity-text-align: middle-center; font-size: 200px; -unity-text-generator: advanced; -unity-text-auto-size: best-fit 10px 200px; align-self: center; align-content: center; align-items: center; justify-content: center; display: none;"/>
-                <ui:Label text="Label" name="Item-title" style="width: 100%; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; color: rgb(255, 255, 255); -unity-font-style: bold; font-size: 35px; flex-shrink: 1;"/>
-                <ui:Image scale-mode="ScaleToFit" class="weapon-slot-image" style="flex-grow: 1;"/>
-                <ui:Label text="1" class="slot-number" style="-unity-text-align: upper-right;"/>
+                <ui:Button text="X" name="slot-close-button" tooltip="Removes the primary weapon" class="close-button-slot" style="color: rgb(255, 255, 255); font-size: 25px; overflow: hidden; display: flex;"/>
+                <ui:Label text="+" picking-mode="Ignore" name="placeholder-text" class="weapon-slot-placeholder" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;"/>
+                <ui:Label text="Primary weapon" name="item-title" class="weapon-slot__title" style="display: flex;"/>
+                <ui:Image scale-mode="ScaleToFit" class="weapon-slot-image" style="flex-grow: 1; display: flex;"/>
+                <ui:Label text="1" class="slot-number" style="-unity-text-align: upper-right; display: flex;"/>
             </ui:VisualElement>
             <ui:VisualElement name="secondary-slot" class="weapon-slot" style="flex-grow: 1; margin-bottom: 5px; margin-top: 5px; background-color: rgb(34, 34, 34); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
-                <ui:Label text="+" picking-mode="Ignore" name="placeholder-text" class="weapon-slot-placeholder" style="position: absolute; width: 100%; height: 100%; color: rgb(255, 255, 255); -unity-text-align: middle-center; font-size: 200px; -unity-text-generator: advanced; -unity-text-auto-size: best-fit 10px 200px; align-self: center; align-content: center; align-items: center; justify-content: center; display: none;"/>
-                <ui:Label text="Label" name="Item-title" style="width: 100%; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; color: rgb(255, 255, 255); -unity-font-style: bold; font-size: 35px; flex-shrink: 1;"/>
+                <ui:Button text="X" name="slot-close-button" tooltip="Removes the secondary weapon" class="close-button-slot" style="color: rgb(255, 255, 255); font-size: 25px; overflow: hidden;"/>
+                <ui:Label text="+" picking-mode="Ignore" name="placeholder-text" class="weapon-slot-placeholder" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;"/>
+                <ui:Label text="Secondary weapon name" name="Item-title" class="weapon-slot__title" style="width: 100%; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; color: rgb(255, 255, 255); -unity-font-style: bold; font-size: 35px; flex-shrink: 1; white-space: normal;"/>
                 <ui:Image class="weapon-slot-image" style="flex-grow: 1; flex-shrink: 1;"/>
                 <ui:Label text="2" class="slot-number" style="-unity-text-align: upper-right;"/>
             </ui:VisualElement>
             <ui:VisualElement name="tertiary-slot" class="weapon-slot" style="flex-grow: 1; margin-bottom: 5px; margin-top: 5px; background-color: rgb(34, 34, 34); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
-                <ui:Label text="+" picking-mode="Ignore" name="placeholder-text" class="weapon-slot-placeholder" style="position: absolute; width: 100%; height: 100%; color: rgb(255, 255, 255); -unity-text-align: middle-center; font-size: 200px; -unity-text-generator: advanced; -unity-text-auto-size: best-fit 10px 200px; align-self: center; align-content: center; align-items: center; justify-content: center; display: none;"/>
-                <ui:Label text="Label" name="Item-title" style="width: 100%; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; color: rgb(255, 255, 255); -unity-font-style: bold; font-size: 35px; flex-shrink: 1;"/>
+                <ui:Button text="X" name="slot-close-button" tooltip="Removes tool from slot" class="close-button-slot" style="color: rgb(255, 255, 255); font-size: 25px; overflow: hidden;"/>
+                <ui:Label text="+" picking-mode="Ignore" name="placeholder-text" class="weapon-slot-placeholder" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;"/>
+                <ui:Label text="Tool name" name="Item-title" style="width: 100%; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; color: rgb(255, 255, 255); -unity-font-style: bold; font-size: 35px; flex-shrink: 1; white-space: normal;"/>
                 <ui:Image class="weapon-slot-image" style="flex-grow: 1;"/>
                 <ui:Label text="3" class="slot-number" style="-unity-text-align: upper-right;"/>
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
-    <ui:VisualElement name="inventory-container" picking-mode="Ignore" style="flex-grow: 1; align-self: auto; width: 0%; height: 100%; align-items: flex-end; justify-content: center;">
-        <ui:VisualElement style="flex-grow: 1; width: 35%; align-items: flex-end;">
-            <ui:VisualElement name="inventory" class="inventory">
+    <ui:VisualElement name="inventory-container" picking-mode="Ignore" style="flex-grow: 1; align-self: auto; width: 0%; height: 100%; align-items: flex-end; justify-content: center; display: flex;">
+        <ui:VisualElement name="inventory-content-container" style="flex-grow: 1; width: 35%; align-items: flex-end; translate: 110% 0; display: none; transition-property: translate; transition-duration: 0.25s;">
+            <ui:VisualElement name="inventory" class="inventory" style="display: flex;">
                 <ui:VisualElement style="flex-grow: 0; flex-direction: row; padding-bottom: 1%;">
-                    <ui:Label text="Inventory" style="-unity-text-align: middle-left; color: rgb(255, 255, 255); -unity-font-style: bold; font-size: 45px; flex-grow: 1;"/>
-                    <ui:Button text="X" name="close-button" style="max-height: 50px; aspect-ratio: 1; font-size: 25px; align-self: center; background-color: rgb(255, 0, 0); border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; color: rgb(255, 255, 255); margin-bottom: 4px; margin-top: 4px; align-items: auto; flex-grow: 0;"/>
+                    <ui:Label text="Inventory" style="-unity-text-align: middle-left; color: rgb(255, 255, 255); -unity-font-style: bold; font-size: 45px; flex-grow: 1; max-width: 100%; white-space: normal;"/>
+                    <ui:Button text="X" name="close-button" style="max-height: 50px; aspect-ratio: 1; font-size: 25px; align-self: center; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; color: rgb(255, 255, 255); margin-bottom: 4px; margin-top: 4px; align-items: auto; flex-grow: 0;"/>
                 </ui:VisualElement>
                 <ui:TabView name="outer-tab-view" class="outer-tab-view" style="flex-grow: 1;">
-                    <ui:Tab label="Tab" class="outer-tab" style="flex-grow: 1; background-color: rgb(34, 34, 34); height: auto; min-height: 25px;">
-                        <ui:TabView name="inner-tab-view" class="inner-tab-view" style="flex-grow: 1; height: auto;">
-                            <ui:Tab label="Tab" class="inner-tab" style="min-height: 25px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px;"/>
+                    <ui:Tab label="Tab" name="weapons-tab" picking-mode="Ignore" class="outer-tab" style="flex-grow: 1; background-color: rgb(34, 34, 34); height: auto; min-height: 25px;">
+                        <ui:TabView name="weapon-inner-tab-view" class="inner-tab-view" style="flex-grow: 1; height: auto;">
+                            <ui:Tab label="Tab" name="primary-weapons-tab" picking-mode="Ignore" class="inner-tab" style="min-height: 25px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; padding-top: 2%; padding-right: 2%; padding-bottom: 2%; padding-left: 2%;">
+                                <ui:ScrollView class="inventory-scroll-view">
+                                    <ui:VisualElement picking-mode="Ignore" class="weapon-inventory-card" style="margin-bottom: 10px;">
+                                        <ui:Label text="item name" class="weapon-inventory__title"/>
+                                        <ui:Image class="weapon-inventory__image"/>
+                                        <ui:Button text="View" class="weapon-inventory__btn white-button-transition"/>
+                                    </ui:VisualElement>
+                                </ui:ScrollView>
+                            </ui:Tab>
                         </ui:TabView>
                     </ui:Tab>
                 </ui:TabView>
             </ui:VisualElement>
-            <ui:VisualElement name="properties" class="inventory" style="display: flex;"/>
+            <ui:VisualElement name="properties" class="inventory" style="display: none; transition-property: translate; transition-duration: 0.25s; translate: 110% 0;">
+                <ui:Button text="X" name="prop-close-button" class="property-close-btn" style="overflow: hidden; transition-duration: 0.25s, 0.25s, 0.25s, 0.25s, 0.25s; transition-timing-function: ease, ease, ease, ease, ease; transition-delay: 0s, 0s, 0s, 0s, 0s; max-height: 10%; flex-shrink: 0;"/>
+                <ui:VisualElement name="weapon-properties-container" style="flex-grow: 1; display: flex;">
+                    <ui:Label text="Item Name" picking-mode="Position" style="font-size: 45px; -unity-font-style: bold; color: rgb(255, 255, 255); white-space: normal; width: 100%;"/>
+                    <ui:Image picking-mode="Position" style="max-height: 80px; flex-grow: 1; display: flex; margin-bottom: 8px; margin-top: 8px; border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;"/>
+                    <ui:ScrollView name="properties-table" style="flex-grow: 1; background-color: rgb(34, 34, 34); border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; padding-top: 2%; padding-right: 2%; padding-bottom: 3%; padding-left: 2%;"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="equip-btn-container" picking-mode="Ignore" style="flex-grow: 0; min-height: 45px; margin-top: 2%;">
+                    <ui:Button text="Equip" name="equip-button" class="equip-button white-button-transition"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

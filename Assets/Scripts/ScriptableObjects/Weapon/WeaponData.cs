@@ -1,6 +1,13 @@
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
+public enum WeaponType
+{
+    Primary,
+    Secondary,
+    Tools
+}
 [CreateAssetMenu(menuName = "Shop/Weapon")] public class WeaponData : ShopItemData //is this inheritence?
 {
     [StatDisplay("Clip Size", null, "Weapon Information")]
@@ -13,4 +20,6 @@ using UnityEngine;
     public float damage;
     public int ammo;
     public string modelName;
+    [StatDisplay("Weapon type", null, "Weapon Information")]
+    public WeaponType weaponType;
 }

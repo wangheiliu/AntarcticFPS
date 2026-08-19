@@ -179,7 +179,7 @@ public class ShopData : MonoBehaviour
             {
                 Label infoTextClone = new()
                 {
-                    text = $"{stat.Name}: {stat.Display}"
+                    text = $"<size=105%><b>{stat.Name}</b></size>: {stat.Display}"
                 };
                 foreach (string classes in infoTextTemplate.GetClasses())
                 {
