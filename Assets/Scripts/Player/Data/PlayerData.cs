@@ -8,11 +8,14 @@ namespace Player.PlayerData
     [Serializable]
     public class PlayerData
     {
-        public int saveVersion = 1;
+        public int saveVersion = 2;
         public string username = $"GuestPenguin";
         public bool hasSetUserName = false;
         public ProgressionData progressionData = new ProgressionData();
         public PlayerStats playerStats = new PlayerStats();
+        public WeaponsInventory primaryWeaponEquipped;
+        public WeaponsInventory secondaryWeaponEquipped;
+        public WeaponsInventory toolsEquipped;
 
         public List<WeaponsInventory> weaponsOwned = new List<WeaponsInventory>();
         public PlayerSettings settings = new PlayerSettings();
@@ -55,6 +58,7 @@ namespace Player.PlayerData
     public class WeaponsInventory
     {
         public string weaponName = "";
+        public string weaponType = "";
         [FormerlySerializedAs("level")] public int weaponLevel = 1;
         public List<string> attachments = new List<string>();
     }
