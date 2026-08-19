@@ -10,7 +10,8 @@ public enum MenuState
         Settings,
         Credits,
         Shop,
-        Playing
+        Playing,
+        Inventory
     }
 public class GameManager : MonoBehaviour
 {
@@ -21,11 +22,13 @@ public class GameManager : MonoBehaviour
     [Header("Other Menu Scripts")]
     [SerializeField] private ShopMenuScript shopMenuScript;
     [SerializeField] private SettingsScript settingsScript;
+    [SerializeField] private InventoryScript inventoryScript;
 
     private Button playButton;
     private Button shopButton;
     private Button settingsButton;
     private Button quitButton;
+    private Button inventoryBtn;
     private UIDocument uiDocument;
     private VisualElement btnContainer;
     private Label title;
@@ -52,13 +55,15 @@ public class GameManager : MonoBehaviour
         title = root.Q<Label>(className: "title");
         playButton = btnContainer.Q<Button>("PlayButton");
         shopButton = btnContainer.Q<Button>("ShopButton");
+        inventoryBtn = btnContainer.Q<Button>("CustomizeButton");
         settingsButton = btnContainer.Q<Button>("SettingsButton");
         quitButton = btnContainer.Q<Button>("Quit");
         
-        playButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Playing));
-        shopButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Shop));
-        settingsButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Settings));
-        quitButton?.RegisterCallback<ClickEvent>(evt => QuitGame());
+        playButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Playing), CallbackOptions.Removable);
+        shopButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Shop), CallbackOptions.Removable);
+        settingsButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Settings), CallbackOptions.Removable);
+        quitButton?.RegisterCallback<ClickEvent>(evt => QuitGame(), CallbackOptions.Removable);
+        inventoryBtn?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Inventory), CallbackOptions.Removable);
 
         btnContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
 
@@ -80,10 +85,11 @@ public class GameManager : MonoBehaviour
 
     void OnDisable()
     {
-        playButton?.UnregisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Playing));
-        shopButton?.UnregisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Shop));
-        settingsButton?.UnregisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Settings));
-        quitButton?.UnregisterCallback<ClickEvent>(evt => QuitGame());
+        playButton?.UnregisterAllRemovableCallbacks();
+        shopButton?.UnregisterAllRemovableCallbacks();
+        settingsButton?.UnregisterAllRemovableCallbacks();
+        quitButton?.UnregisterAllRemovableCallbacks();
+        inventoryBtn?.UnregisterAllRemovableCallbacks();
     }
 
     
@@ -131,6 +137,13 @@ public class GameManager : MonoBehaviour
                 UnityEngine.Cursor.visible = true;
                 settingsScript.SettingsTransition();
                 break;
+            case MenuState.Inventory:
+                OpenItem(documentArray[2], CameraArray[0]);
+                CloseMenu();
+                UnityEngine.Cursor.lockState = CursorLockMode.None;
+                UnityEngine.Cursor.visible = true;
+                inventoryScript.OpenInventory();
+                break;
             case MenuState.Playing:
                 OpenItemArray(hudArray, CameraArray[0]);
                 CloseMenu();
@@ -153,7 +166,7 @@ public class GameManager : MonoBehaviour
                 waitingToClose = true;
                 CloseAllItems();
                 uiDocument.rootVisualElement.style.display = DisplayStyle.Flex;
-                ShopTranslate(shopOpenTranslation);
+                MenuTranslate(shopOpenTranslation);
                 profileDisplay.rootVisualElement.style.display = DisplayStyle.Flex;
                 break;
             case MenuState.Playing:
@@ -162,7 +175,7 @@ public class GameManager : MonoBehaviour
                 PlayerMovementManager(true);
                 playerState = MenuState.Playing;
                 waitingToClose = true;
-                ShopTranslate(shopClosedTransition);
+                MenuTranslate(shopClosedTransition);
                 
                 
                 break;
@@ -172,7 +185,7 @@ public class GameManager : MonoBehaviour
                 
                 playerState = MenuState.Shop;
                 waitingToClose = true;
-                ShopTranslate(shopClosedTransition);
+                MenuTranslate(shopClosedTransition);
                 profileDisplay.rootVisualElement.style.display = DisplayStyle.None;
                 break;
             case MenuState.Settings:
@@ -181,8 +194,17 @@ public class GameManager : MonoBehaviour
                 
                 playerState = MenuState.Settings;
                 waitingToClose = true;
-                ShopTranslate(shopClosedTransition);
+                MenuTranslate(shopClosedTransition);
                 profileDisplay.rootVisualElement.style.display = DisplayStyle.Flex;
+                break;
+            case MenuState.Inventory:
+                isMenuOpen = true;
+                PlayerMovementManager(false);
+                
+                playerState = MenuState.Inventory;
+                waitingToClose = true;
+                MenuTranslate(shopClosedTransition);
+                profileDisplay.rootVisualElement.style.display = DisplayStyle.None;
                 break;
         }
     }
@@ -244,7 +266,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void ShopTranslate(Translate translate)
+    public void MenuTranslate(Translate translate)
     {
         btnContainer.style.translate = translate;
         title.style.translate = translate;

@@ -4,9 +4,9 @@ public abstract class ShopItemData : ScriptableObject
 {
     public string title;
     
-    [StatDisplay("Type", null, "Weapon Information")]
+    [StatDisplay("Type", null, "Basic Information")]
     public Catagories type;
-    [StatDisplay("Cost", "$", "Weapon Information")]
+    [StatDisplay("Cost", "$", "Basic Information")]
     public int cost;
     public string shortDescription;
     [StatDisplay("Description", null, "Description")]

@@ -37,6 +37,10 @@ public class ProfileDisplayScript : MonoBehaviour
             var displayName = prop.GetCustomAttribute<DataStatDisplay>();
             if (displayName != null)
             {
+                if (displayName.Location != "ProfileDisplay")
+                {
+                    continue;
+                }
                 Label statLabel = new Label();
                 statLabel.AddToClassList("stat-display-text");
                 statLabel.text = $"{displayName.DisplayName}: {prop.GetValue(null)}"; // static field values use null
