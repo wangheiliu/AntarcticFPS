@@ -8,6 +8,8 @@ using UnityEngine.EventSystems;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public event Action<PlayerState> OnPlayerStateChanged;
+
     [Header("Player Settings")]
     [SerializeField] private Transform playerPos;
     public float walkSpeed = 5f;
@@ -61,10 +63,13 @@ public class PlayerMovement : MonoBehaviour
     
     public enum PlayerState
     {
+        Idle,
         Walking,
         Sprinting,
         Crouching,
-        Sliding
+        Sliding,
+        Jumping,
+        Falling
     }
     public PlayerState currentPlayerState;
     void Start()
@@ -72,6 +77,7 @@ public class PlayerMovement : MonoBehaviour
         charController = GetComponent<CharacterController>();
         normalHeight = charController.height;
         currentSpeed = walkSpeed;
+        currentPlayerState = PlayerState.Idle;
     }
 
     void Update()
@@ -112,8 +118,8 @@ public class PlayerMovement : MonoBehaviour
         // tracks the booleans
         bool isMoving = moveInput != Vector2.zero;
         isCrouching = (Keyboard.current.leftCtrlKey.isPressed || Keyboard.current.cKey.isPressed) && !Keyboard.current.leftShiftKey.isPressed;
-        canSlide = Keyboard.current.leftShiftKey.isPressed && Keyboard.current.cKey.isPressed && hudScript.stamina > 15;
-        canSprint = Keyboard.current.leftShiftKey.isPressed && !Keyboard.current.cKey.isPressed && isMoving && hudScript.stamina > 0 && !isCrouching && isMoving;
+        canSlide = Keyboard.current.leftShiftKey.isPressed && Keyboard.current.cKey.isPressed && hudScript.Stamina > 15;
+        canSprint = Keyboard.current.leftShiftKey.isPressed && !Keyboard.current.cKey.isPressed && isMoving && hudScript.Stamina > 0 && !isCrouching && isMoving;
         targetHeight = (isCrouching || isSliding) ? crouchHeight : normalHeight;
 
         if (!isNotOnWalkableSlope)
@@ -124,18 +130,16 @@ public class PlayerMovement : MonoBehaviour
         // sprinting
         if (canSprint)
         {
-            currentPlayerState = PlayerState.Sprinting;
             currentSpeed = sprintSpeed;
             staminaRecoveryTime = 1.5f;
-            hudScript.stamina = Mathf.Clamp(
-                hudScript.stamina - 20f * Time.deltaTime,
+            hudScript.Stamina = Mathf.Clamp(
+                hudScript.Stamina - 20f * Time.deltaTime,
                 0f,
                 100f
             );
         }
         else
         {
-            currentPlayerState = PlayerState.Walking;
             currentSpeed = 5f;
             if (staminaRecoveryTime > 0)
             {
@@ -146,7 +150,7 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                hudScript.stamina = Mathf.Clamp(hudScript.stamina + 7f * Time.deltaTime, 0f, 100f);
+                hudScript.Stamina = Mathf.Clamp(hudScript.Stamina + 7f * Time.deltaTime, 0f, 100f);
             }
         }
 
@@ -187,7 +191,7 @@ public class PlayerMovement : MonoBehaviour
         {
             hudScript.cooldownLabel.text = "Sliding";
         }
-        else if (slideCoolDownTimer <= 0 && hudScript.stamina > 15)
+        else if (slideCoolDownTimer <= 0 && hudScript.Stamina > 15)
         {
             hudScript.cooldownLabel.text = "Sliding: ready";
         } 
@@ -307,6 +311,8 @@ public class PlayerMovement : MonoBehaviour
                 move.y = velocityY;
             }
         }
+
+        UpdateState(move);
         // Final move
         charController.Move(move * Time.deltaTime);
         
@@ -351,6 +357,31 @@ public class PlayerMovement : MonoBehaviour
         );
     }
 
+    private void UpdateState(Vector3 movement = default(Vector3))
+    {
+        if (isSliding)
+        {
+            currentPlayerState = PlayerState.Sliding;
+        } else if (isCrouching)
+        {
+            currentPlayerState = PlayerState.Crouching;
+        } else if (!isGrounded)
+        {
+            currentPlayerState = PlayerState.Falling;
+        } else if (canSprint)
+        {
+            currentPlayerState = PlayerState.Sprinting;
+        } else if (movement.magnitude > 0.1f)
+        {
+            currentPlayerState = PlayerState.Walking;
+            
+        } else
+        {
+            currentPlayerState = PlayerState.Idle;
+        }
+        OnPlayerStateChanged?.Invoke(currentPlayerState);
+    }
+
     private void Crouch()
     {
         currentPlayerState = PlayerState.Crouching;
@@ -372,7 +403,6 @@ public class PlayerMovement : MonoBehaviour
         {
             currentSpeed = 5f;
         }
-        currentPlayerState = PlayerState.Walking;
         charController.height = Mathf.Lerp(charController.height, targetHeight, crouchSpeed * Time.deltaTime);
         charController.center = new Vector3(
             0,
@@ -386,7 +416,7 @@ public class PlayerMovement : MonoBehaviour
         currentPlayerState = PlayerState.Sliding;
         slideSpeed = Mathf.Max(currentSpeed, sprintSpeed) * 1.2f;
         canRegenerateStamina = false;
-        hudScript.stamina -= 15;
+        hudScript.Stamina -= 15;
         isSliding = true;
         charController.height = Mathf.Lerp(charController.height, targetHeight, crouchSpeed * Time.deltaTime);
         charController.center = new Vector3(
