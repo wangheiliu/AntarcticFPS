@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -5,11 +6,38 @@ using UnityEngine.UIElements;
 public class HUDScript : MonoBehaviour
 {
     [SerializeField] private UIDocument uIDocument;
-
+    private event Action OnHealthChanged;
+    private event Action OnStaminaChanged;
     public float health = 100;
     public float stamina = 100;
-    private float lastHealth;
-    private float lastStamina;
+
+    public float Health
+    {
+        get => health;
+        set
+        {
+            if (health == value)
+            {
+                return;
+            }
+            health = Mathf.Clamp(value, 0f, 100f);
+            OnHealthChanged?.Invoke();
+        }
+    }
+
+    public float Stamina
+    {
+        get => stamina;
+        set
+        {
+            if (stamina == value)
+            {
+                return;
+            }
+            stamina = Mathf.Clamp(value, 0f, 100f);
+            OnStaminaChanged?.Invoke();
+        }
+    }
 
     private Label healthLabel;
     private Label staminaLabel;
@@ -17,7 +45,8 @@ public class HUDScript : MonoBehaviour
     private VisualElement healthProgressElement;
     private VisualElement staminaProgressElement;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+
+    void OnEnable()
     {
         var root = uIDocument.rootVisualElement;
         healthLabel = root.Q<Label>("health-label");
@@ -26,30 +55,30 @@ public class HUDScript : MonoBehaviour
         staminaProgressElement = root.Q<VisualElement>("stamina-progress-bar");
         cooldownLabel = root.Q<Label>("cooldown-text");
 
-        root.style.display = DisplayStyle.None;
+        OnHealthChanged += UpdateHealthGUI;
+        OnStaminaChanged += UpdateStaminaGUI;
     }
-
-    // Update is called once per frame
-    void Update()
+    void Start()
     {
-        if (health != lastHealth)
-        {
-            healthLabel.text = $"HP: {Mathf.Clamp(Mathf.FloorToInt(health), 0f, 100f)}";
-            healthProgressElement.style.width = new StyleLength(Length.Percent(Mathf.Clamp(health, 0f, 100f)));
-            lastHealth = health;
-        }
-        
-        if (stamina != lastStamina)
-        {
-            staminaLabel.text = $"STA: {Mathf.Clamp(Mathf.FloorToInt(stamina), 0f, 100f)}";
-            staminaProgressElement.style.width = new StyleLength(Length.Percent(Mathf.Clamp(stamina, 0f, 100f)));
-            lastStamina = stamina;
-        }
+        uIDocument.rootVisualElement.style.display = DisplayStyle.None;
+        UpdateHealthGUI();
+        UpdateStaminaGUI();
     }
 
     public void DamageHealth(float damage)
     {
-        health -= damage;
+        Health -= damage;
     }
 
+    private void UpdateHealthGUI()
+    {
+        healthLabel.text = $"HP: {Mathf.Clamp(Mathf.FloorToInt(health), 0f, 100f)}";
+        healthProgressElement.style.width = new StyleLength(Length.Percent(Mathf.Clamp(health, 0f, 100f)));
+    }
+
+    private void UpdateStaminaGUI()
+    {
+        staminaLabel.text = $"STA: {Mathf.Clamp(Mathf.FloorToInt(stamina), 0f, 100f)}";
+        staminaProgressElement.style.width = new StyleLength(Length.Percent(Mathf.Clamp(stamina, 0f, 100f)));
+    }
 }
