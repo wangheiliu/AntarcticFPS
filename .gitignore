@@ -17,3 +17,4 @@ Assets/ThirdParty/**
 !Assets/ThirdParty/**/
 !Assets/ThirdParty.meta
 !Assets/ThirdParty/**/*.meta
+UIElementsSchema/
