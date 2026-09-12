@@ -44,7 +44,6 @@ public class ProfileDisplayScript : MonoBehaviour
                 Label statLabel = new Label();
                 statLabel.AddToClassList("stat-display-text");
                 statLabel.text = $"{displayName.DisplayName}: {prop.GetValue(null)}"; // static field values use null
-                Debug.Log(statLabel.text);
                 statLabel.style.display = DisplayStyle.Flex;
                 textContainer.Add(statLabel);
                 

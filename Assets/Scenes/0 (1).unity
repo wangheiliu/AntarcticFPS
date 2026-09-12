@@ -11243,6 +11243,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 1434896115984838486, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+      propertyPath: jumpForce
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1434896115984838486, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+      propertyPath: playerAnimationScript
+      value: 
+      objectReference: {fileID: 1786643658}
     - target: {fileID: 3852551257452437950, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
       propertyPath: shopCamera
       value: 
