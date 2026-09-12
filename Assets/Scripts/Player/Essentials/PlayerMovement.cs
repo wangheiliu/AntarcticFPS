@@ -8,7 +8,11 @@ using UnityEngine.EventSystems;
 
 public class PlayerMovement : MonoBehaviour
 {
+    // Animation
     public event Action<PlayerState> OnPlayerStateChanged;
+    public event Action OnPlayerJumped;
+    public event Action OnPlayerLanded;
+    public event Action<bool> OnPlayerSlide;
 
     [Header("Player Settings")]
     [SerializeField] private Transform playerPos;
@@ -44,7 +48,7 @@ public class PlayerMovement : MonoBehaviour
     private bool canSlide;
     private bool isSlideCoolDownEnabled;
     private bool isSliding;
-    private bool isGrounded;
+    public bool isGrounded;
     private float targetHeight;
     private bool canRegenerateStamina = true;
 
@@ -71,19 +75,55 @@ public class PlayerMovement : MonoBehaviour
         Jumping,
         Falling
     }
-    public PlayerState currentPlayerState;
+    private PlayerState currentPlayerState = PlayerState.Idle;
+    private bool _isLanded = false;
+    public bool IsLanded
+    {
+        get => _isLanded;
+        set
+        {
+            if (_isLanded != value)
+            {
+                _isLanded = value;
+                if (_isLanded)
+                {
+                    OnPlayerLanded?.Invoke();
+                }
+            }
+        }
+    }
+    public PlayerState CurrentPlayerState
+    {
+        get => currentPlayerState;
+        set
+        {
+            if (currentPlayerState != value)
+            {
+                currentPlayerState = value;
+                OnPlayerStateChanged?.Invoke(currentPlayerState);
+            }
+        }
+    }
     void Start()
     {
         charController = GetComponent<CharacterController>();
         normalHeight = charController.height;
         currentSpeed = walkSpeed;
-        currentPlayerState = PlayerState.Idle;
+        CurrentPlayerState = PlayerState.Idle;
     }
 
     void Update()
     {
         isGrounded = IsGrounded();
-
+        if (currentPlayerState == PlayerState.Falling && isGrounded)
+        {
+            Debug.Log("Player has landed");
+            IsLanded = true;
+        }
+        else
+        {
+            IsLanded = false;
+        }
         // Movement input
         Vector2 moveInput = Vector2.zero;
 
@@ -213,6 +253,7 @@ public class PlayerMovement : MonoBehaviour
         {
             velocityY = Mathf.Sqrt(jumpForce * -2f * gravity);
         }
+
         // Gravity
         if (charController.isGrounded && velocityY < 0 && !isNotOnWalkableSlope)
         {
@@ -312,7 +353,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        UpdateState(move);
+        UpdateState();
         // Final move
         charController.Move(move * Time.deltaTime);
         
@@ -348,43 +389,61 @@ public class PlayerMovement : MonoBehaviour
 
     private bool IsGrounded()
     {
-        Vector3 checkPos = transform.position + Vector3.down * (charController.height / 2 + charController.radius);
+        Vector3 center = transform.TransformPoint(charController.center);
+        float bottomOffset = (charController.height / 2) - charController.radius;
+        Vector3 checkPos = center + Vector3.down * bottomOffset + Vector3.down * (charController.skinWidth + 0.03f);
         return Physics.CheckSphere(
             checkPos,
-            charController.radius * 0.9f,
+            charController.radius,
             LayerMask.GetMask("Default"),
             QueryTriggerInteraction.Ignore
         );
     }
 
-    private void UpdateState(Vector3 movement = default(Vector3))
+    private void OnDrawGizmos()
     {
+        if (charController != null)
+        {
+            Vector3 center = transform.TransformPoint(charController.center);
+            float bottomOffset = (charController.height / 2) - charController.radius;
+            Vector3 checkPos = center + Vector3.down * bottomOffset + Vector3.down * (charController.skinWidth + 0.03f);
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(checkPos, charController.radius);
+        }
+    }
+
+    private void UpdateState()
+    {
+        Vector3 movement = new(charController.velocity.x, 0, charController.velocity.z);
         if (isSliding)
         {
-            currentPlayerState = PlayerState.Sliding;
+            CurrentPlayerState = PlayerState.Sliding;
         } else if (isCrouching)
         {
-            currentPlayerState = PlayerState.Crouching;
+            CurrentPlayerState = PlayerState.Crouching;
+        } else if (Keyboard.current.spaceKey.wasPressedThisFrame && isGrounded && !isCrouching && !isSliding && !isNotOnWalkableSlope)
+        {
+            CurrentPlayerState = PlayerState.Jumping;
+            OnPlayerJumped?.Invoke();
+            Debug.Log("Player is jumping");
         } else if (!isGrounded)
         {
-            currentPlayerState = PlayerState.Falling;
+            CurrentPlayerState = PlayerState.Falling;
         } else if (canSprint)
         {
-            currentPlayerState = PlayerState.Sprinting;
+            CurrentPlayerState = PlayerState.Sprinting;
         } else if (movement.magnitude > 0.1f)
         {
-            currentPlayerState = PlayerState.Walking;
-            
+            CurrentPlayerState = PlayerState.Walking;
         } else
         {
-            currentPlayerState = PlayerState.Idle;
+            CurrentPlayerState = PlayerState.Idle;
         }
-        OnPlayerStateChanged?.Invoke(currentPlayerState);
     }
 
     private void Crouch()
     {
-        currentPlayerState = PlayerState.Crouching;
+        CurrentPlayerState = PlayerState.Crouching;
         currentSpeed = 3f;
         charController.height = Mathf.Lerp(charController.height, targetHeight, crouchSpeed * Time.deltaTime);
         charController.center = new Vector3(
@@ -413,7 +472,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void StartSlide()
     {
-        currentPlayerState = PlayerState.Sliding;
+        CurrentPlayerState = PlayerState.Sliding;
         slideSpeed = Mathf.Max(currentSpeed, sprintSpeed) * 1.2f;
         canRegenerateStamina = false;
         hudScript.Stamina -= 15;
@@ -428,7 +487,7 @@ public class PlayerMovement : MonoBehaviour
         slideDirection = cam.forward;
         slideDirection.y = 0;
         slideDirection.Normalize();
-
+        OnPlayerSlide?.Invoke(true);
     }
 
     private void UpdateSlide()
@@ -499,7 +558,8 @@ public class PlayerMovement : MonoBehaviour
         {
             yield break;
         }
-        currentPlayerState = PlayerState.Sliding;
+        OnPlayerSlide?.Invoke(false);
+        CurrentPlayerState = PlayerState.Sliding;
         slideCoolDownTimer = slideCooldownDuration; //sets the timer so that it will start in Update()
         isSliding = false;
         isSlideCoolDownEnabled = true;
