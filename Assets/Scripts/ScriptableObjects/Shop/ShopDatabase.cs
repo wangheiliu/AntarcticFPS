@@ -1,7 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-[CreateAssetMenu(menuName = "Shop/Database")] public class ShopDatabase : ScriptableObject
+namespace Game.ScriptableObjects.Shop
 {
-    public List<ShopItemData> itemList;
+    [CreateAssetMenu(menuName = "Shop/Database")]
+    public class ShopDatabase : ScriptableObject
+    {
+        public List<ShopItemData> itemList;
+    }
 }
+

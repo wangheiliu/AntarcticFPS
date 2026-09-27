@@ -1,0 +1,40 @@
+:root {
+    padding-top: 5%;
+    padding-right: 5%;
+    padding-bottom: 5%;
+    padding-left: 5%;
+    flex-direction: row;
+}
+
+.container {
+    flex-grow: 1;
+    padding: 30px 30px 20px 30px;
+    background-color: rgb(67, 67, 67);
+    transition-property: translate;
+    transition-duration: 0.2s;
+    translate: 0% 0 0;
+}
+
+.level-select--disabled {
+    translate: -110% 0 0;
+    margin-right: 0px;
+}
+
+.property-select--disabled {
+    translate: 125% 0 0;
+    margin-left: 0px;
+}
+
+.property-select--enabled {
+    margin-left: 30px;
+    translate: 0% 0 0;
+}
+
+.level-select--enabled {
+    margin-right: 30px;
+    translate: 0% 0 0;
+}
+
+.prop-text {
+    color: white;
+}

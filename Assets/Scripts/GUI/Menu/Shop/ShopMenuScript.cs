@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -16,11 +15,10 @@ public class ShopMenuScript : MonoBehaviour
 
 
     private bool waitingShopTransition;
-    private bool waitingInfoTransition;
 
     // maybe use a ternrary operator for these?
     private bool isOpen = false;
-    private bool isInfoOpen = false;
+    public bool isInfoOpen = false;
     public bool isFiltersOpen = false;
     private bool isPromptOpen = false; 
 
@@ -63,21 +61,9 @@ public class ShopMenuScript : MonoBehaviour
         promptContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         //infoCloseButton.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
 
-        if (filtersButton != null && filtersContainer != null)
-        {
-            filtersButton.clicked += FiltersTransition;
-        }
-
-        if (closeButton != null)
-        {
-            closeButton.clicked += CloseShop;
-        }
-
-        if (infoCloseButton != null)
-        {
-            infoCloseButton.clicked += CloseInfo;
-        }
-
+        closeButton.RegisterCallback<ClickEvent>(CloseShop);
+        infoCloseButton.RegisterCallback<ClickEvent>(CloseInfo);
+        filtersButton?.RegisterCallback<ClickEvent>(FiltersTransition);
         purchaseButton?.RegisterCallback<ClickEvent>(evt => OnPurchasePrompt(evt, true), CallbackOptions.Removable);
         cancelPurchase?.RegisterCallback<ClickEvent>(evt => OnPurchasePrompt(evt, false), CallbackOptions.Removable);
     }
@@ -93,7 +79,6 @@ public class ShopMenuScript : MonoBehaviour
             }
         } else if (evt.target == infoElement)
         {
-            waitingInfoTransition = false;
             if (!isInfoOpen)
             {
                 infoElement.style.display = DisplayStyle.None;
@@ -107,7 +92,7 @@ public class ShopMenuScript : MonoBehaviour
         }
     }
 
-    public void CloseShop()
+    public void CloseShop(ClickEvent _)
     {
         if (waitingShopTransition)
         {
@@ -127,15 +112,8 @@ public class ShopMenuScript : MonoBehaviour
         isFiltersOpen = false;
     }
 
-    public void CloseInfo()
+    public void CloseInfo(ClickEvent _)
     {
-
-        if (waitingInfoTransition)
-        {
-            return;
-        }
-
-        waitingInfoTransition = true;
         infoElement.style.translate = infoClosedTransitionValue;
         isInfoOpen = false;
     }
@@ -147,12 +125,8 @@ public class ShopMenuScript : MonoBehaviour
             return;
         }
         isInfoOpen = true;
-        if (waitingInfoTransition)
-            return;
         infoElement.style.display = DisplayStyle.Flex;
-        waitingInfoTransition = true;
         infoElement.style.translate = defaultTransitionValue;
-
     }
 
     public void OpenShop()
@@ -167,7 +141,7 @@ public class ShopMenuScript : MonoBehaviour
         shopContainer.style.translate = defaultTransitionValue;
     }
 
-    public void FiltersTransition()
+    public void FiltersTransition(ClickEvent _)
     {
         if (!isFiltersOpen)
         {
@@ -199,7 +173,7 @@ public class ShopMenuScript : MonoBehaviour
             shopContainer.style.translate = shopClosedTransitionValue;
             infoElement.style.translate = infoClosedTransitionValue;
             isFiltersOpen = true;
-            FiltersTransition();
+            FiltersTransition(null);
 
             isPromptOpen = true;
             promptContainer.style.display = DisplayStyle.Flex;
@@ -220,7 +194,10 @@ public class ShopMenuScript : MonoBehaviour
         shopContainer?.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
         infoElement?.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
 
-        purchaseButton.UnregisterAllRemovableCallbacks();
-        cancelPurchase.UnregisterAllRemovableCallbacks();
+        filtersButton?.UnregisterAllRemovableCallbacks();
+        closeButton?.UnregisterAllRemovableCallbacks();
+        infoCloseButton?.UnregisterAllRemovableCallbacks();
+        purchaseButton?.UnregisterAllRemovableCallbacks();
+        cancelPurchase?.UnregisterAllRemovableCallbacks();
     }
 }

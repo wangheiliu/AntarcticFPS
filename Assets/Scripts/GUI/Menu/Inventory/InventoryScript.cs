@@ -1,14 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using Player.PlayerData;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Game.ScriptableObjects.Shop;
 
 public class InventoryScript : MonoBehaviour
 {
@@ -271,7 +268,6 @@ public class InventoryScript : MonoBehaviour
                 DisplayProperty(evt, weaponData);
             }, CallbackOptions.Removable);
 
-            Debug.Log(selectedTab.name);
             ScrollView container = selectedTab.Q<ScrollView>(className: "inventory-scroll-view");
             container?.Add(element);
         }

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PlayerAnimation : MonoBehaviour
 {
-    private static WaitForSeconds _waitForSeconds0_2 = new WaitForSeconds(0.2f);
     [SerializeField] private PlayerMovement playerMovementScript;
     [SerializeField] private Animator animator;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -16,6 +15,9 @@ public class PlayerAnimation : MonoBehaviour
     private readonly int jumpTriggerHash = Animator.StringToHash("JumpTrigger");
     private readonly int jumpStartHash = Animator.StringToHash("JumpStart");
     private readonly int jumpEndHash = Animator.StringToHash("JumpEnd");
+    private readonly int slideStartHash = Animator.StringToHash("SlideStart");
+    private readonly int slideEndHash = Animator.StringToHash("SlideEnd");
+    private readonly int runStateHash = Animator.StringToHash("PlayerSpeed");
     
     void Start()
     {
@@ -27,6 +29,8 @@ public class PlayerAnimation : MonoBehaviour
         playerMovementScript.OnPlayerStateChanged += RunPlayerAnimation;
         playerMovementScript.OnPlayerJumped += OnPlayerJumped;
         playerMovementScript.OnPlayerLanded += OnPlayerLanded;
+        playerMovementScript.OnPlayerSlide += OnPlayerSlide;
+        playerMovementScript.OnPlayerSpeedChanged += OnPlayerSpeedChanged;
     }
 
     void OnDisable()
@@ -34,12 +38,8 @@ public class PlayerAnimation : MonoBehaviour
         playerMovementScript.OnPlayerStateChanged -= RunPlayerAnimation;
         playerMovementScript.OnPlayerJumped -= OnPlayerJumped;
         playerMovementScript.OnPlayerLanded -= OnPlayerLanded;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        Debug.Log(animator.GetBool(jumpTriggerHash));
+        playerMovementScript.OnPlayerSlide -= OnPlayerSlide;
+        playerMovementScript.OnPlayerSpeedChanged -= OnPlayerSpeedChanged;
     }
 
     private void RunPlayerAnimation(PlayerMovement.PlayerState state)
@@ -56,14 +56,12 @@ public class PlayerAnimation : MonoBehaviour
         {
             animator.SetTrigger(jumpStartHash);
             animator.SetBool(isTransitioningHash, true);
-            Debug.Log("Jump Animation Started");
         }
         else if (param == "End")
         {
             animator.ResetTrigger(jumpStartHash);
             animator.ResetTrigger(jumpTriggerHash);
             animator.SetBool(isTransitioningHash, false);
-            Debug.Log("Jump Animation Ended");
         }
     }
     private void OnPlayerJumped()
@@ -75,5 +73,26 @@ public class PlayerAnimation : MonoBehaviour
     private void OnPlayerLanded()
     {
         animator.SetTrigger(jumpEndHash);
+    }
+
+    private void OnPlayerSlide(bool isSliding)
+    {
+        if (isSliding)
+        {
+            animator.SetBool(isTransitioningHash, false);
+            animator.ResetTrigger(slideEndHash);
+            animator.SetTrigger(slideStartHash);
+        }
+        else
+        {
+            animator.ResetTrigger(slideStartHash);
+            animator.SetTrigger(slideEndHash);
+        }
+    }
+
+    private void OnPlayerSpeedChanged(float speed)
+    {
+        float multiplier = speed / playerMovementScript.walkSpeed;
+        animator.SetFloat(runStateHash, multiplier);
     }
 }

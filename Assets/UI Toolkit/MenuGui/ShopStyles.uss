@@ -34,52 +34,6 @@ Image {
     border-radius: 5px 5px 0 0;
 }
 
-.unity-slider {
-    width: 100%;
-    margin: 0;
-    min-width: 0;
-    justify-content: center;
-}
-
-.unity-base-slider--vertical .unity-base-slider__dragger {
-    border-radius: 6px;
-    min-height: 10px;
-    height: 10px;
-    width: 65%;
-    left: 3px;
-    right: 3px;
-    margin: 0 auto;
-    align-self: center;
-}
-
-.unity-base-slider--horizontal {
-    min-height: 5px;
-    height: auto;
-}
-
-#unity-drag-container {
-    align-items: center;
-}
-
-#unity-tracker {
-    background-color: rgba(200, 200, 200, 0);
-}
-
-.unity-scroller > .unity-slider__input {
-    padding: 2%;
-}
-
-.unity-scroller--vertical > .unity-scroller__low-button,
-.unity-scroller--vertical > .unity-scroller__high-button,
-.unity-scroller--horizontal > .unity-scroller__low-button,
-.unity-scroller--horizontal > .unity-scroller__high-button {
-    display: none;
-}
-
-.unity-scroller {
-    padding: 0.75%;
-}
-
 .shop-scroller .unity-scroll-view__content-container {
     flex-grow: 1;
     min-width: 0;

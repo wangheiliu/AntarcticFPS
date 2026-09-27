@@ -1,16 +1,34 @@
+using System.ComponentModel;
+using Unity.Properties;
 using UnityEngine;
+using UnityEngine.UI;
 
-public abstract class ShopItemData : ScriptableObject
+namespace Game.ScriptableObjects.Shop
 {
-    public string title;
-    
-    [StatDisplay("Type", null, "Basic Information")]
-    public Catagories type;
-    [StatDisplay("Cost", "$", "Basic Information")]
-    public int cost;
-    public string shortDescription;
-    [StatDisplay("Description", null, "Description")]
-    public string description;
-    public Sprite icon;
-    public string dataName;
+    public abstract class ShopItemData : ScriptableObject
+    {
+        [Header("Basic Information")]
+        public string title;
+        [CreateProperty] public string Title
+        {
+            get => title;
+            set => title = value;
+        }
+
+        [CreateProperty]
+        [StatDisplay(displayName: "Type", group: "Basic Information")]
+        public Catagories type;
+
+        [CreateProperty]
+        [StatDisplay(displayName: "Cost", prefix: "$", group: "Basic Information")]
+        public int cost;
+        [CreateProperty] public string shortDescription;
+
+        [TextArea(1, 10)]
+        [StatDisplay(displayName: "Description", group: "Description")]
+        [CreateProperty] public string description;
+        [CreateProperty] public Image icon;
+        public string dataName;
+    }
 }
+
