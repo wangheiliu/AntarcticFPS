@@ -13,16 +13,29 @@ public class PlayerMovement : MonoBehaviour
     public event Action OnPlayerJumped;
     public event Action OnPlayerLanded;
     public event Action<bool> OnPlayerSlide;
+    public event Action<float> OnPlayerSpeedChanged;
 
     [Header("Player Settings")]
     [SerializeField] private Transform playerPos;
     public float walkSpeed = 5f;
     private float currentSpeed;
+    public float CurrentSpeed
+    {
+        get => currentSpeed;
+        set
+        {
+            if (currentSpeed != value)
+            {
+                currentSpeed = value;
+                OnPlayerSpeedChanged?.Invoke(currentSpeed);
+            }
+        }
+    }
     public float sprintSpeed = 10f;
     public float jumpForce = 3f;
-    private float normalHeight;
+    private float normalHeight = 2f;
     private float crouchHeight = 1f;
-    private float crouchSpeed = 25f;
+    private float crouchSpeed = 2.5f;
     [SerializeField] private float slideFriction = 10f;
     private float slideCoolDownTimer;
     private float slideCooldownDuration = 3f;
@@ -107,8 +120,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         charController = GetComponent<CharacterController>();
-        normalHeight = charController.height;
-        currentSpeed = walkSpeed;
+        CurrentSpeed = walkSpeed;
         CurrentPlayerState = PlayerState.Idle;
     }
 
@@ -152,7 +164,7 @@ public class PlayerMovement : MonoBehaviour
         isOnWalkableSlope = onSlope && Vector3.Angle(slopeNormal, Vector3.up) <= charController.slopeLimit;
         isNotOnWalkableSlope = onSlope && !(Vector3.Angle(slopeNormal, Vector3.up) <= charController.slopeLimit);
         lastMoveDirection = move.normalized;
-        move = move.normalized * currentSpeed;
+        move = move.normalized * CurrentSpeed;
         
 
         // tracks the booleans
@@ -170,7 +182,7 @@ public class PlayerMovement : MonoBehaviour
         // sprinting
         if (canSprint)
         {
-            currentSpeed = sprintSpeed;
+            CurrentSpeed = sprintSpeed;
             staminaRecoveryTime = 1.5f;
             hudScript.Stamina = Mathf.Clamp(
                 hudScript.Stamina - 20f * Time.deltaTime,
@@ -180,7 +192,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            currentSpeed = 5f;
+            CurrentSpeed = 5f;
             if (staminaRecoveryTime > 0)
             {
                 if (canRegenerateStamina)
@@ -309,7 +321,7 @@ public class PlayerMovement : MonoBehaviour
                 Vector3 slopeMove = Vector3.ProjectOnPlane(
                     move,
                     slopeNormal
-                ).normalized * currentSpeed;
+                ).normalized * CurrentSpeed;
 
                 downhillDirection = Vector3.ProjectOnPlane(
                     Vector3.down,
@@ -444,8 +456,8 @@ public class PlayerMovement : MonoBehaviour
     private void Crouch()
     {
         CurrentPlayerState = PlayerState.Crouching;
-        currentSpeed = 3f;
-        charController.height = Mathf.Lerp(charController.height, targetHeight, crouchSpeed * Time.deltaTime);
+        CurrentSpeed = 3f;
+        charController.height = Mathf.Lerp(charController.height, targetHeight, 25f * Time.deltaTime);
         charController.center = new Vector3(
             0,
             0,
@@ -456,13 +468,13 @@ public class PlayerMovement : MonoBehaviour
     {
         if (canSprint)
         {
-            currentSpeed = sprintSpeed;
+            CurrentSpeed = sprintSpeed;
         }
         else
         {
-            currentSpeed = 5f;
+            CurrentSpeed = 5f;
         }
-        charController.height = Mathf.Lerp(charController.height, targetHeight, crouchSpeed * Time.deltaTime);
+        charController.height = Mathf.Lerp(charController.height, targetHeight, 25f * Time.deltaTime);
         charController.center = new Vector3(
             0,
             0,
@@ -473,11 +485,11 @@ public class PlayerMovement : MonoBehaviour
     private void StartSlide()
     {
         CurrentPlayerState = PlayerState.Sliding;
-        slideSpeed = Mathf.Max(currentSpeed, sprintSpeed) * 1.2f;
+        slideSpeed = Mathf.Max(CurrentSpeed, sprintSpeed) * 1.2f;
         canRegenerateStamina = false;
         hudScript.Stamina -= 15;
         isSliding = true;
-        charController.height = Mathf.Lerp(charController.height, targetHeight, crouchSpeed * Time.deltaTime);
+        charController.height = Mathf.Lerp(charController.height, targetHeight, 25f * Time.deltaTime);
         charController.center = new Vector3(
             0,
             0,

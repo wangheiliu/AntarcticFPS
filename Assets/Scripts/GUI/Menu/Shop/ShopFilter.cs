@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Game.ScriptableObjects.Shop;
 
 public class ShopFilter : MonoBehaviour
 {
@@ -69,8 +70,6 @@ public class ShopFilter : MonoBehaviour
 
     public void DisplayFoldouts(string foldoutId)
     {
-        // add another Enum that is named "any" and then exit out of the function if needed
-        Debug.Log(foldoutId);
         if (!shopMenuScript.isFiltersOpen)
         {
             foreach (Foldout f in allFoldouts)
