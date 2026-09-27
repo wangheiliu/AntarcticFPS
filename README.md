@@ -11,10 +11,9 @@ This project uses assets from the Unity Asset Store. Used under the Unity Asset 
 
 
 # Current Features
-* Basic player movement
-* Sprinting/crouching mechanic
-* Basic sliding mechanoc
-* Basic main menu
+* Player Movement
+* Prototype of weapons
+* Basic Shop and Inventory
 
 # Requirements
 
@@ -29,11 +28,9 @@ This project was created on Unity version 6000.4.9f1, it's recommended to have U
 4. Your done!
 
 # Development Goals
-* Add weapons
-* Make some basic maps
-* Revamping UI and adding settings
-* Maybe add multiplayer and/or enemy ai
-* Add a penguin model and animate it
+* Adding animations to my player character
+* Adding basic level selection
+* Inplement a more realistic weapon system
 
 # Project Status
 In active development
