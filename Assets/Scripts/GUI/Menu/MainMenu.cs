@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 using UnityEditor;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 public enum MenuState
 {
     MainMenu,
@@ -45,20 +46,17 @@ public class GameManager : MonoBehaviour
 
 
     [Header("GUI Documents and Cameras")]
-    [SerializeField] private Camera[] CameraArray;
-    [SerializeField] private UIDocument[] documentArray;
-    [SerializeField] private UIDocument[] hudArray;
-    [SerializeField] private UIDocument profileDisplay;
-    [SerializeField] private Camera shopCamera;
+    [SerializeField] private List<MenuStateValues> menuStateValues;
+    private Dictionary<MenuState, (UIDocument[] documents, Camera camera)> menuStateDictionary = new();
     private bool isMenuOpen = true;
     private bool waitingToClose;
 
     private Translate menuClosedTransition = new(Length.Percent(-100), 0, 0);
     private Translate menuOpenTransition = new(Length.Percent(0), 0, 0);
+    [Header("Menu State")]
     public MenuState playerState;
 
-    [SerializeField] private List<MenuStateValues> menuStateValues;
-    private Dictionary<MenuState, (UIDocument[] documents, Camera camera)> menuStateDictionary = new();
+
 
     void Awake()
     {
@@ -80,15 +78,15 @@ public class GameManager : MonoBehaviour
         settingsButton = btnContainer.Q<Button>("SettingsButton");
         quitButton = btnContainer.Q<Button>("Quit");
 
-        playButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Playing), CallbackOptions.Removable);
-        shopButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Shop), CallbackOptions.Removable);
-        settingsButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Settings), CallbackOptions.Removable);
+        playButton?.RegisterCallback<ClickEvent>(evt => NewOpenItem(MenuState.Playing), CallbackOptions.Removable);
+        shopButton?.RegisterCallback<ClickEvent>(evt => NewOpenItem(MenuState.Shop), CallbackOptions.Removable);
+        settingsButton?.RegisterCallback<ClickEvent>(evt => NewOpenItem(MenuState.Settings), CallbackOptions.Removable);
         quitButton?.RegisterCallback<ClickEvent>(evt => QuitGame(), CallbackOptions.Removable);
-        inventoryBtn?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Inventory), CallbackOptions.Removable);
+        inventoryBtn?.RegisterCallback<ClickEvent>(evt => NewOpenItem(MenuState.Inventory), CallbackOptions.Removable);
 
         btnContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
 
-        OpenMenuItems(MenuState.MainMenu);
+        NewOpenItem(MenuState.MainMenu);
     }
 
     void Update()
@@ -97,7 +95,7 @@ public class GameManager : MonoBehaviour
         {
             if (!isMenuOpen && (playerState == MenuState.Playing))
             {
-                OpenMenuItems(MenuState.MainMenu);
+                NewOpenItem(MenuState.MainMenu);
             }
         }
     }
@@ -112,18 +110,6 @@ public class GameManager : MonoBehaviour
     }
 
 
-    public void CloseMenu()
-    {
-        isMenuOpen = false;
-        uiDocument.rootVisualElement.style.display = DisplayStyle.None;
-    }
-
-    public void OpenMenu()
-    {
-        isMenuOpen = true;
-        EnableMouse(true);
-        uiDocument.rootVisualElement.style.display = DisplayStyle.Flex;
-    }
     private void OnTransitionEnd(TransitionEndEvent evt)
     {
         if (evt.target != btnContainer)
@@ -135,99 +121,25 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        CloseAllItems();
+        var documentsToOpen = menuStateDictionary[playerState].documents;
         waitingToClose = false;
+
+        foreach (UIDocument document in documentsToOpen)
+        {
+            document.rootVisualElement.style.display = DisplayStyle.Flex;
+        }
+
         switch (playerState)
         {
-            case MenuState.MainMenu:
-                OpenItem(documentArray[0], CameraArray[0]);
-                OpenMenu();
-                break;
             case MenuState.Shop:
-                OpenItem(documentArray[1], CameraArray[1]);
-                CloseMenu();
-                EnableMouse(true);
                 shopMenuScript.OpenShop();
                 break;
             case MenuState.Settings:
-                OpenItem(documentArray[2], CameraArray[0]);
-                CloseMenu();
-                EnableMouse(true);
                 settingsScript.SettingsTransition();
                 break;
             case MenuState.Inventory:
-                OpenItem(documentArray[2], CameraArray[0]);
-                CloseMenu();
-                EnableMouse(true);
                 inventoryScript.OpenInventory();
-                break;
-            case MenuState.Playing:
-                OpenItemArray(hudArray, CameraArray[0]);
-                EnableMouse(false);
-                CloseMenu();
-                break;
-
-        }
-
-
-    }
-
-    // this method handles translation and player states while OpenItems() handle opening individual ui documents
-    public void OpenMenuItems(MenuState menuState)
-    {
-        switch (menuState)
-        {
-            case MenuState.MainMenu:
-                isMenuOpen = true;
-                PlayerMovementManager(false);
-                playerState = MenuState.MainMenu;
-                waitingToClose = true;
-                CloseAllItems();
-                uiDocument.rootVisualElement.style.display = DisplayStyle.Flex;
-                MenuTranslate(menuOpenTransition);
-                profileDisplay.rootVisualElement.style.display = DisplayStyle.Flex;
-                break;
-            case MenuState.Playing:
-
-                isMenuOpen = false;
-                PlayerMovementManager(true);
-                playerState = MenuState.Playing;
-                waitingToClose = true;
-                MenuTranslate(menuClosedTransition);
-
-
-                break;
-            case MenuState.LevelSelection:
-                isMenuOpen = false;
-                playerState = MenuState.LevelSelection;
-                waitingToClose = true;
-                MenuTranslate(menuClosedTransition);
-                break;
-            case MenuState.Shop:
-                isMenuOpen = true;
-                PlayerMovementManager(false);
-
-                playerState = MenuState.Shop;
-                waitingToClose = true;
-                MenuTranslate(menuClosedTransition);
-                profileDisplay.rootVisualElement.style.display = DisplayStyle.None;
-                break;
-            case MenuState.Settings:
-                isMenuOpen = true;
-                PlayerMovementManager(false);
-
-                playerState = MenuState.Settings;
-                waitingToClose = true;
-                MenuTranslate(menuClosedTransition);
-                profileDisplay.rootVisualElement.style.display = DisplayStyle.Flex;
-                break;
-            case MenuState.Inventory:
-                isMenuOpen = true;
-                PlayerMovementManager(false);
-
-                playerState = MenuState.Inventory;
-                waitingToClose = true;
-                MenuTranslate(menuClosedTransition);
-                profileDisplay.rootVisualElement.style.display = DisplayStyle.None;
                 break;
         }
     }
@@ -235,64 +147,64 @@ public class GameManager : MonoBehaviour
     //change these so that it has parameters
     public void SetCamera(Camera cameraToEnable)
     {
-        foreach (Camera camera in CameraArray)
+        foreach ((UIDocument[] _, Camera camera) in menuStateDictionary.Values)
         {
             camera.enabled = false;
         }
         cameraToEnable.enabled = true;
     }
 
-    public void SetUiDocument(UIDocument documentToOpen)
-    {
-        CloseAllItems();
-        documentToOpen.rootVisualElement.style.display = DisplayStyle.Flex;
-    }
     public void NewOpenItem(MenuState state)
     {
         var item = menuStateDictionary[state];
         UIDocument[] documentsToOpen = item.documents;
         Camera camera = item.camera;
+
+        if (documentsToOpen.Length == 0 || documentsToOpen == null)
+        {
+            return;
+        }
+
+        waitingToClose = true;
         playerState = state;
-        
+
+
         if (state != MenuState.MainMenu)
         {
             MenuTranslate(menuClosedTransition);
-        } else
+        }
+        else
         {
+            CloseAllItems();
+            isMenuOpen = true;
             MenuTranslate(menuOpenTransition);
+            foreach (UIDocument document in documentsToOpen)
+            {
+                document.rootVisualElement.style.display = DisplayStyle.Flex;
+            }
         }
 
-        CloseAllItems();
-
-        foreach (UIDocument document in documentsToOpen)
+        if (state == MenuState.Playing)
         {
-            document.rootVisualElement.style.display = DisplayStyle.Flex;
+            PlayerMovementManager(true);
+            isMenuOpen = false;
         }
-
-        SetCamera(camera);
-    }
-    public void OpenItem(UIDocument document, Camera camera)
-    {
-        SetUiDocument(document);
-        SetCamera(camera);
-    }
-
-    public void OpenItemArray(UIDocument[] documents, Camera camera)
-    {
-        CloseAllItems();
-
-        foreach (UIDocument document in documents)
+        else
         {
-            document.rootVisualElement.style.display = DisplayStyle.Flex;
+            PlayerMovementManager(false);
         }
+
         SetCamera(camera);
     }
 
     public void CloseAllItems()
     {
-        foreach (UIDocument document in documentArray)
+        foreach (var item in menuStateDictionary)
         {
-            document.rootVisualElement.style.display = DisplayStyle.None;
+            foreach (UIDocument document in item.Value.documents)
+            {
+                document.rootVisualElement.style.display = DisplayStyle.None;
+            }
         }
     }
 

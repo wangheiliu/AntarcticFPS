@@ -75,7 +75,7 @@ public class ShopMenuScript : MonoBehaviour
             waitingShopTransition = false;
             if (!isOpen)
             {
-                gameManager.OpenMenuItems(MenuState.MainMenu);
+                gameManager.NewOpenItem(MenuState.MainMenu);
             }
         } else if (evt.target == infoElement)
         {
