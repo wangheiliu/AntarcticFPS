@@ -1,6 +1,7 @@
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using Game.ScriptableObjects.Shop;
 
 public enum WeaponType
 {
@@ -10,16 +11,21 @@ public enum WeaponType
 }
 [CreateAssetMenu(menuName = "Shop/Weapon")] public class WeaponData : ShopItemData //is this inheritence?
 {
-    [StatDisplay("Clip Size", null, "Weapon Information")]
+    [Header("Weapon Information")]
+    [StatDisplay(displayName: "Clip Size", group: "Weapon Information")]
     public int clipSize;
-    [StatDisplay("Fire Rate", null, "Weapon Information")]
+    [StatDisplay(displayName: "Weapon type", group: "Weapon Information")]
+    public WeaponType weaponType;
+
+    [Header("Weapon stats")]
+    [StatDisplay(displayName: "Fire Rate", group: "Weapon Information", unit: "RPM")]
     public int fireRate;
-    [StatDisplay("Reload Time", "s", "Weapon Information")]
+    [StatDisplay(displayName: "Reload Time", unit: "s", group: "Weapon Information")]
     public float reloadTime;
-    [StatDisplay("Damage", null, "Weapon Information")]
+    [StatDisplay(displayName: "Damage", group: "Weapon Information")]
     public float damage;
     public int ammo;
+    [Header("Weapon Metadata")]
     public string modelName;
-    [StatDisplay("Weapon type", null, "Weapon Information")]
-    public WeaponType weaponType;
+    
 }

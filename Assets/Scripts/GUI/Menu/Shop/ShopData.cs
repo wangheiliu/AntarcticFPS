@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Linq;
 using System.ComponentModel.Design.Serialization;
 using Unity.VisualScripting;
+using Game.ScriptableObjects.Shop;
+using Unity.Properties;
 
 public enum Catagories
 {
@@ -98,17 +100,26 @@ public class ShopData : MonoBehaviour
             // shop cards in foldouts
             var foldoutContainer = root.Q<Foldout>(itemType.ToLower());
             TemplateContainer templateUI = shopCardTemplate.Instantiate();
+            templateUI.dataSource = item;
             Label title = templateUI.Q<Label>("Title");
+            title.SetBinding(nameof(Label.text), new DataBinding()
+            {
+                dataSourceType = typeof(ShopItemData),
+                dataSourcePath = new PropertyPath(nameof(ShopItemData.title))
+            });
             Label descriptionElement = templateUI.Q<Label>("Description");
+            descriptionElement.SetBinding(nameof(Label.text), new DataBinding()
+            {
+                dataSourceType = typeof(ShopItemData),
+                dataSourcePath = new PropertyPath(nameof(ShopItemData.shortDescription))
+            });
             Image icon = templateUI.Q<Image>();
+            icon.SetBinding(nameof(Image.sprite), new DataBinding()
+            {
+               dataSourceType = typeof(ShopItemData),
+               dataSourcePath = new PropertyPath(nameof(ShopItemData.icon)) 
+            });
             Button viewButton = templateUI.Q<Button>();
-
-            //information stuff
-            
-
-            title.text = item.title;
-            descriptionElement.text = item.shortDescription;
-            //icon.image = item.icon.texture;
 
             viewButtonLambda = () => OnViewClick(item);
             viewButton.clicked += viewButtonLambda;
@@ -119,6 +130,7 @@ public class ShopData : MonoBehaviour
 
     public void ViewItemDetails(ShopItemData item)
     {
+        currentItem = item;
         infoScrollContainer.Clear();
 
         Type type = item.GetType();
@@ -130,7 +142,6 @@ public class ShopData : MonoBehaviour
         Label infoTitle = root.Q<Label>("info-title");
         infoTitle.text = item.title;
         purchasePromptTitle.text = $"Would you like to buy: {item.title ?? "item"}? (${item.cost})";
-        currentItem = item;
         
 
         
@@ -277,8 +288,13 @@ public class ShopData : MonoBehaviour
 
     public void OnViewClick(ShopItemData item)
     {
+        if ((item == null || item == currentItem) && shopMenuScript.isInfoOpen)
+        {
+            return;
+        }
         shopMenuScript.OpenInfo();
         //shopMenuScript.CloseInfo();
+        currentItem = item;
         ViewItemDetails(item);
     }
 

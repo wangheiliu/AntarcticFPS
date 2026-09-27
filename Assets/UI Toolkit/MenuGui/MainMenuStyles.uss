@@ -10,7 +10,7 @@
     -unity-font-style: bold;
 }
 
-.button {
+.menu-button {
     font-size: 45px;
     width: 25%;
     height: 7%;
@@ -19,7 +19,6 @@
     margin-bottom: 10px;
     margin-left: 0;
     min-width: 0;
-    
     transition-property: background-color;
     transition-duration: 0.2s;
 }

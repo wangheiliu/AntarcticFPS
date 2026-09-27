@@ -20,7 +20,7 @@
 .unity-text-field__input > TextElement {
     -unity-text-align: middle-center;
     -unity-text-generator: advanced;
-    -unity-text-auto-size: best-fit 10px 100px;
+    -unity-text-auto-size: best-fit 10px 50px;
     color: white;
 }
 
