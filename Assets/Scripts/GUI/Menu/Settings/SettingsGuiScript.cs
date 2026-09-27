@@ -108,7 +108,7 @@ public class SettingsScript : MonoBehaviour
             {
                 ResetSettings();
                 settingsContainer.style.display = DisplayStyle.None;
-                gameManager.OpenMenuItems(MenuState.MainMenu);
+                gameManager.NewOpenItem(MenuState.MainMenu);
             } else
             {
                 LoadSettings();

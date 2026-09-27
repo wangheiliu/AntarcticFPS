@@ -199,7 +199,7 @@ public class InventoryScript : MonoBehaviour
                 equipSection.style.display = DisplayStyle.None;
                 inventoryContentContainer.style.display = DisplayStyle.None;
                 document.rootVisualElement.style.display = DisplayStyle.None;
-                mainMenuScript.OpenMenuItems(MenuState.MainMenu);
+                mainMenuScript.NewOpenItem(MenuState.MainMenu);
             }
         }
     }

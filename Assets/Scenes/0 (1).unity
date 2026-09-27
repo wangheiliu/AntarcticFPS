@@ -11657,6 +11657,26 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 945059074}
     - target: {fileID: 3852551257452437950, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+      propertyPath: menuStateValues.Array.data[0].mouseEnabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3852551257452437950, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+      propertyPath: menuStateValues.Array.data[1].mouseEnabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3852551257452437950, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+      propertyPath: menuStateValues.Array.data[2].mouseEnabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3852551257452437950, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+      propertyPath: menuStateValues.Array.data[3].mouseEnabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3852551257452437950, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+      propertyPath: menuStateValues.Array.data[5].mouseEnabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3852551257452437950, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
       propertyPath: menuStateValues.Array.data[0].documentVal.Array.size
       value: 2
       objectReference: {fileID: 0}
