@@ -12,7 +12,7 @@ public class InventoryScript : MonoBehaviour
     private static string primaryWeaponTabName = "primary-weapons-tab";
     private static string secondaryWeaponTabName = "secondary-weapons-tab";
     private static string toolsWeaponTab = "tertiary-weapons-tab";
-    [SerializeField] private GameManager mainMenuScript;
+    [SerializeField] private GameManager gameManager;
     [SerializeField] private UIDocument document;
     [SerializeField] private VisualTreeAsset propertyTree;
     [SerializeField] private ShopDatabase weaponDatabase;
@@ -40,7 +40,8 @@ public class InventoryScript : MonoBehaviour
     private TabView weaponTabView;
 
     private Dictionary<string, List<StatValue>> groups = new();
-    private Dictionary<string, WeaponsInventory> slotDictionary = new();
+    private Dictionary<WeaponType, WeaponsInventory> slotDictionary = new();
+    private Dictionary<WeaponType, VisualElement> weaponTypeToSlot = new();
 
     private bool _isPropertyOpen = false;
     public bool IsPropertyOpen
@@ -94,7 +95,8 @@ public class InventoryScript : MonoBehaviour
                 document.rootVisualElement.style.display = DisplayStyle.Flex;
                 inventoryContentContainer.style.translate = new Translate(Length.Percent(0), 0, 0);
                 equipSection.style.translate = new Translate(Length.Percent(0), 0, 0);
-            } else
+            }
+            else
             {
                 inventoryContentContainer.style.translate = new Translate(Length.Percent(110), 0, 0);
                 equipSection.style.translate = new Translate(Length.Percent(-110), 0, 0);
@@ -122,6 +124,12 @@ public class InventoryScript : MonoBehaviour
         propertiesCloseBtn = propertiesContainer.Q<Button>("prop-close-button");
 
         weaponTabView = inventoryContainer.Q<TabView>("weapon-inner-tab-view");
+        weaponTypeToSlot = new()
+        {
+            { WeaponType.Primary, weaponsEquipElement.Q<VisualElement>("primary-slot") },
+            { WeaponType.Secondary, weaponsEquipElement.Q<VisualElement>("secondary-slot") },
+            { WeaponType.Tools, weaponsEquipElement.Q<VisualElement>("tertiary-slot") }
+        };
 
         equipButton.RegisterCallback<ClickEvent>(OnEquipButtonClick);
         propertiesCloseBtn.RegisterCallback<ClickEvent>(OnPropertyClose);
@@ -135,6 +143,7 @@ public class InventoryScript : MonoBehaviour
             Button unequipButton = children.Q<Button>("slot-close-button");
             unequipButton?.RegisterCallback<ClickEvent>(OnUnequipButtonClick);
         }
+        gameManager.OnMenuStateChanged += OpenInventory;
 
         propertiesContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         equipSection.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
@@ -154,6 +163,7 @@ public class InventoryScript : MonoBehaviour
         inventoryContainer.UnregisterAllRemovableCallbacks();
         GeneralPlayerDataManager.OnWeaponEquipChanged -= OnEquipWeapon;
         GeneralPlayerDataManager.OnWeaponInventoryChanged -= PopulateInventorySlots;
+        gameManager.OnMenuStateChanged -= OpenInventory;
 
         foreach (var children in weaponsEquipElement.Children())
         {
@@ -166,13 +176,13 @@ public class InventoryScript : MonoBehaviour
     {
         // document.rootVisualElement.style.display = DisplayStyle.None;
         // propertiesContainer.style.display = DisplayStyle.None;
-        
+
         OnEquipWeapon(GeneralPlayerDataManager.PrimaryWeapon, WeaponType.Primary);
-        slotDictionary["primary"] = GeneralPlayerDataManager.PrimaryWeapon;
+        slotDictionary[WeaponType.Primary] = GeneralPlayerDataManager.PrimaryWeapon;
         OnEquipWeapon(GeneralPlayerDataManager.SecondaryWeapon, WeaponType.Secondary);
-        slotDictionary["secondary"] = GeneralPlayerDataManager.SecondaryWeapon;
+        slotDictionary[WeaponType.Secondary] = GeneralPlayerDataManager.SecondaryWeapon;
         OnEquipWeapon(GeneralPlayerDataManager.ToolWeapon, WeaponType.Tools);
-        slotDictionary["tools"] = GeneralPlayerDataManager.ToolWeapon;
+        slotDictionary[WeaponType.Tools] = GeneralPlayerDataManager.ToolWeapon;
         PopulateInventorySlots();
     }
 
@@ -189,17 +199,20 @@ public class InventoryScript : MonoBehaviour
             {
                 Debug.Log("Property is closed");
                 propertiesContainer.style.display = DisplayStyle.None;
-            } else {
+            }
+            else
+            {
                 propertiesContainer.style.display = DisplayStyle.Flex;
             }
-        } else if (evt.target == equipSection || evt.target == inventoryContentContainer)
+        }
+        else if (evt.target == equipSection || evt.target == inventoryContentContainer)
         {
             if (!IsInventoryOpen)
             {
                 equipSection.style.display = DisplayStyle.None;
                 inventoryContentContainer.style.display = DisplayStyle.None;
                 document.rootVisualElement.style.display = DisplayStyle.None;
-                mainMenuScript.NewOpenItem(MenuState.MainMenu);
+                gameManager.OnEventNotifierChanged(MenuState.MainMenu);
             }
         }
     }
@@ -263,7 +276,8 @@ public class InventoryScript : MonoBehaviour
             element.Add(image);
             element.Add(viewButton);
 
-            viewButton.RegisterCallback<ClickEvent>(evt => {
+            viewButton.RegisterCallback<ClickEvent>(evt =>
+            {
                 IsPropertyOpen = true;
                 DisplayProperty(evt, weaponData);
             }, CallbackOptions.Removable);
@@ -371,19 +385,19 @@ public class InventoryScript : MonoBehaviour
         {
             GeneralPlayerDataManager.PrimaryWeapon = GeneralPlayerDataManager.WeaponsOwned.Find(m => m.weaponName == item.dataName);
             OnEquipWeapon(GeneralPlayerDataManager.PrimaryWeapon, WeaponType.Primary);
-            slotDictionary["primary"] = GeneralPlayerDataManager.PrimaryWeapon;
+            slotDictionary[WeaponType.Primary] = GeneralPlayerDataManager.PrimaryWeapon;
         }
         else if (slotName == "secondary-slot")
         {
-            GeneralPlayerDataManager.SecondaryWeapon = GeneralPlayerDataManager.WeaponsOwned.Find(m => m.weaponName == item.dataName );
-            OnEquipWeapon(GeneralPlayerDataManager.PrimaryWeapon, WeaponType.Secondary);
-            slotDictionary["secondary"] = GeneralPlayerDataManager.SecondaryWeapon;
+            GeneralPlayerDataManager.SecondaryWeapon = GeneralPlayerDataManager.WeaponsOwned.Find(m => m.weaponName == item.dataName);
+            OnEquipWeapon(GeneralPlayerDataManager.SecondaryWeapon, WeaponType.Secondary);
+            slotDictionary[WeaponType.Secondary] = GeneralPlayerDataManager.SecondaryWeapon;
         }
         else if (slotName == "tertiary-slot")
         {
             GeneralPlayerDataManager.ToolWeapon = GeneralPlayerDataManager.WeaponsOwned.Find(m => m.weaponName == item.dataName);
-            OnEquipWeapon(GeneralPlayerDataManager.PrimaryWeapon, WeaponType.Tools);
-            slotDictionary["tools"] = GeneralPlayerDataManager.ToolWeapon;
+            OnEquipWeapon(GeneralPlayerDataManager.ToolWeapon, WeaponType.Tools);
+            slotDictionary[WeaponType.Tools] = GeneralPlayerDataManager.ToolWeapon;
         }
 
         CheckEquipped(GeneralPlayerDataManager.WeaponsOwned.Find(m => m.weaponName == item.dataName));
@@ -413,11 +427,7 @@ public class InventoryScript : MonoBehaviour
     private void OnWeaponUnequip(WeaponsInventory inventory, VisualElement slot)
     {
         Debug.Log("Running");
-        string key = slotDictionary.FirstOrDefault(x => x.Value.weaponName == inventory.weaponName).Key;
-        if (key == null)
-        {
-            return;
-        }
+        WeaponType key = slotDictionary.FirstOrDefault(x => x.Value.weaponType == inventory.weaponType).Key;
         Label placeholder = slot.Q<Label>("placeholder-text");
         foreach (var element in slot.Children())
         {
@@ -435,12 +445,12 @@ public class InventoryScript : MonoBehaviour
 
     private void OnEquipWeapon(WeaponsInventory item, WeaponType type)
     {
-        
+
         if (item == null)
         {
             return;
         }
-        VisualElement element = equipSection.Q<VisualElement>(GetWeaponSlotName(type));
+        VisualElement element = weaponTypeToSlot[type];
         var data = GetWeaponData(item);
         if (data == null)
         {
@@ -475,13 +485,11 @@ public class InventoryScript : MonoBehaviour
             return null;
         }
 
-        string type = Enum.GetName(typeof(WeaponType), data.weaponType);
-
-        return type switch
+        return data.weaponType switch
         {
-            "Primary" => primaryWeaponTabName,
-            "Secondary" => secondaryWeaponTabName,
-            "Tools" => toolsWeaponTab,
+            WeaponType.Primary => primaryWeaponTabName,
+            WeaponType.Secondary => secondaryWeaponTabName,
+            WeaponType.Tools => toolsWeaponTab,
             _ => null,
         };
     }
@@ -513,25 +521,21 @@ public class InventoryScript : MonoBehaviour
         }
 
         var match = slotDictionary.FirstOrDefault(x => x.Value != null && x.Value.weaponName == weaponData.dataName);
-        string key = match.Key;
+        WeaponType key = match.Key;
+
+        if (key == default)
+        {
+            equipButton.SetEnabled(true);
+            return;
+        }
 
         VisualElement element = equipSection.Q<VisualElement>(slot);
         Label title = element.Q<Label>("item-title");
 
-        if (key != null)
+
+        if (slotDictionary[key].weaponName == weaponData.dataName)
         {
-            if (slotDictionary[key].weaponName == weaponData.dataName)
-            {
-                equipButton.SetEnabled(false);
-            }
-            else
-            {
-                equipButton.SetEnabled(true);
-            }
-        }
-        else
-        {
-            equipButton.SetEnabled(true);
+            equipButton.SetEnabled(false);
         }
 
     }
@@ -582,9 +586,13 @@ public class InventoryScript : MonoBehaviour
         return weaponDatabase.itemList.Find(m => m.dataName == inventory.weaponName);
     }
 
-    public void OpenInventory() {
-        equipSection.style.display = DisplayStyle.Flex;
-        inventoryContentContainer.style.display = DisplayStyle.Flex;
-        IsInventoryOpen = true;
+    public void OpenInventory(MenuState state)
+    {
+        if (state == MenuState.Inventory)
+        {
+            equipSection.style.display = DisplayStyle.Flex;
+            inventoryContentContainer.style.display = DisplayStyle.Flex;
+            IsInventoryOpen = true;
+        }
     }
 }

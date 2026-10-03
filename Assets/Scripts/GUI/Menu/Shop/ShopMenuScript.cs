@@ -66,6 +66,8 @@ public class ShopMenuScript : MonoBehaviour
         filtersButton?.RegisterCallback<ClickEvent>(FiltersTransition);
         purchaseButton?.RegisterCallback<ClickEvent>(evt => OnPurchasePrompt(evt, true), CallbackOptions.Removable);
         cancelPurchase?.RegisterCallback<ClickEvent>(evt => OnPurchasePrompt(evt, false), CallbackOptions.Removable);
+
+        gameManager.OnMenuStateChanged += OnShopOpen;
     }
 
     private void OnTransitionEnd(TransitionEndEvent evt)
@@ -75,7 +77,7 @@ public class ShopMenuScript : MonoBehaviour
             waitingShopTransition = false;
             if (!isOpen)
             {
-                gameManager.NewOpenItem(MenuState.MainMenu);
+                gameManager.OnEventNotifierChanged(MenuState.MainMenu);
             }
         } else if (evt.target == infoElement)
         {
@@ -189,6 +191,14 @@ public class ShopMenuScript : MonoBehaviour
         }
     }
 
+    public void OnShopOpen(MenuState state)
+    {
+        if (state == MenuState.Shop)
+        {
+            OpenShop();
+        }
+    }
+
     private void OnDisable()
     {
         shopContainer?.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
@@ -199,5 +209,6 @@ public class ShopMenuScript : MonoBehaviour
         infoCloseButton?.UnregisterAllRemovableCallbacks();
         purchaseButton?.UnregisterAllRemovableCallbacks();
         cancelPurchase?.UnregisterAllRemovableCallbacks();
+        gameManager.OnMenuStateChanged -= OnShopOpen;
     }
 }

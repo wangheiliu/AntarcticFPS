@@ -11,7 +11,7 @@
             <ui:TabView style="position: relative; width: 100%; height: 100%;">
                 <ui:Tab label="General">
                     <ui:ScrollView name="general-container" horizontal-scroller-visibility="Hidden" class="settings-container">
-                        <BasicUIControls.SlideToggle name="" enabled-color="rgb(49, 65, 89)" data-name="vSync" class="setting-item" style="flex-shrink: 1; flex-grow: 1; align-content: auto;"/>
+                        <BasicUIControls.SlideToggle name="" enabled-color="rgb(49, 65, 89)" data-name="vSync" data-source="" label="" class="setting-item" style="flex-shrink: 1; flex-grow: 1; align-content: auto;"/>
                         <BasicUIControls.CustomIntSlider value="15" title="Slider Setting" highest-value="100" data-name="volume" class="setting-item"/>
                         <BasicUIControls.CustomDropDownOption options="Fizz,Buzz" selected-color="rgb(0, 0, 0)" unchecked-color="rgb(255, 255, 255)" class="setting-item"/>
                         <BasicUIControls.CustomDropDownOption options="Hello,Buzz" selected-color="rgb(0, 0, 0)" class="setting-item"/>
