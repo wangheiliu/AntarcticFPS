@@ -43,6 +43,8 @@ public class SettingsScript : MonoBehaviour
         saveButton.clicked += SaveSettings;
         restoreDefaultsButton.clicked += ResetToDefault;
         resetButton.clicked += ResetSettings;
+
+        gameManager.OnMenuStateChanged += OnSettingsOpen;
     }
 
     void Start()
@@ -108,7 +110,7 @@ public class SettingsScript : MonoBehaviour
             {
                 ResetSettings();
                 settingsContainer.style.display = DisplayStyle.None;
-                gameManager.NewOpenItem(MenuState.MainMenu);
+                gameManager.OnEventNotifierChanged(MenuState.MainMenu);
             } else
             {
                 LoadSettings();
@@ -260,11 +262,20 @@ public class SettingsScript : MonoBehaviour
         ValueChanged(dataName, evt.newValue);
     }
 
+    private void OnSettingsOpen(MenuState state)
+    {
+        if (state == MenuState.Settings)
+        {
+            SettingsTransition();
+        }
+    }
+
     void OnDisable()
     {
         closeButton.clicked -= SettingsTransition;
         saveButton.clicked -= SaveSettings;
         restoreDefaultsButton.clicked -= ResetToDefault;
+        gameManager.OnMenuStateChanged -= OnSettingsOpen;
         settingsContainer?.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
 
         foreach (ScrollView scrollView in settingsScrollView)

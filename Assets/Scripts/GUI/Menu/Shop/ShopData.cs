@@ -9,7 +9,7 @@ using Unity.VisualScripting;
 using Game.ScriptableObjects.Shop;
 using Unity.Properties;
 
-public enum Catagories
+public enum ShopItemCatagory
 {
     Any,
     Automatics,
@@ -18,6 +18,13 @@ public enum Catagories
     Pistols,
     Knives
     //Medkit
+}
+
+public enum WeaponTypeEnum
+{
+    Primary,
+    Secondary,
+    Tertiary
 }
 public class ShopData : MonoBehaviour
 {
@@ -76,8 +83,8 @@ public class ShopData : MonoBehaviour
     public void PopulateUI(ShopDatabase database)
     {
         //adds the foldouts first
-        string[] catagories = Enum.GetNames(typeof(Catagories)).ToArray(); //select is basically .map() from JavaScript, nice
-        foreach (string str in catagories)
+        string[] ShopItemCatagory = Enum.GetNames(typeof(ShopItemCatagory)).ToArray(); //select is basically .map() from JavaScript, nice
+        foreach (string str in ShopItemCatagory)
         {
             if (str == "Any")
             {
@@ -138,8 +145,9 @@ public class ShopData : MonoBehaviour
         FieldInfo[] fields = type.GetFields(flags);
 
         Dictionary<string, List<StatValue>> groups = new();
-        
+        infoScrollContainer.dataSource = item;
         Label infoTitle = root.Q<Label>("info-title");
+        infoTitle.dataSource = item;
         infoTitle.text = item.title;
         purchasePromptTitle.text = $"Would you like to buy: {item.title ?? "item"}? (${item.cost})";
         

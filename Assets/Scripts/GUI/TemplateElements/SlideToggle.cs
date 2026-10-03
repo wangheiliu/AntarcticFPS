@@ -1,13 +1,17 @@
 using System.ComponentModel;
 using BaseUIControls;
+using Game.ScriptableObjects.Settings;
+using UnityEditor.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Unity.Properties;
 
 namespace BasicUIControls
 {
     [UxmlElement]
     public partial class SlideToggle : BaseField<bool>, ISettingAttributes // base refers to the parent class you inherit from, in this case, it's BaseField
     {
+
         private static readonly string className = "slide-toggle";
         private static readonly string inputClassName = "slide-toggle__input";
         private static readonly string checkedInputClassName = "slide-toggle__input--checked";
@@ -59,6 +63,7 @@ namespace BasicUIControls
                 {
                     return;
                 }
+                string prevValue = toggled;
                 toggled = value;
                 UpdateVisuals();
             }
@@ -84,21 +89,53 @@ namespace BasicUIControls
         //constructor class
         public SlideToggle(): base(null, new VisualElement()) // the basefield provides us with the label and the input visual element
         {
-            AddToClassList(className);
-            titleElement = new Label
+            dataSourceType = typeof(ToggleInfoObj);
+            SetBinding(nameof(TitleName), new DataBinding()
             {
-                text = title
+                dataSourcePath = new(nameof(ToggleInfoObj.Title)),
+                bindingMode = BindingMode.ToTarget
+            });
+
+            SetBinding(nameof(UnToggleText), new DataBinding()
+            {
+               dataSourcePath = new(nameof(ToggleInfoObj.UntoggledText)),
+               bindingMode = BindingMode.ToTarget
+            });
+
+            SetBinding(nameof(ToggleText), new DataBinding()
+            {
+               dataSourcePath = new(nameof(ToggleInfoObj.ToggledText)),
+               bindingMode = BindingMode.ToTarget
+            });
+
+            /*SetBinding(nameof(value), new DataBinding()
+            {
+               dataSourcePath = new(nameof(ToggleInfoObj.Value)),
+               bindingMode = BindingMode.TwoWay
+            });*/
+            
+            AddToClassList(className);
+            titleElement = new Label()
+            {
+                text = TitleName
             };
+
+            titleElement.SetBinding(nameof(Label.text), new DataBinding()
+            {
+               dataSourcePath = new PropertyPath(TitleName),
+               bindingMode = BindingMode.ToTarget 
+            });
             titleElement.AddToClassList(titleClassName);
             Add(titleElement);
 
             inputContainer = new VisualElement();
             inputContainer.AddToClassList(inputContainerClassName);
             inputContainer.style.flexDirection = FlexDirection.Row;
+            
             Add(inputContainer);
 
             valueElement = new Label{
-                text = untoggled
+                text = untoggled 
             };
             valueElement.AddToClassList(valueLabelClassName);
             inputContainer.Add(valueElement);
@@ -132,9 +169,7 @@ namespace BasicUIControls
         {
             inputElement.EnableInClassList(checkedInputClassName, value);
             inputElement.style.backgroundColor = value ? EnabledColor : DisabledColor;
-            
-            
-            valueElement.text = value ? toggled : untoggled;
+            valueElement.text = value ? ToggleText : UnToggleText;
         }
     }
 }

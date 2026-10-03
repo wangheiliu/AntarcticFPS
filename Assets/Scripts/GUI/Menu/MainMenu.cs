@@ -55,7 +55,7 @@ public class GameManager : MonoBehaviour
     private Translate menuOpenTransition = new(Length.Percent(0), 0, 0);
     [Header("Menu State")]
     public MenuState playerState;
-
+    public event Action<MenuState> OnMenuStateChanged;
 
 
     void Awake()
@@ -78,15 +78,16 @@ public class GameManager : MonoBehaviour
         settingsButton = btnContainer.Q<Button>("SettingsButton");
         quitButton = btnContainer.Q<Button>("Quit");
 
-        playButton?.RegisterCallback<ClickEvent>(evt => NewOpenItem(MenuState.Playing), CallbackOptions.Removable);
-        shopButton?.RegisterCallback<ClickEvent>(evt => NewOpenItem(MenuState.Shop), CallbackOptions.Removable);
-        settingsButton?.RegisterCallback<ClickEvent>(evt => NewOpenItem(MenuState.Settings), CallbackOptions.Removable);
+        playButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Playing), CallbackOptions.Removable);
+        shopButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Shop), CallbackOptions.Removable);
+        settingsButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Settings), CallbackOptions.Removable);
         quitButton?.RegisterCallback<ClickEvent>(evt => QuitGame(), CallbackOptions.Removable);
-        inventoryBtn?.RegisterCallback<ClickEvent>(evt => NewOpenItem(MenuState.Inventory), CallbackOptions.Removable);
+        inventoryBtn?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Inventory), CallbackOptions.Removable);
 
         btnContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
+        OnMenuStateChanged += OnMenuOpen;
 
-        NewOpenItem(MenuState.MainMenu);
+        OpenMenuItems(MenuState.MainMenu);
     }
 
     void Update()
@@ -95,7 +96,7 @@ public class GameManager : MonoBehaviour
         {
             if (!isMenuOpen && (playerState == MenuState.Playing))
             {
-                NewOpenItem(MenuState.MainMenu);
+                OpenMenuItems(MenuState.MainMenu);
             }
         }
     }
@@ -130,18 +131,7 @@ public class GameManager : MonoBehaviour
             document.rootVisualElement.style.display = DisplayStyle.Flex;
         }
 
-        switch (playerState)
-        {
-            case MenuState.Shop:
-                shopMenuScript.OpenShop();
-                break;
-            case MenuState.Settings:
-                settingsScript.SettingsTransition();
-                break;
-            case MenuState.Inventory:
-                inventoryScript.OpenInventory();
-                break;
-        }
+        OnMenuStateChanged?.Invoke(playerState);
     }
 
     //change these so that it has parameters
@@ -154,7 +144,7 @@ public class GameManager : MonoBehaviour
         cameraToEnable.enabled = true;
     }
 
-    public void NewOpenItem(MenuState state)
+    public void OpenMenuItems(MenuState state)
     {
         var item = menuStateDictionary[state];
         UIDocument[] documentsToOpen = item.documents;
@@ -234,6 +224,19 @@ public class GameManager : MonoBehaviour
     {
         btnContainer.style.translate = translate;
         title.style.translate = translate;
+    }
+
+    private void OnMenuOpen(MenuState state)
+    {
+        if (state == MenuState.MainMenu)
+        {
+            OpenMenuItems(MenuState.MainMenu);
+        }
+    }
+
+    public void OnEventNotifierChanged(MenuState state)
+    {
+        OnMenuStateChanged?.Invoke(state);
     }
 
     public void QuitGame()

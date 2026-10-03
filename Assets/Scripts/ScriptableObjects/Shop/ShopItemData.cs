@@ -17,7 +17,7 @@ namespace Game.ScriptableObjects.Shop
 
         [CreateProperty]
         [StatDisplay(displayName: "Type", group: "Basic Information")]
-        public Catagories type;
+        public ShopItemCatagory type;
 
         [CreateProperty]
         [StatDisplay(displayName: "Cost", prefix: "$", group: "Basic Information")]

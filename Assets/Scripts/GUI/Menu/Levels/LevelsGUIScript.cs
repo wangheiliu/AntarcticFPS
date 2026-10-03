@@ -66,6 +66,9 @@ public class LevelsGUIScript : MonoBehaviour
         propTitle = propContainer.Q<Label>("prop-title");
 
         propScrollView.dataSource = currentLevelDisplay;
+
+        propContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
+        levelSelectContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         FillLevels();
     }
 

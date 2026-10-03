@@ -168,7 +168,7 @@ public class ShopFilter : MonoBehaviour
 
     private void HandleEnumChange(ChangeEvent<Enum> evt)
     {
-        string enumName = Enum.GetName(typeof(Catagories), evt.newValue);
+        string enumName = Enum.GetName(typeof(ShopItemCatagory), evt.newValue);
         DisplayFoldouts(enumName);
     }
 

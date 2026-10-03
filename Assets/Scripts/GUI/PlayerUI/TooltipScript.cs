@@ -43,8 +43,8 @@ public class TooltipScript : MonoBehaviour
         } else
         {
             ShowTooltip(targetElement);
-            container.style.left = mousePos.x + offsetX;
-            container.style.top = mousePos.y + offsetY;
+            container.style.left = Mathf.Clamp(mousePos.x + offsetX, 0, Screen.width);
+            container.style.top = Mathf.Clamp(mousePos.y + offsetY, 0, Screen.height);
         }
 
     }

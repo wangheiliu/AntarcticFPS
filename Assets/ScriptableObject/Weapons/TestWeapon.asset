@@ -20,6 +20,7 @@ MonoBehaviour:
   icon: {fileID: 0}
   dataName: testWeapon
   clipSize: 30
+  weaponType: 1
   fireRate: 30
   reloadTime: 4.5
   damage: 5

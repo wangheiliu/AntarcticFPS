@@ -5,6 +5,7 @@ using Game.ScriptableObjects.Shop;
 
 public enum WeaponType
 {
+    None,
     Primary,
     Secondary,
     Tools

@@ -21,6 +21,7 @@ MonoBehaviour:
   icon: {fileID: 0}
   dataName: ak47
   clipSize: 30
+  weaponType: 1
   fireRate: 20
   reloadTime: 5
   damage: 5
