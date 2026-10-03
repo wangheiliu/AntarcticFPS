@@ -11,8 +11,8 @@ This project uses assets from the Unity Asset Store. Used under the Unity Asset 
 
 
 # Current Features
-* Player Movement
-* Prototype of weapons
+* Player Movement and animation prototype
+* Raycast weapon system
 * Basic Shop and Inventory
 
 # Requirements
@@ -21,25 +21,24 @@ This project was created on Unity version 6000.4.9f1, it's recommended to have U
 [Install Unity 6000.4.9f1 here](https://unity.com/releases/editor/whats-new/6000.4.9f1)
 
 # Getting Started
-
-1. Clone the repository
+1. Clone or download the repository
 2. Install Unity 6000.4.9f1
-3. Open the project
-4. Your done!
+3. Add the game file to the project
+4. Make sure to download these Third Party Assets listed above so the game runs correctly
+5. Open up your game
+6. Go to Window > Package Management > Package Manager > My Assets
+7. Install each assets
+8. Your done!
 
 # Development Goals
 * Adding animations to my player character
 * Adding basic level selection
 * Inplement a more realistic weapon system
+* Replace my raycast system with a more realistic system
+* Adding a save file system
 
 # Project Status
 In active development
 
 # Copyright
 > Copyright (c) 2026 BytePenguins Studios (William Liu)
-
-All rights reserved.
-
-This repository and its contents are provided for viewing purposes only. No part of this project may be copied, modified, distributed, sublicensed, sold, or used in derivative works without the express written permission of the copyright holder.
-
-Third-party assets remain the property of their respective owners and are subject to their own licenses and terms.
