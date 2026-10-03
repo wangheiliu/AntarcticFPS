@@ -434,7 +434,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f2441c9ca3d6dd4db5ec693e4528693, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryScript
-  mainMenuScript: {fileID: 144607838}
+  gameManager: {fileID: 144607838}
   document: {fileID: 141854106}
   propertyTree: {fileID: 9197481963319205126, guid: 41b28310ef3c6204581ad03b69dc4caa, type: 3}
   weaponDatabase: {fileID: 11400000, guid: 36f46d1e5b3545a4e9d1af9d2f591683, type: 2}

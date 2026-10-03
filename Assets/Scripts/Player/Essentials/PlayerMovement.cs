@@ -19,6 +19,19 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform playerPos;
     public float walkSpeed = 5f;
     private float currentSpeed;
+    private float speedMagnitude;
+    public float SpeedMagnitude
+    {
+        get => speedMagnitude;
+        set
+        {
+            if (speedMagnitude != value)
+            {
+                speedMagnitude = value;
+                
+            }
+        }
+    }
     public float CurrentSpeed
     {
         get => currentSpeed;
@@ -88,7 +101,7 @@ public class PlayerMovement : MonoBehaviour
         Jumping,
         Falling
     }
-    private PlayerState currentPlayerState = PlayerState.Idle;
+    [SerializeField] private PlayerState currentPlayerState = PlayerState.Idle;
     private bool _isLanded = false;
     public bool IsLanded
     {
@@ -366,6 +379,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         UpdateState();
+        SpeedMagnitude = new Vector3(move.x, 0, move.z).magnitude;
         // Final move
         charController.Move(move * Time.deltaTime);
         

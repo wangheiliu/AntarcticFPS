@@ -9,6 +9,7 @@ public class PlayerAnimation : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private PlayerMovement.PlayerState currentState;
 
+    #region Animator Hashes
     private readonly int playerStateHash = Animator.StringToHash("PlayerState");
     private readonly int isTransitioningHash = Animator.StringToHash("IsAnimating");
     private readonly int idleStateHash = Animator.StringToHash("Idle");
@@ -18,6 +19,7 @@ public class PlayerAnimation : MonoBehaviour
     private readonly int slideStartHash = Animator.StringToHash("SlideStart");
     private readonly int slideEndHash = Animator.StringToHash("SlideEnd");
     private readonly int runStateHash = Animator.StringToHash("PlayerSpeed");
+    #endregion
     
     void Start()
     {
@@ -48,6 +50,7 @@ public class PlayerAnimation : MonoBehaviour
         currentState = state;
         
         animator.SetInteger(playerStateHash, (int)state);
+        //animator.CrossFadeInFixedTime(playerStateHash, 0.1f, 0);
     }
 
     private void JumpAnimationEvt(string param)
