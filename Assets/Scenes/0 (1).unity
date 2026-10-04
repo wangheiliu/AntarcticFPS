@@ -2596,7 +2596,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 4548ca06e6a81c94c8808c2c1744e03d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 7.016709e-15
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 4548ca06e6a81c94c8808c2c1744e03d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -2604,7 +2604,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 4548ca06e6a81c94c8808c2c1744e03d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
+      value: -7.016709e-15
       objectReference: {fileID: 0}
     - target: {fileID: -6906513720769084516, guid: 4548ca06e6a81c94c8808c2c1744e03d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -9943,7 +9943,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: d0aef9abd1ae7cf48acf963a0d46d582, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
