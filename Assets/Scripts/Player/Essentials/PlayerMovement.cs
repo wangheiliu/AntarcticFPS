@@ -8,16 +8,26 @@ using UnityEngine.EventSystems;
 
 public class PlayerMovement : MonoBehaviour
 {
-    // Animation
+    #region Events
     public event Action<PlayerState> OnPlayerStateChanged;
     public event Action OnPlayerJumped;
     public event Action OnPlayerLanded;
     public event Action<bool> OnPlayerSlide;
     public event Action<float> OnPlayerSpeedChanged;
+    #endregion
 
     [Header("Player Settings")]
     [SerializeField] private Transform playerPos;
+    #region Speed Constants
     public float walkSpeed = 5f;
+    public float sprintSpeed = 10f;
+    public float jumpForce = 3f;
+    private float normalHeight = 2f;
+    private float crouchHeight = 1f;
+    private float crouchSpeed = 2.5f;
+    #endregion
+
+    #region Speed Variables
     private float currentSpeed;
     private float speedMagnitude;
     public float SpeedMagnitude
@@ -44,22 +54,28 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
-    public float sprintSpeed = 10f;
-    public float jumpForce = 3f;
-    private float normalHeight = 2f;
-    private float crouchHeight = 1f;
-    private float crouchSpeed = 2.5f;
+
+    #endregion
+
+    #region Slide Variables
+    
     [SerializeField] private float slideFriction = 10f;
-    private float slideCoolDownTimer;
+    public float slideCoolDownTimer;
     private float slideCooldownDuration = 3f;
     public float staminaRecoveryTime;
+    #endregion
 
+    #region Humanoid
     [Header("Humanoid")]
     public bool isPlaying;
     private CharacterController charController;
+    #endregion
+
+    #region UI variables
     [Header("HUD")]
     [SerializeField] private UIDocument hudDocument;
     [SerializeField] private HUDScript hudScript;
+    #endregion
     //private Transform transform;
     [Header("Camera")]
     [SerializeField] private Transform cam;
@@ -68,17 +84,19 @@ public class PlayerMovement : MonoBehaviour
     public float gravity = -9.81f;
     public float velocityY;
 
-    //all the booleans
+    #region Player State Variables
     private bool canSprint;
-    private bool isCrouching;
+    private bool canCrouch;
+    [SerializeField] private bool isCrouching;
     private bool canSlide;
     private bool isSlideCoolDownEnabled;
     private bool isSliding;
     public bool isGrounded;
     private float targetHeight;
     private bool canRegenerateStamina = true;
+    #endregion
 
-    // Slide setting variables
+    #region Slide Setting Variables
     private Vector3 slideDirection;
     private float slideSpeed;
     private Vector3 downhillDirection;
@@ -89,7 +107,9 @@ public class PlayerMovement : MonoBehaviour
     private bool onSlope;
     private bool isOnWalkableSlope;
     private bool isNotOnWalkableSlope;
-    // Player State (I will work on that when I finish the sliding mechanic)
+    #endregion
+
+    private Vector3 moveDir = Vector3.zero;
     
     public enum PlayerState
     {
@@ -182,10 +202,10 @@ public class PlayerMovement : MonoBehaviour
 
         // tracks the booleans
         bool isMoving = moveInput != Vector2.zero;
-        isCrouching = (Keyboard.current.leftCtrlKey.isPressed || Keyboard.current.cKey.isPressed) && !Keyboard.current.leftShiftKey.isPressed;
-        canSlide = Keyboard.current.leftShiftKey.isPressed && Keyboard.current.cKey.isPressed && hudScript.Stamina > 15;
-        canSprint = Keyboard.current.leftShiftKey.isPressed && !Keyboard.current.cKey.isPressed && isMoving && hudScript.Stamina > 0 && !isCrouching && isMoving;
-        targetHeight = (isCrouching || isSliding) ? crouchHeight : normalHeight;
+        canCrouch = (Keyboard.current.leftCtrlKey.isPressed || Keyboard.current.cKey.isPressed) && currentPlayerState != PlayerState.Sliding;
+        canSlide = Keyboard.current.leftShiftKey.isPressed && Keyboard.current.cKey.isPressed && hudScript.Stamina > 15 && !isCrouching;
+        canSprint = Keyboard.current.leftShiftKey.isPressed && !Keyboard.current.cKey.isPressed && isMoving && hudScript.Stamina > 0 && !canCrouch && isMoving;
+        targetHeight = (canCrouch || isSliding) ? crouchHeight : normalHeight;
 
         if (!isNotOnWalkableSlope)
         {
@@ -220,7 +240,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         //crouching
-        if (isCrouching && !canSlide)
+        if (canCrouch)
         {
             Crouch();
         }
@@ -237,7 +257,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         //slide
-        if (canSlide && !isSliding && !isSlideCoolDownEnabled && !isCrouching)
+        if (canSlide && !isSliding && !isSlideCoolDownEnabled)
         {
             StartSlide();
         }
@@ -467,9 +487,12 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    #region Crouch Functions
+
     private void Crouch()
     {
         CurrentPlayerState = PlayerState.Crouching;
+        isCrouching = true;
         CurrentSpeed = 3f;
         charController.height = Mathf.Lerp(charController.height, targetHeight, 25f * Time.deltaTime);
         charController.center = new Vector3(
@@ -480,6 +503,7 @@ public class PlayerMovement : MonoBehaviour
     }
     private void UnCrouch()
     {
+        isCrouching = false;
         if (canSprint)
         {
             CurrentSpeed = sprintSpeed;
@@ -495,7 +519,9 @@ public class PlayerMovement : MonoBehaviour
             0
         );
     }
+    #endregion
 
+    #region Slide Functions
     private void StartSlide()
     {
         CurrentPlayerState = PlayerState.Sliding;
@@ -600,6 +626,7 @@ public class PlayerMovement : MonoBehaviour
         canRegenerateStamina = true;
         isSlideCoolDownEnabled = false;
     }
+    #endregion
 
     private void RespawnPlayer(Vector3 position)
     {
