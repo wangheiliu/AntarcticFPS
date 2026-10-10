@@ -13,10 +13,10 @@ namespace Game.ScriptableObjects.Levels
     {
         [Header("Display Information")]
         [SerializeField, DontCreateProperty] private string _displayName;
-        [CreateProperty] [StatDisplay(displayName: "Level name")] public string DisplayName
+        [CreateProperty] public string DisplayName
         {
             get => _displayName;
-            set => _displayName = value;   
+            set => _displayName = value;
         }
         [TextArea(1, 10)]
         [SerializeField, DontCreateProperty] private string _description;
