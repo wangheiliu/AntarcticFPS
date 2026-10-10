@@ -12,7 +12,7 @@
     </ui:VisualElement>
     <ui:VisualElement name="properties" data-source-type="Game.ScriptableObjects.Levels.LevelsData, Assembly-CSharp" class="container property-select--enabled" style="flex-grow: 0; border-top-width: 5px; border-right-width: 5px; border-bottom-width: 5px; border-left-width: 5px; border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom-right-radius: 20px; border-bottom-left-radius: 20px; overflow: hidden; width: 30%; display: flex;">
         <ui:VisualElement name="prop-title" style="flex-grow: 0; flex-direction: row;">
-            <ui:Label name="prop-title" text="Level name here" data-source-path="DisplayName" style="font-size: 35px; color: rgb(255, 255, 255); -unity-font-style: bold; white-space: pre-wrap; flex-shrink: 1; flex-grow: 1; width: 100%; margin-bottom: 4px;">
+            <ui:Label name="prop-title" text="Level name here" style="font-size: 35px; color: rgb(255, 255, 255); -unity-font-style: bold; white-space: pre-wrap; flex-shrink: 1; flex-grow: 1; width: 100%; margin-bottom: 4px;">
                 <Bindings>
                     <ui:DataBinding property="text" data-source-path="DisplayName" binding-mode="ToTarget"/>
                 </Bindings>

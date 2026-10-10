@@ -8,13 +8,23 @@ using Game.ScriptableObjects.Shop;
 using System.Collections.Generic;
 using System.Reflection;
 using System;
+using Unity.Mathematics;
 
 public class LevelsGUIScript : MonoBehaviour
 {
+    [Header("Player")]
+    [SerializeField] private GameObject playerObj;
+    [SerializeField] private GameObject levelList;
+
     [Header("Database")]
     [SerializeField] private LevelDatabase levelDatabase;
+
     [Header("UI")]
     [SerializeField] private UIDocument document;
+    [SerializeField] private GameManager mainMenuScript;
+
+    private bool canOpenMenu = false;
+    private bool isClickingOnPlayBtn = false;
 
     private VisualElement levelSelectContainer;
     private VisualElement propContainer;
@@ -67,8 +77,18 @@ public class LevelsGUIScript : MonoBehaviour
 
         propScrollView.dataSource = currentLevelDisplay;
 
+        #region Register Callbacks
         propContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         levelSelectContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
+        levelCloseBtn.RegisterCallback<ClickEvent>(evt =>
+        {
+            OnCloseButtonClick(evt);
+            canOpenMenu = true;
+        }, CallbackOptions.Removable);
+        propCloseBtn.RegisterCallback<ClickEvent>(OnCloseButtonClick);
+        playButton.RegisterCallback<ClickEvent>(evt => SpawnPlayer(currentLevelDisplay.mapName), CallbackOptions.Removable);
+        #endregion
+        mainMenuScript.OnMenuStateChanged += Open;
         FillLevels();
     }
 
@@ -85,12 +105,26 @@ public class LevelsGUIScript : MonoBehaviour
                 document.rootVisualElement.style.display = DisplayStyle.None;
             }
         }
+
+        if (canOpenMenu)
+        {
+            canOpenMenu = false;
+            mainMenuScript.OpenMenuItems(MenuState.MainMenu);
+        }
+
+        if (isClickingOnPlayBtn)
+        {
+            isClickingOnPlayBtn = false;
+            mainMenuScript.OpenMenuItems(MenuState.Playing);
+        }
     }
 
     void OnDisable()
     {
         levelLookup.Clear();
     }
+
+    #region UI Functions
 
     private void FillLevels()
     {
@@ -136,12 +170,16 @@ public class LevelsGUIScript : MonoBehaviour
         {
             return;
         }
+
+        currentLevelDisplay = infoSelectedElement.GetLevelsData();
+        propContainer.style.display = DisplayStyle.Flex;
         
         EnableElement(propContainer, true);
         
         propScrollView.Clear();
-        currentLevelDisplay = infoSelectedElement.GetLevelsData();
         propContainer.dataSource = currentLevelDisplay;
+        currentLevelDisplay = infoSelectedElement.GetLevelsData();
+        
 
         AddPropText();
     }
@@ -150,8 +188,8 @@ public class LevelsGUIScript : MonoBehaviour
     {
         foreach (var field in fields)
         {
-            var attribute = statDisplays[field.Name];
-            if (attribute == null) return;
+            var attribute = statDisplays.TryGetValue(field.Name, out StatDisplay statDisplay) ? statDisplay : null;
+            if (attribute == null) continue;
             StatValue statValue = new()
             {
                 Name = attribute.DisplayName,
@@ -176,7 +214,9 @@ public class LevelsGUIScript : MonoBehaviour
         } else if (evt.target == levelCloseBtn)
         {
             EnableElement(levelSelectContainer, false);
+            EnableElement(propContainer, false);
         }
+        currentLevelDisplay = null;
     }
 
     private void EnableElement(VisualElement element, bool isOpen)
@@ -192,9 +232,46 @@ public class LevelsGUIScript : MonoBehaviour
         }
     }
 
-    public void Open()
+    public void Open(MenuState state)
     {
+        if (state != MenuState.LevelSelection)
+        {
+            return;
+        }
         document.rootVisualElement.style.display = DisplayStyle.Flex;
+        levelSelectContainer.style.display = DisplayStyle.Flex;
         EnableElement(levelSelectContainer, true);
     }
+
+    #endregion
+
+    #region Spawn Player
+
+    public void SpawnPlayer(string mapName)
+    {
+        #if UNITY_EDITOR 
+            isClickingOnPlayBtn = true;
+            EnableElement(levelSelectContainer, false);
+            EnableElement(propContainer, false);
+            currentLevelDisplay = null;
+            return;
+        #endif
+        Transform levelTransform = levelList.transform.Find(mapName);
+        if (levelTransform == null) return;
+        GameObject levelModel = levelTransform.gameObject;
+        Transform spawnTransform = levelModel.transform.Find("SpawnPoint");
+        if (spawnTransform == null) return;
+        GameObject spawn = spawnTransform.gameObject;
+        if (spawn == null)
+        {
+            Debug.LogError($"Spawn point not found for map: {mapName}");
+            return;
+        }
+
+        currentLevelDisplay = null;
+        playerObj.transform.position = spawn.transform.position;
+        mainMenuScript.playerState = MenuState.Playing;
+    }
+
+    #endregion
 }
