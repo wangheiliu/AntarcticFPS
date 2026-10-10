@@ -10,7 +10,7 @@
     flex-grow: 1;
     padding: 30px 30px 20px 30px;
     background-color: rgb(67, 67, 67);
-    transition-property: translate;
+    transition-property: translate, width;
     transition-duration: 0.2s;
     translate: 0% 0 0;
 }

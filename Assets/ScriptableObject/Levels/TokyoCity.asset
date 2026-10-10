@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1567d008910f2d749bf6fdd095993116, type: 3}
   m_Name: TokyoCity
   m_EditorClassIdentifier: Assembly-CSharp::Game.ScriptableObjects.Levels.LevelsData
-  _displayName: Tsukiminato City
+  _displayName: Tsukiminato Harbor
   _description: The capital of Japan
   _levelImage: {fileID: 0}
   dataName: tokyoharbour

@@ -202,7 +202,7 @@ public class PlayerMovement : MonoBehaviour
 
         // tracks the booleans
         bool isMoving = moveInput != Vector2.zero;
-        canCrouch = (Keyboard.current.leftCtrlKey.isPressed || Keyboard.current.cKey.isPressed) && currentPlayerState != PlayerState.Sliding;
+        canCrouch = (Keyboard.current.leftCtrlKey.isPressed || Keyboard.current.cKey.isPressed) && currentPlayerState != PlayerState.Sliding && currentPlayerState != PlayerState.Jumping && currentPlayerState != PlayerState.Falling;
         canSlide = Keyboard.current.leftShiftKey.isPressed && Keyboard.current.cKey.isPressed && hudScript.Stamina > 15 && !isCrouching;
         canSprint = Keyboard.current.leftShiftKey.isPressed && !Keyboard.current.cKey.isPressed && isMoving && hudScript.Stamina > 0 && !canCrouch && isMoving;
         targetHeight = (canCrouch || isSliding) ? crouchHeight : normalHeight;

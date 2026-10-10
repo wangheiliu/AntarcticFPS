@@ -78,7 +78,7 @@ public class GameManager : MonoBehaviour
         settingsButton = btnContainer.Q<Button>("SettingsButton");
         quitButton = btnContainer.Q<Button>("Quit");
 
-        playButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Playing), CallbackOptions.Removable);
+        playButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.LevelSelection), CallbackOptions.Removable);
         shopButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Shop), CallbackOptions.Removable);
         settingsButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Settings), CallbackOptions.Removable);
         quitButton?.RegisterCallback<ClickEvent>(evt => QuitGame(), CallbackOptions.Removable);
@@ -174,10 +174,16 @@ public class GameManager : MonoBehaviour
             }
         }
 
+
+
         if (state == MenuState.Playing)
         {
             PlayerMovementManager(true);
             isMenuOpen = false;
+            foreach (UIDocument document in documentsToOpen)
+            {
+                document.rootVisualElement.style.display = DisplayStyle.Flex;
+            }
         }
         else
         {
