@@ -42,7 +42,7 @@ public class LevelsGUIScript : MonoBehaviour
     private readonly PropertyInfo[] fields = typeof(LevelsData).GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
     void Awake()
     {
-        
+
         foreach (var field in fields)
         {
             StatDisplay value = field.GetCustomAttribute<StatDisplay>();
@@ -97,7 +97,8 @@ public class LevelsGUIScript : MonoBehaviour
         if (evt.target == propContainer)
         {
             propContainer.style.display = propContainer.ClassListContains("property-select--disabled") ? DisplayStyle.None : DisplayStyle.Flex;
-        } else if (evt.target == levelSelectContainer)
+        }
+        else if (evt.target == levelSelectContainer)
         {
             levelSelectContainer.style.display = levelSelectContainer.ClassListContains("level-select--disabled") ? DisplayStyle.None : DisplayStyle.Flex;
             if (levelSelectContainer.ClassListContains("level-select--disabled"))
@@ -173,13 +174,13 @@ public class LevelsGUIScript : MonoBehaviour
 
         currentLevelDisplay = infoSelectedElement.GetLevelsData();
         propContainer.style.display = DisplayStyle.Flex;
-        
+
         EnableElement(propContainer, true);
-        
+
         propScrollView.Clear();
         propContainer.dataSource = currentLevelDisplay;
         currentLevelDisplay = infoSelectedElement.GetLevelsData();
-        
+
 
         AddPropText();
     }
@@ -211,7 +212,8 @@ public class LevelsGUIScript : MonoBehaviour
         if (evt.target == propCloseBtn)
         {
             EnableElement(propContainer, false);
-        } else if (evt.target == levelCloseBtn)
+        }
+        else if (evt.target == levelCloseBtn)
         {
             EnableElement(levelSelectContainer, false);
             EnableElement(propContainer, false);
@@ -225,7 +227,8 @@ public class LevelsGUIScript : MonoBehaviour
         {
             element.EnableInClassList("property-select--enabled", isOpen);
             element.EnableInClassList("property-select--disabled", !isOpen);
-        } else if (element == levelSelectContainer)
+        }
+        else if (element == levelSelectContainer)
         {
             element.EnableInClassList("level-select--enabled", isOpen);
             element.EnableInClassList("level-select--disabled", !isOpen);
@@ -249,14 +252,16 @@ public class LevelsGUIScript : MonoBehaviour
 
     public void SpawnPlayer(string mapName)
     {
-        #if UNITY_EDITOR 
-            isClickingOnPlayBtn = true;
-            EnableElement(levelSelectContainer, false);
-            EnableElement(propContainer, false);
-            currentLevelDisplay = null;
-            return;
+        #if UNITY_EDITOR
+                isClickingOnPlayBtn = true;
+                EnableElement(levelSelectContainer, false);
+                EnableElement(propContainer, false);
+                currentLevelDisplay = null;
+                return;
         #endif
-        Transform levelTransform = levelList.transform.Find(mapName);
+        #pragma warning disable CS0162 // Unreachable code detected
+                Transform levelTransform = levelList.transform.Find(mapName);
+        #pragma warning restore CS0162 // Unreachable code detected
         if (levelTransform == null) return;
         GameObject levelModel = levelTransform.gameObject;
         Transform spawnTransform = levelModel.transform.Find("SpawnPoint");

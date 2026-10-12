@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Game.ScriptableObjects.Shop;
+using Game.GUI.AttributeElements;
 
 public class ShopFilter : MonoBehaviour
 {

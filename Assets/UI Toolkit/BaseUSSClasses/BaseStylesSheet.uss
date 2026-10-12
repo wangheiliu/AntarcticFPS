@@ -1,7 +1,8 @@
 :root {
     --main-blue: rgb(27, 47, 76);
     --main-blue-light: rgb(49, 65, 89);
-    --main-black: rgb(27, 27, 27);
+    --main-black: rgba(27, 27, 27, 1);
+    --main-black-light: rgba(27, 27, 27, 0.5);
     --main-light-color: rgb(191, 191, 191);
     --main-dark-color-active: #4d4d4d;
     --close-button-color: rgb(255, 0, 0);

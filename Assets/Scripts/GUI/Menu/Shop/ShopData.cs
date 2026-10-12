@@ -20,12 +20,7 @@ public enum ShopItemCatagory
     //Medkit
 }
 
-public enum WeaponTypeEnum
-{
-    Primary,
-    Secondary,
-    Tertiary
-}
+
 public class ShopData : MonoBehaviour
 {
     [Header("ShopMenuScript")]

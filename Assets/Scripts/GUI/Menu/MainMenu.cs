@@ -68,6 +68,7 @@ public class GameManager : MonoBehaviour
 
     void OnEnable()
     {
+        #region UI Elements
         uiDocument = GetComponent<UIDocument>();
         var root = uiDocument.rootVisualElement;
         btnContainer = root.Q<VisualElement>(className: "container");
@@ -77,15 +78,19 @@ public class GameManager : MonoBehaviour
         inventoryBtn = btnContainer.Q<Button>("CustomizeButton");
         settingsButton = btnContainer.Q<Button>("SettingsButton");
         quitButton = btnContainer.Q<Button>("Quit");
+        #endregion
 
+        #region Register Button Callbacks
         playButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.LevelSelection), CallbackOptions.Removable);
         shopButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Shop), CallbackOptions.Removable);
         settingsButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Settings), CallbackOptions.Removable);
         quitButton?.RegisterCallback<ClickEvent>(evt => QuitGame(), CallbackOptions.Removable);
         inventoryBtn?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Inventory), CallbackOptions.Removable);
+        #endregion
 
         btnContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         OnMenuStateChanged += OnMenuOpen;
+        OnMenuStateChanged += OnPlayerPlay;
 
         OpenMenuItems(MenuState.MainMenu);
     }
@@ -96,7 +101,8 @@ public class GameManager : MonoBehaviour
         {
             if (!isMenuOpen && (playerState == MenuState.Playing))
             {
-                OpenMenuItems(MenuState.MainMenu);
+                Debug.Log("Escape key pressed. Opening pause menu.");
+                OpenMenuItems(MenuState.Paused);
             }
         }
     }
@@ -108,6 +114,9 @@ public class GameManager : MonoBehaviour
         settingsButton?.UnregisterAllRemovableCallbacks();
         quitButton?.UnregisterAllRemovableCallbacks();
         inventoryBtn?.UnregisterAllRemovableCallbacks();
+
+        OnMenuStateChanged -= OnMenuOpen;
+        OnMenuStateChanged -= OnPlayerPlay;
     }
 
 
@@ -119,9 +128,11 @@ public class GameManager : MonoBehaviour
         }
         if (!waitingToClose)
         {
+            Debug.LogWarning("Transition ended but not waiting to close. Ignoring.");
             return;
         }
 
+        Debug.Log(playerState);
         CloseAllItems();
         var documentsToOpen = menuStateDictionary[playerState].documents;
         waitingToClose = false;
@@ -152,16 +163,29 @@ public class GameManager : MonoBehaviour
 
         if (documentsToOpen.Length == 0 || documentsToOpen == null)
         {
+            Debug.LogWarning($"No documents found for MenuState: {state}. Please check the menuStateValues in the inspector.");
             return;
         }
 
         waitingToClose = true;
         playerState = state;
+        Debug.Log(playerState);
 
 
         if (state != MenuState.MainMenu)
         {
             MenuTranslate(menuClosedTransition);
+
+            if (state == MenuState.Paused)
+            {
+                CloseAllItems();
+
+                foreach (UIDocument document in documentsToOpen)
+                {
+                    document.rootVisualElement.style.display = DisplayStyle.Flex;
+                }
+                OnMenuStateChanged?.Invoke(playerState);
+            }
         }
         else
         {
@@ -237,6 +261,14 @@ public class GameManager : MonoBehaviour
         if (state == MenuState.MainMenu)
         {
             OpenMenuItems(MenuState.MainMenu);
+        }
+    }
+
+    private void OnPlayerPlay(MenuState state)
+    {
+        if (state == MenuState.Playing)
+        {
+            OpenMenuItems(MenuState.Playing);
         }
     }
 
