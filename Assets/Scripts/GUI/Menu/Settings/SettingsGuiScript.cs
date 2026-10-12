@@ -122,23 +122,26 @@ public class SettingsScript : MonoBehaviour
     {
         if (waitingTransition)
         {
+            Debug.LogWarning("Waiting on transition");
             return;
         }
         waitingTransition = true;
         if (isOpen)
         {
-
+            Debug.Log("Closing settings");
             isOpen = false;
             settingsContainer.style.translate = new Translate(0, Length.Percent(120), 0);
         }
         else
         {
+            Debug.Log("Opening settings");
             settingsContainer.style.display = DisplayStyle.Flex;
             isOpen = true;
             settingsContainer.style.translate = new Translate(0, Length.Percent(0), 0);
         }
     }
 
+    #region Loading GUI
     private void LoadSettingsElement()
     {
         foreach (ScrollView scrollView in settingsScrollView)
@@ -202,6 +205,9 @@ public class SettingsScript : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Data
     private void ValueChanged(string dataName, object newValue)
     {
         FieldInfo field = typeof(PlayerSettings).GetField(dataName, BindingFlags.Public | BindingFlags.Instance);
@@ -252,6 +258,10 @@ public class SettingsScript : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Events
+
     private void OnToggleEvent(ChangeEvent<bool> evt, string dataName)
     {
         ValueChanged(dataName, evt.newValue);
@@ -266,9 +276,12 @@ public class SettingsScript : MonoBehaviour
     {
         if (state == MenuState.Settings)
         {
+            uIDocument.rootVisualElement.style.display = DisplayStyle.Flex;
             SettingsTransition();
         }
     }
+
+    #endregion
 
     void OnDisable()
     {

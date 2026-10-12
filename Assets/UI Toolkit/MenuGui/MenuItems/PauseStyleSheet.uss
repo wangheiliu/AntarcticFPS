@@ -1,0 +1,51 @@
+:root {
+}
+
+VisualElement {
+}
+
+.container {
+    background-color: #1B1B1B80;
+    transition-property: opacity;
+    transition-duration: 0.5s;
+    opacity: 1;
+}
+
+.pause-enabled {
+    opacity: 1;
+}
+
+.pause-disabled {
+    opacity: 0;
+}
+
+.title {
+    font-size: 50px;
+    color: white;
+    align-self: center;
+}
+
+.button-selection {
+    font-size: 30px;
+    background-color: var(--main-light-color);
+    border-radius: 10px;
+    border-width: 2px;
+    border-color: white;
+    margin: 7px;
+    transition-property: background-color, color, border-width, scale;
+    transition-duration: 0.2s;
+}
+
+.button-selection:hover {
+    background-color: var(--main-black);
+    color: white;
+    border-width: 2px;
+    scale: 1.03;
+}
+
+.button-selection:active {
+    scale: 1;
+    background-color: var(--main-dark-color-active);
+    color: white;
+    border-width: 2px;
+}
