@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Sound
   m_EditorClassIdentifier: Assembly-CSharp::Game.ScriptableObjects.Settings.SliderInfoObj
   <Title>k__BackingField: Sound
+  controlType: 0
+  settingLocation: 1
   <ValueTitle>k__BackingField: 
   <LowerRange>k__BackingField: 0
   <HighRange>k__BackingField: 100

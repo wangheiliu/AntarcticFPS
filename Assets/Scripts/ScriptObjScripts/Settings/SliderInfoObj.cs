@@ -9,6 +9,7 @@ namespace Game.ScriptableObjects.Settings
     [CreateAssetMenu(fileName = "SliderInfo", menuName = "Settings/SliderInfo")]
     public class SliderInfoObj : BasicSettingsObject
     {
+        [Header("Slider Information")]
         [CreateProperty] [field: SerializeField] public string ValueTitle {get; set;}
         [CreateProperty] [field: SerializeField] public int LowerRange {get; set;} = 0;
         [CreateProperty] [field: SerializeField] public int HighRange {get; set;} = 100;

@@ -45,6 +45,18 @@ public class NametagScript : MonoBehaviour
         usernameInputField.RegisterValueChangedCallback(CheckUsername);
 
         GeneralPlayerDataManager.OnUsernameChanged += SetUsernameDisplay;
+
+        if (CurrentPlayerData.Data != null)
+        {
+            if (CurrentPlayerData.Data.hasSetUserName)
+            {
+                UIInputDocument.rootVisualElement.style.display = DisplayStyle.None;
+                nameElement.text = CurrentPlayerData.Data.username;
+            }
+        } else
+        {
+            Debug.LogWarning("Player data not loaded in yet");
+        }
     }
 
     void Start()
@@ -111,6 +123,7 @@ public class NametagScript : MonoBehaviour
         }
     }
 
+    #region UI Display
     private void SetUsernameDisplay()
     {
         nameElement.text = GeneralPlayerDataManager.Username;
@@ -123,6 +136,8 @@ public class NametagScript : MonoBehaviour
         element.style.borderLeftColor = color;
         element.style.borderRightColor = color;
     }
+
+    #endregion
 
     void OnDisable()
     {

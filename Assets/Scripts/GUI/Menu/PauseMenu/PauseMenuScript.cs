@@ -41,6 +41,10 @@ namespace Game.GUI.Menu
                     {
                         isClosing = true;
                         currentState = state;
+                        if (currentState == MenuState.MainMenu)
+                        {
+                            menuDocument.OnPauseEventNotifier(false);
+                        }
                         EnablePauseMenu(false);
                     }
                 }, CallbackOptions.Removable);
@@ -82,6 +86,8 @@ namespace Game.GUI.Menu
                 currentState = MenuState.Paused;
                 pauseDocument.rootVisualElement.style.display = DisplayStyle.Flex;
                 EnablePauseMenu(true);
+
+                menuDocument.OnPauseEventNotifier(true);
             }
         }
 

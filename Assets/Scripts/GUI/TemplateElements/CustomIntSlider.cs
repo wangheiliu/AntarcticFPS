@@ -4,6 +4,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using BaseUIControls;
+using Game.ScriptableObjects.Settings;
+using Player.PlayerData;
 
 
 namespace BasicUIControls
@@ -139,6 +141,31 @@ namespace BasicUIControls
         }
         public CustomIntSlider()
         {
+            dataSourceType = typeof(SliderInfoObj);
+            SetBinding(nameof(LowestValue), new DataBinding()
+            {
+               dataSourcePath = new(nameof(SliderInfoObj.LowerRange)),
+               bindingMode = BindingMode.ToTarget
+            });
+
+            SetBinding(nameof(HighestValue), new DataBinding()
+            {
+               dataSourcePath = new(nameof(SliderInfoObj.HighRange)),
+               bindingMode = BindingMode.ToTarget
+            });
+
+            /* SetBinding(nameof(Value), new DataBinding()
+            {
+               dataSourceType = typeof(PlayerSettings),
+               dataSourcePath = new(nameof(PlayerSettings.volume)),
+               bindingMode = BindingMode.TwoWay
+            }); */
+
+            SetBinding(nameof(Title), new DataBinding()
+            {
+                dataSourcePath = new(nameof(SliderInfoObj.Title)),
+                bindingMode = BindingMode.ToTarget
+            });
             AddToClassList(className);
             container = new();
             container.AddToClassList(containerClass);

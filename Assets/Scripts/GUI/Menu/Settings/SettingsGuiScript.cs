@@ -1,11 +1,14 @@
 using Player.PlayerData;
+using BaseUIControls;
+
 using UnityEngine;
 using UnityEngine.UIElements;
 using System;
-using BaseUIControls;
 using System.Collections.Generic;
 using System.Reflection;
 using BasicUIControls;
+using Game.ScriptableObjects.Settings;
+
 
 public class SettingsScript : MonoBehaviour
 {
@@ -14,19 +17,29 @@ public class SettingsScript : MonoBehaviour
     [SerializeField] private GameManager gameManager;
     [Header("UI Document")]
     [SerializeField] private UIDocument uIDocument;
+    [Header("Settings")]
+    [SerializeField] private SettingsDatabase settingsDatabase;
     private VisualElement settingsContainer;
     private Button closeButton;
     private Button saveButton;
     private Button resetButton;
     private Button restoreDefaultsButton;
     private ScrollView[] settingsScrollView;
-    private List<ISettingAttributes> settingElements = new List<ISettingAttributes>(); 
+    private List<ISettingAttributes> settingElements = new List<ISettingAttributes>();
     private Dictionary<string, object> settingElementsDictionary = new Dictionary<string, object>(); // load in settings first, then load in the data to the settings elements
+    private Dictionary<Type, Type> settingsToType = new()
+    {
+        {typeof(CustomIntSlider), typeof(int)},
+        {typeof(SlideToggle), typeof(bool)},
+        {typeof(CustomDropDownOption), typeof(string)}
+    };
+
     private bool waitingTransition;
     private bool isOpen = false;
     private PlayerSettings settingData;
     private PlayerData playerData;
     private PlayerSettings lastSavedSettings;
+
     void OnEnable()
     {
         settingsContainer = uIDocument.rootVisualElement.Q<VisualElement>("main-container");
@@ -98,7 +111,7 @@ public class SettingsScript : MonoBehaviour
 
         return clone;
     }
-    
+
 
     // ui display
     void OnTransitionEnd(TransitionEndEvent evt)
@@ -110,8 +123,9 @@ public class SettingsScript : MonoBehaviour
             {
                 ResetSettings();
                 settingsContainer.style.display = DisplayStyle.None;
-                gameManager.OnEventNotifierChanged(MenuState.MainMenu);
-            } else
+                gameManager.OnEventNotifierChanged(gameManager.IsPaused ? MenuState.Paused : MenuState.MainMenu);
+            }
+            else
             {
                 LoadSettings();
             }
@@ -151,15 +165,7 @@ public class SettingsScript : MonoBehaviour
                 if (element is ISettingAttributes && element.ClassListContains("setting-item"))
                 {
                     settingElements.Add(element as ISettingAttributes);
-                    if (element is SlideToggle toggle)
-                    {
-                        element.RegisterCallback<ChangeEvent<bool>>(evt => OnToggleEvent(evt, (element as ISettingAttributes).DataName), CallbackOptions.Removable);
-                    }
-                    else if (element is CustomIntSlider slider)
-                    {
-                        element.RegisterCallback<ChangeEvent<int>>(evt => OnSliderEvent(evt, (element as ISettingAttributes).DataName), CallbackOptions.Removable);
-                    }
-                    
+                    RegisterValueChanged(element, (element as ISettingAttributes).DataName);
                 }
             }
         }
@@ -180,20 +186,17 @@ public class SettingsScript : MonoBehaviour
                 continue;
             }
 
+            (settingElement as VisualElement).dataSource = settingsDatabase.settingsObjects.Find(data => data.DataName == settingElement.DataName);
+
             if (settingElement is CustomIntSlider slider)
             {
                 slider.Value = Convert.ToInt32(fieldValue);
                 slider.Title = field.GetCustomAttribute<SettingsAttribute>()?.settingName ?? fieldName;
-                if (rangeAttribute != null)
-                {
-                    slider.LowestValue = (int)rangeAttribute.min;
-                    slider.HighestValue = (int)rangeAttribute.max;
-                } else
-                {
-                    slider.LowestValue = 0;
-                    slider.HighestValue = 100;
-                }
-            } else if (settingElement is SlideToggle toggle)
+
+                slider.LowestValue = rangeAttribute != null ? (int)rangeAttribute.min : 0;
+                slider.HighestValue = rangeAttribute != null ? (int)rangeAttribute.max : 100;
+            }
+            else if (settingElement is SlideToggle toggle)
             {
                 toggle.TitleName = field.GetCustomAttribute<SettingsAttribute>()?.settingName ?? fieldName;
                 toggle.value = Convert.ToBoolean(fieldValue);
@@ -203,6 +206,20 @@ public class SettingsScript : MonoBehaviour
                 Debug.LogWarning($"Unsupported setting element type: {settingElement.GetType().Name}");
             }
         }
+    }
+
+    /*private void FillSettings()
+    {
+        foreach (BasicSettingsObject settingsObject in settingsDatabase.settingsObjects)
+        {
+            var element = settingElementInit[settingsObject.controlType];   
+            element.dataSource = settingsObject;
+        }
+    }*/
+
+    private void LoadSettingsElement<T>(T element, BasicSettingsObject settingsObject) where T : VisualElement
+    {
+        element.dataSource = settingsObject;
     }
 
     #endregion
@@ -238,7 +255,7 @@ public class SettingsScript : MonoBehaviour
             settingData = playerData.settings;
             LoadSettings();
         }
-        
+
     }
 
     private void ResetSettings()
@@ -262,14 +279,27 @@ public class SettingsScript : MonoBehaviour
 
     #region Events
 
-    private void OnToggleEvent(ChangeEvent<bool> evt, string dataName)
+    private void OnValueChangedEvt<T>(ChangeEvent<T> evt, string dataName)
     {
         ValueChanged(dataName, evt.newValue);
     }
 
-    private void OnSliderEvent(ChangeEvent<int> evt, string dataName)
+    private void RegisterValueChanged<T>(T field, string dataName)
     {
-        ValueChanged(dataName, evt.newValue);
+        if (settingsToType.TryGetValue(field.GetType(), out Type value))
+        {
+            var method = GetType().GetMethod(nameof(RegisterCallbackGeneric), BindingFlags.Instance | BindingFlags.NonPublic);
+            method?.MakeGenericMethod(value).Invoke(this, new object[] { field, dataName });
+        }
+        else
+        {
+            Debug.LogWarning("Invalid type");
+        }
+    }
+
+    private void RegisterCallbackGeneric<TValue>(VisualElement element, string dataName)
+    {
+        element.RegisterCallback<ChangeEvent<TValue>>(evt => OnValueChangedEvt(evt, dataName), CallbackOptions.Removable);
     }
 
     private void OnSettingsOpen(MenuState state)
