@@ -108,11 +108,11 @@ namespace BasicUIControls
                bindingMode = BindingMode.ToTarget
             });
 
-            /*SetBinding(nameof(value), new DataBinding()
+            /* SetBinding(nameof(value), new DataBinding()
             {
                dataSourcePath = new(nameof(ToggleInfoObj.Value)),
                bindingMode = BindingMode.TwoWay
-            });*/
+            }); */
             
             AddToClassList(className);
             titleElement = new Label()

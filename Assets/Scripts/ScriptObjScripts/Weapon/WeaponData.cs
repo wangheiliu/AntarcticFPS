@@ -2,6 +2,7 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using Game.ScriptableObjects.Shop;
+using Game.Weapons;
 
 public enum WeaponType
 {
@@ -28,5 +29,6 @@ public enum WeaponType
     public int ammo;
     [Header("Weapon Metadata")]
     public string modelName;
+    public ProjectileTypes projectileType = ProjectileTypes.Bullet;
     
 }

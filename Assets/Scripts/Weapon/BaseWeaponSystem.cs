@@ -1,9 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Pool;
+
+using Game.Weapons;
+
 
 [Serializable]
 public class Weapon
@@ -11,17 +16,29 @@ public class Weapon
     public WeaponData data;
     public int ammo;
 }
+
+
 public class BaseWeaponSystem : MonoBehaviour
 {
+    #region Serialized Variables
     [Header("Player Info")]
     [SerializeField] private GameObject playerCharacter;
     [SerializeField] private GameManager gameManager;
     [SerializeField] public Weapon currentWeapon;
     public GameObject currentWeaponModel;
     [SerializeField] private Camera gameCam;
+
     [Header("Weapon Information")]
     [SerializeField] private HotbarScript hotbarScript;
-    public static bool isWeaponEquipped;
+    [SerializeField] private GameObject bulletPrefab;
+
+    [Header("Bullet Information")]
+    [SerializeField] private ProjectileManager projectileManager;
+    protected event Action<Projectile> OnBulletFired;
+
+    #endregion
+
+    public bool isWeaponEquipped;
     public bool isOnCooldown;
     public bool isReloading;
     public Dictionary<string, Weapon> weaponInventory = new();
@@ -35,13 +52,18 @@ public class BaseWeaponSystem : MonoBehaviour
             currentWeapon.ammo = Mathf.Clamp(value, 0, currentWeapon.data.clipSize);
         }
     }
+
+    void Awake()
+    {
+        
+    }
     void Start()
     {
         Ammo = currentWeapon.data.clipSize;
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
         if (gameManager.playerState != MenuState.Playing)
         {
@@ -100,16 +122,44 @@ public class BaseWeaponSystem : MonoBehaviour
                     healthManager.DamageHealth(currentWeapon.data.damage);
                 }
             }
+
+            
         }
 
-
-
+        Fire();
+        
         Debug.DrawRay(muzzle.position, Mouse.current.position.ReadValue(), Color.red);
         Ammo -= 1;
         isOnCooldown = true;
 
         yield return new WaitForSeconds(cooldown);
         isOnCooldown = false;
+    }
+
+    protected virtual void Fire()
+    {
+        Transform muzzle = currentWeaponModel.transform.Find("Barrel");
+        Projectile projectile = projectileManager.GetProjectile(currentWeapon.data.projectileType);
+        projectile.transform.position = muzzle.position;
+        projectile.transform.rotation = muzzle.rotation;
+
+        projectile.OnBulletHit += OnHit;
+        projectile.Launch(muzzle.forward, 5f);
+
+        OnBulletFired?.Invoke(projectile);
+        if (projectile != null)
+        {
+            Debug.Log(projectile.gameObject.name);
+        } else
+        {
+            Debug.LogWarning("No projectile");
+        }
+        
+    }
+
+    protected void OnHit(Projectile projectile, GameObject hit)
+    {
+        projectile.OnBulletHit -= OnHit;
     }
 
     public IEnumerator HandleReload()
@@ -143,8 +193,24 @@ public class BaseWeaponSystem : MonoBehaviour
         }
     }
 
+    
+
     public bool IsHittingOwnChar(RaycastHit hit)
     {
         return hit.transform.root == playerCharacter.transform;
     }
+
+    private GameObject FindGameObjectByTag(GameObject parent, string tag)
+    {
+        foreach (Transform child in parent.transform)
+        {
+            if (child.CompareTag(tag))
+            {
+                return child.gameObject;
+            }
+        }
+        return null;
+    }
 }
+
+

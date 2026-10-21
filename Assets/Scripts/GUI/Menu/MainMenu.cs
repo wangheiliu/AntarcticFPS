@@ -35,6 +35,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private SettingsScript settingsScript;
     [SerializeField] private InventoryScript inventoryScript;
 
+    #region GUI elements
     private Button playButton;
     private Button shopButton;
     private Button settingsButton;
@@ -43,6 +44,7 @@ public class GameManager : MonoBehaviour
     private UIDocument uiDocument;
     private VisualElement btnContainer;
     private Label title;
+    #endregion
 
 
     [Header("GUI Documents and Cameras")]
@@ -50,12 +52,15 @@ public class GameManager : MonoBehaviour
     private Dictionary<MenuState, (UIDocument[] documents, Camera camera)> menuStateDictionary = new();
     private bool isMenuOpen = true;
     private bool waitingToClose;
+    private bool isPaused;
+    public bool IsPaused { get => isPaused; }
 
     private Translate menuClosedTransition = new(Length.Percent(-100), 0, 0);
     private Translate menuOpenTransition = new(Length.Percent(0), 0, 0);
     [Header("Menu State")]
     public MenuState playerState;
     public event Action<MenuState> OnMenuStateChanged;
+    public event Action<bool> OnPlayerPause;
 
 
     void Awake()
@@ -86,12 +91,13 @@ public class GameManager : MonoBehaviour
         settingsButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Settings), CallbackOptions.Removable);
         quitButton?.RegisterCallback<ClickEvent>(evt => QuitGame(), CallbackOptions.Removable);
         inventoryBtn?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Inventory), CallbackOptions.Removable);
-        #endregion
+        
 
         btnContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         OnMenuStateChanged += OnMenuOpen;
         OnMenuStateChanged += OnPlayerPlay;
-
+        OnPlayerPause += OnPlayerPausedEvent;
+        #endregion
         OpenMenuItems(MenuState.MainMenu);
     }
 
@@ -145,16 +151,8 @@ public class GameManager : MonoBehaviour
         OnMenuStateChanged?.Invoke(playerState);
     }
 
-    //change these so that it has parameters
-    public void SetCamera(Camera cameraToEnable)
-    {
-        foreach ((UIDocument[] _, Camera camera) in menuStateDictionary.Values)
-        {
-            camera.enabled = false;
-        }
-        cameraToEnable.enabled = true;
-    }
 
+    #region Helper Functions
     public void OpenMenuItems(MenuState state)
     {
         var item = menuStateDictionary[state];
@@ -167,10 +165,8 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        waitingToClose = true;
         playerState = state;
-        Debug.Log(playerState);
-
+        waitingToClose = true;
 
         if (state != MenuState.MainMenu)
         {
@@ -215,6 +211,14 @@ public class GameManager : MonoBehaviour
         }
 
         SetCamera(camera);
+    }
+    public void SetCamera(Camera cameraToEnable)
+    {
+        foreach ((UIDocument[] _, Camera camera) in menuStateDictionary.Values)
+        {
+            camera.enabled = false;
+        }
+        cameraToEnable.enabled = true;
     }
 
     public void CloseAllItems()
@@ -263,7 +267,9 @@ public class GameManager : MonoBehaviour
             OpenMenuItems(MenuState.MainMenu);
         }
     }
+    #endregion
 
+    #region Event Handlers
     private void OnPlayerPlay(MenuState state)
     {
         if (state == MenuState.Playing)
@@ -276,6 +282,17 @@ public class GameManager : MonoBehaviour
     {
         OnMenuStateChanged?.Invoke(state);
     }
+
+    public void OnPauseEventNotifier(bool state)
+    {
+        OnPlayerPause?.Invoke(state);
+    }
+
+    private void OnPlayerPausedEvent(bool state)
+    {
+        isPaused = state;
+    }
+    #endregion
 
     public void QuitGame()
     {
