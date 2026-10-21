@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 using BaseUIControls;
+using Game.ScriptableObjects.Settings;
 
 namespace BasicUIControls
 {
@@ -130,6 +131,12 @@ namespace BasicUIControls
 
         public CustomDropDownOption()
         {
+            SetBinding(nameof(Options), new DataBinding()
+            {
+               dataSourceType = typeof(DropDownInfo),
+               dataSourcePath = new(nameof(DropDownInfo.Option)),
+               bindingMode = BindingMode.ToTarget
+            });
             AddToClassList(className);
 
             container = new();
@@ -139,6 +146,13 @@ namespace BasicUIControls
             {
                 text = "Title"
             };
+
+            SetBinding(nameof(Title), new DataBinding()
+            {
+               dataSourceType = typeof(BasicSettingsObject),
+               dataSourcePath = new(nameof(BasicSettingsObject.Title)),
+               bindingMode = BindingMode.ToTarget
+            });
             titleLabel.AddToClassList(titleClass);
             container.Add(titleLabel);
 
@@ -215,7 +229,7 @@ namespace BasicUIControls
             }
         }
 
-        
+        #region UI Display
 
         private Color GetTextColor(Color32 color)
         {
@@ -247,5 +261,7 @@ namespace BasicUIControls
             element.style.borderRightWidth = value;
             element.style.borderBottomWidth = value;
         }
+
+        #endregion
     }
 }
