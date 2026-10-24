@@ -3866,6 +3866,27 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2853705769894174285, guid: f1cd6800d51724d4291ee22764292e86, type: 3}
+--- !u!1 &875323422 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1705213797617607948, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+  m_PrefabInstance: {fileID: 5137560999664054974}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &875323424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 875323422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18e6b576009db9a48a9e60cdd01ae613, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponSway
+  playerCam: {fileID: 945059074}
+  charController: {fileID: 5137560999664054976}
+  swayAmount: 5
+  maxAngleSway: 5
 --- !u!1 &882371134 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -3921255775783164285, guid: f1cd6800d51724d4291ee22764292e86, type: 3}
@@ -11837,6 +11858,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1314370517}
     - target: {fileID: 3050106478022906307, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+      propertyPath: weaponContainer
+      value: 
+      objectReference: {fileID: 875323422}
+    - target: {fileID: 3050106478022906307, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
       propertyPath: projectileManager
       value: 
       objectReference: {fileID: 1687328124}
@@ -12151,6 +12176,9 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 506470324}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1705213797617607948, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 875323424}
     - targetCorrespondingSourceObject: {fileID: 3109515952690828395, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1687328124}
@@ -12161,6 +12189,11 @@ PrefabInstance:
 --- !u!1 &5137560999664054975 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 180328511634400863, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+  m_PrefabInstance: {fileID: 5137560999664054974}
+  m_PrefabAsset: {fileID: 0}
+--- !u!143 &5137560999664054976 stripped
+CharacterController:
+  m_CorrespondingSourceObject: {fileID: 6657239515231224356, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
   m_PrefabInstance: {fileID: 5137560999664054974}
   m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
