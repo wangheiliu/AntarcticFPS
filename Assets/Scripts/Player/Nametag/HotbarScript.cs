@@ -72,8 +72,8 @@ public class HotbarScript : MonoBehaviour
                 {
                     return;
                 }
-                weaponSystem.currentWeapon = weapons[i];
-                EquipTransition(weaponSystem.currentWeapon);
+                weaponSystem.CurrentWeapon = weapons[i];
+                EquipTransition(weaponSystem.CurrentWeapon);
                 break;
             }
         }
@@ -113,17 +113,17 @@ public class HotbarScript : MonoBehaviour
         backgroundElement.style.backgroundColor = new StyleColor(new Color32(27,27,27,255));
         backgroundElement.style.borderBottomWidth = 5;
 
-        if (weaponSystem.isReloading)
+        if (weaponSystem.IsReloading)
         {
             if (weaponSystem.coroutine != null)
             {
                 weaponSystem.StopCoroutine(weaponSystem.coroutine); // when stopping coroutines, it must be used in the same monobehavior instance
             }
-            weaponSystem.isReloading = false;
+            weaponSystem.IsReloading = false;
         }
 
         
-        weaponSystem.currentWeapon = weapon;
+        weaponSystem.CurrentWeapon = weapon;
 
         foreach (GameObject weaponModel in weaponModels)
         {

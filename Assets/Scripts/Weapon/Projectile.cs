@@ -11,11 +11,9 @@ namespace Game.Weapons
         [SerializeField] private Rigidbody rb;
         private IObjectPool<Projectile> _pool;
         private bool isBulletInUse;
-        private float speed = 5f;
         private Coroutine lifeTimeCycle;
         private Vector3 _dir = Vector3.zero;
         public event Action<Projectile, GameObject> OnBulletHit;
-        public event Action<Projectile> OnBulletFire;
 
         public void SetPool(IObjectPool<Projectile> pool)
         {

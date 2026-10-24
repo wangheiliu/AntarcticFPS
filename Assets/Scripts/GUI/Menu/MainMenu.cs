@@ -123,6 +123,8 @@ public class GameManager : MonoBehaviour
 
         OnMenuStateChanged -= OnMenuOpen;
         OnMenuStateChanged -= OnPlayerPlay;
+
+        menuStateDictionary.Clear();
     }
 
 
