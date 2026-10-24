@@ -24,23 +24,36 @@ public class BaseWeaponSystem : MonoBehaviour
     [Header("Player Info")]
     [SerializeField] private GameObject playerCharacter;
     [SerializeField] private GameManager gameManager;
-    [SerializeField] public Weapon currentWeapon;
+    [SerializeField] private Weapon currentWeapon;
+    public Weapon CurrentWeapon
+    {
+        get => currentWeapon;
+        set
+        {
+            if (currentWeapon == value || value == null) return;
+            currentWeapon = value;
+            OnWeaponChanged?.Invoke(value.data);
+        }
+    }
     public GameObject currentWeaponModel;
     [SerializeField] private Camera gameCam;
 
     [Header("Weapon Information")]
     [SerializeField] private HotbarScript hotbarScript;
-    [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private GameObject weaponContainer;
 
     [Header("Bullet Information")]
     [SerializeField] private ProjectileManager projectileManager;
     protected event Action<Projectile> OnBulletFired;
+    public event Action<WeaponData> OnWeaponChanged;
+    public event Action<bool> OnWeaponReload;
 
     #endregion
 
     public bool isWeaponEquipped;
-    public bool isOnCooldown;
-    public bool isReloading;
+    private bool isOnCooldown;
+    private bool isReloading;
+    public bool IsReloading {get => isReloading; set => isReloading = value;}
     public Dictionary<string, Weapon> weaponInventory = new();
 
     public Coroutine coroutine;
@@ -59,6 +72,10 @@ public class BaseWeaponSystem : MonoBehaviour
     }
     void Start()
     {
+        if (CurrentWeapon != null)
+        {
+            OnWeaponChanged?.Invoke(CurrentWeapon.data);
+        }
         Ammo = currentWeapon.data.clipSize;
     }
 
@@ -75,14 +92,12 @@ public class BaseWeaponSystem : MonoBehaviour
             {
                 return;
             }
-            StartCoroutine(HandleFire(currentWeapon.data.fireRate / 60f));
+            StartCoroutine(HandleFire(CurrentWeapon.data.fireRate / 60f));
         }
-
-        FaceWeaponOrientation();
 
         if (Keyboard.current.rKey.wasPressedThisFrame) // reload
         {
-            if (Ammo >= currentWeapon.data.clipSize)
+            if (Ammo >= CurrentWeapon.data.clipSize)
             {
                 return;
             }
@@ -139,7 +154,7 @@ public class BaseWeaponSystem : MonoBehaviour
     protected virtual void Fire()
     {
         Transform muzzle = currentWeaponModel.transform.Find("Barrel");
-        Projectile projectile = projectileManager.GetProjectile(currentWeapon.data.projectileType);
+        Projectile projectile = projectileManager.GetProjectile(CurrentWeapon.data.projectileType);
         projectile.transform.position = muzzle.position;
         projectile.transform.rotation = muzzle.rotation;
 
@@ -165,36 +180,12 @@ public class BaseWeaponSystem : MonoBehaviour
     public IEnumerator HandleReload()
     {
         isReloading = true;
-        yield return new WaitForSeconds(currentWeapon.data.reloadTime);
-        Ammo = currentWeapon.data.clipSize;
+        OnWeaponReload?.Invoke(true);
+        yield return new WaitForSeconds(CurrentWeapon.data.reloadTime);
+        Ammo = CurrentWeapon.data.clipSize;
         isReloading = false;
+        OnWeaponReload?.Invoke(false);
     }
-
-    public void FaceWeaponOrientation()
-    {
-        GameObject weaponModel = hotbarScript.weaponModels.Find(f => f.name == currentWeapon.data.modelName);
-        if (weaponModel == null)
-        {
-            return;
-        }
-
-        if (gameCam.enabled == false) // if no camera in a tag is enabled, returns nullreferenceexception
-        {
-            weaponModel.transform.rotation = Quaternion.Euler(0, 180, 0);
-            return;
-        }
-
-        Ray ray = gameCam.ScreenPointToRay(Mouse.current.position.ReadValue());
-
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
-        {
-            Vector3 targetPos = hit.point - weaponModel.transform.position;
-            weaponModel.transform.rotation = Quaternion.LookRotation(targetPos) * Quaternion.Euler(0, 180, 0);
-        }
-    }
-
-    
-
     public bool IsHittingOwnChar(RaycastHit hit)
     {
         return hit.transform.root == playerCharacter.transform;
