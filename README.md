@@ -2,6 +2,9 @@
 
 > AntarcticFPS is my first game and it is a low-poly fps game where penguins fight each other to reach a goal. The goal maybe to get points, be the last one standing, and more!
 
+# AI Disclaimer
+My project uses AI to help me fix bugs in code and help me write code since I am a solo developer. All other assets (images, sounds, models, etc.) will be made by me or some other third party.
+
 # Third Party assets used
 
 This project uses assets from the Unity Asset Store. Used under the Unity Asset Store Standard EULA.
