@@ -6,6 +6,9 @@ using UnityEditor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
+
+[Serializable]
 public enum MenuState
 {
     MainMenu,
@@ -22,9 +25,8 @@ public class GameManager : MonoBehaviour
     [Serializable]
     public struct MenuStateValues
     {
-        public MenuState key;
-        public UIDocument[] documentVal;
-        public Camera cameraVal;
+        public PanelRenderer[] documents;
+        public Camera camera;
     }
     [Header("Player Scripts")]
     [SerializeField] private PlayerMovement playerMovement;
@@ -36,20 +38,20 @@ public class GameManager : MonoBehaviour
     [SerializeField] private InventoryScript inventoryScript;
 
     #region GUI elements
+    private VisualElement root;
     private Button playButton;
     private Button shopButton;
     private Button settingsButton;
     private Button quitButton;
     private Button inventoryBtn;
-    private UIDocument uiDocument;
     private VisualElement btnContainer;
     private Label title;
     #endregion
 
 
     [Header("GUI Documents and Cameras")]
-    [SerializeField] private List<MenuStateValues> menuStateValues;
-    private Dictionary<MenuState, (UIDocument[] documents, Camera camera)> menuStateDictionary = new();
+    [SerializeField] private PanelRenderer document;
+    [SerializeField] private Dictionary<MenuState, MenuStateValues> menuStateDictionary = new();
     private bool isMenuOpen = true;
     private bool waitingToClose;
     private bool isPaused;
@@ -62,20 +64,25 @@ public class GameManager : MonoBehaviour
     public event Action<MenuState> OnMenuStateChanged;
     public event Action<bool> OnPlayerPause;
 
-
-    void Awake()
-    {
-        foreach (MenuStateValues values in menuStateValues)
-        {
-            menuStateDictionary.TryAdd(values.key, (values.documentVal, values.cameraVal));
-        }
-    }
-
     void OnEnable()
     {
         #region UI Elements
-        uiDocument = GetComponent<UIDocument>();
-        var root = uiDocument.rootVisualElement;
+        document = GetComponent<PanelRenderer>();
+        document.RegisterUIReloadCallback(OnUIReloaded);
+        #endregion
+
+        PlayerMovementManager(false);
+
+        #region Register Button Callbacks
+        
+        #endregion
+        
+    }
+
+    void OnUIReloaded(PanelRenderer renderer, VisualElement _root, int currentVer)
+    {
+        root = _root;
+
         btnContainer = root.Q<VisualElement>(className: "container");
         title = root.Q<Label>(className: "title");
         playButton = btnContainer.Q<Button>("PlayButton");
@@ -83,9 +90,7 @@ public class GameManager : MonoBehaviour
         inventoryBtn = btnContainer.Q<Button>("CustomizeButton");
         settingsButton = btnContainer.Q<Button>("SettingsButton");
         quitButton = btnContainer.Q<Button>("Quit");
-        #endregion
 
-        #region Register Button Callbacks
         playButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.LevelSelection), CallbackOptions.Removable);
         shopButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Shop), CallbackOptions.Removable);
         settingsButton?.RegisterCallback<ClickEvent>(evt => OpenMenuItems(MenuState.Settings), CallbackOptions.Removable);
@@ -94,10 +99,10 @@ public class GameManager : MonoBehaviour
         
 
         btnContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
+
         OnMenuStateChanged += OnMenuOpen;
         OnMenuStateChanged += OnPlayerPlay;
         OnPlayerPause += OnPlayerPausedEvent;
-        #endregion
         OpenMenuItems(MenuState.MainMenu);
     }
 
@@ -115,6 +120,7 @@ public class GameManager : MonoBehaviour
 
     void OnDisable()
     {
+        
         playButton?.UnregisterAllRemovableCallbacks();
         shopButton?.UnregisterAllRemovableCallbacks();
         settingsButton?.UnregisterAllRemovableCallbacks();
@@ -124,6 +130,7 @@ public class GameManager : MonoBehaviour
         OnMenuStateChanged -= OnMenuOpen;
         OnMenuStateChanged -= OnPlayerPlay;
 
+        document.UnregisterUIReloadCallback(OnUIReloaded);
         menuStateDictionary.Clear();
     }
 
@@ -145,9 +152,10 @@ public class GameManager : MonoBehaviour
         var documentsToOpen = menuStateDictionary[playerState].documents;
         waitingToClose = false;
 
-        foreach (UIDocument document in documentsToOpen)
+        foreach (PanelRenderer document in documentsToOpen)
         {
-            document.rootVisualElement.style.display = DisplayStyle.Flex;
+            Debug.Log("Enabling a document...");
+            document.enabled = true;
         }
 
         OnMenuStateChanged?.Invoke(playerState);
@@ -158,7 +166,7 @@ public class GameManager : MonoBehaviour
     public void OpenMenuItems(MenuState state)
     {
         var item = menuStateDictionary[state];
-        UIDocument[] documentsToOpen = item.documents;
+        PanelRenderer[] documentsToOpen = item.documents;
         Camera camera = item.camera;
 
         if (documentsToOpen.Length == 0 || documentsToOpen == null)
@@ -178,9 +186,9 @@ public class GameManager : MonoBehaviour
             {
                 CloseAllItems();
 
-                foreach (UIDocument document in documentsToOpen)
+                foreach (PanelRenderer document in documentsToOpen)
                 {
-                    document.rootVisualElement.style.display = DisplayStyle.Flex;
+                    document.enabled = true;
                 }
                 OnMenuStateChanged?.Invoke(playerState);
             }
@@ -190,9 +198,9 @@ public class GameManager : MonoBehaviour
             CloseAllItems();
             isMenuOpen = true;
             MenuTranslate(menuOpenTransition);
-            foreach (UIDocument document in documentsToOpen)
+            foreach (PanelRenderer document in documentsToOpen)
             {
-                document.rootVisualElement.style.display = DisplayStyle.Flex;
+                document.enabled = true;
             }
         }
 
@@ -202,9 +210,9 @@ public class GameManager : MonoBehaviour
         {
             PlayerMovementManager(true);
             isMenuOpen = false;
-            foreach (UIDocument document in documentsToOpen)
+            foreach (PanelRenderer document in documentsToOpen)
             {
-                document.rootVisualElement.style.display = DisplayStyle.Flex;
+                document.enabled = true;
             }
         }
         else
@@ -216,9 +224,9 @@ public class GameManager : MonoBehaviour
     }
     public void SetCamera(Camera cameraToEnable)
     {
-        foreach ((UIDocument[] _, Camera camera) in menuStateDictionary.Values)
+        foreach (MenuStateValues stateValue in menuStateDictionary.Values)
         {
-            camera.enabled = false;
+            stateValue.camera.enabled = false;
         }
         cameraToEnable.enabled = true;
     }
@@ -227,9 +235,9 @@ public class GameManager : MonoBehaviour
     {
         foreach (var item in menuStateDictionary)
         {
-            foreach (UIDocument document in item.Value.documents)
+            foreach (PanelRenderer document in item.Value.documents)
             {
-                document.rootVisualElement.style.display = DisplayStyle.None;
+                document.enabled = false;
             }
         }
     }
@@ -266,6 +274,7 @@ public class GameManager : MonoBehaviour
     {
         if (state == MenuState.MainMenu)
         {
+            document.enabled = true;
             OpenMenuItems(MenuState.MainMenu);
         }
     }
