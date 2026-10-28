@@ -20,12 +20,12 @@ This project uses assets from the Unity Asset Store. Used under the Unity Asset 
 
 # Requirements
 
-This project was created on Unity version 6000.4.9f1, it's recommended to have Unity version 6000.4.9f1 or later installed to avoid compatability issues.
-[Install Unity 6000.4.9f1 here](https://unity.com/releases/editor/whats-new/6000.4.9f1)
+This project was created on Unity version 6000.4.9f1, and was upgraded to version 6000.6.7f1. It's recommended to have Unity version 6000.6.7f1 or later installed to avoid compatability issues.
+[Install Unity 6000.6.7f1 here](https://unity.com/releases/editor/whats-new/6000.6.7f1)
 
 # Getting Started
 1. Clone or download the repository
-2. Install Unity 6000.4.9f1
+2. Install Unity 6000.6.7f1
 3. Add the game file to the project
 4. Make sure to download these Third Party Assets listed above so the game runs correctly
 5. Open up your game
