@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 public class HUDScript : MonoBehaviour
 {
-    [SerializeField] private UIDocument uIDocument;
+    [SerializeField] private PanelRenderer uIDocument;
     private event Action OnHealthChanged;
     private event Action OnStaminaChanged;
     public float health = 100;
@@ -39,16 +39,22 @@ public class HUDScript : MonoBehaviour
         }
     }
 
+    private VisualElement root;
     private Label healthLabel;
     private Label staminaLabel;
-    public Label cooldownLabel;
+    [NonSerialized] public Label cooldownLabel;
     private VisualElement healthProgressElement;
     private VisualElement staminaProgressElement;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     void OnEnable()
     {
-        var root = uIDocument.rootVisualElement;
+        uIDocument.RegisterUIReloadCallback(OnGUIReload);
+    }
+
+    private void OnGUIReload(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    {
+        root = _root;
         healthLabel = root.Q<Label>("health-label");
         staminaLabel = root.Q<Label>("stamina-label");
         healthProgressElement = root.Q<VisualElement>("health-progress-bar");
@@ -57,10 +63,7 @@ public class HUDScript : MonoBehaviour
 
         OnHealthChanged += UpdateHealthGUI;
         OnStaminaChanged += UpdateStaminaGUI;
-    }
-    void Start()
-    {
-        uIDocument.rootVisualElement.style.display = DisplayStyle.None;
+        root.style.display = DisplayStyle.None;
         UpdateHealthGUI();
         UpdateStaminaGUI();
     }

@@ -1,5 +1,4 @@
 using Player.PlayerData;
-using BaseUIControls;
 
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -16,9 +15,10 @@ public class SettingsScript : MonoBehaviour
     [Header("Game Manager")]
     [SerializeField] private GameManager gameManager;
     [Header("UI Document")]
-    [SerializeField] private UIDocument uIDocument;
+    [SerializeField] private PanelRenderer document;
     [Header("Settings")]
     [SerializeField] private SettingsDatabase settingsDatabase;
+    private VisualElement root;
     private VisualElement settingsContainer;
     private Button closeButton;
     private Button saveButton;
@@ -34,7 +34,6 @@ public class SettingsScript : MonoBehaviour
         {typeof(CustomDropDownOption), typeof(string)}
     };
 
-    private bool waitingTransition;
     private bool isOpen = false;
     private PlayerSettings settingData;
     private PlayerData playerData;
@@ -42,7 +41,13 @@ public class SettingsScript : MonoBehaviour
 
     void OnEnable()
     {
-        settingsContainer = uIDocument.rootVisualElement.Q<VisualElement>("main-container");
+        document.RegisterUIReloadCallback(OnUIReload);
+    }
+
+    void OnUIReload(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    {
+        root = _root;
+        settingsContainer = root.Q<VisualElement>("main-container");
         closeButton = settingsContainer.Q<Button>("close-button");
         saveButton = settingsContainer.Q<Button>("save-button");
         resetButton = settingsContainer.Q<Button>("last-saved-button");
@@ -118,7 +123,6 @@ public class SettingsScript : MonoBehaviour
     {
         if (evt.target == settingsContainer)
         {
-            waitingTransition = false;
             if (isOpen == false)
             {
                 ResetSettings();
@@ -134,12 +138,6 @@ public class SettingsScript : MonoBehaviour
 
     public void SettingsTransition()
     {
-        if (waitingTransition)
-        {
-            Debug.LogWarning("Waiting on transition");
-            return;
-        }
-        waitingTransition = true;
         if (isOpen)
         {
             Debug.Log("Closing settings");
@@ -306,7 +304,8 @@ public class SettingsScript : MonoBehaviour
     {
         if (state == MenuState.Settings)
         {
-            uIDocument.rootVisualElement.style.display = DisplayStyle.Flex;
+            document.enabled = true;
+            root.style.display = DisplayStyle.Flex;
             SettingsTransition();
         }
     }
@@ -331,5 +330,7 @@ public class SettingsScript : MonoBehaviour
                 }
             }
         }
+
+        document.UnregisterUIReloadCallback(OnUIReload);
     }
 }

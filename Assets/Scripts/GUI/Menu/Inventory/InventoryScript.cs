@@ -13,10 +13,11 @@ public class InventoryScript : MonoBehaviour
     private static string secondaryWeaponTabName = "secondary-weapons-tab";
     private static string toolsWeaponTab = "tertiary-weapons-tab";
     [SerializeField] private GameManager gameManager;
-    [SerializeField] private UIDocument document;
+    [SerializeField] private PanelRenderer document;
     [SerializeField] private VisualTreeAsset propertyTree;
     [SerializeField] private ShopDatabase weaponDatabase;
     // Equip section
+    private VisualElement root;
     private VisualElement equipSection;
     private VisualElement weaponsEquipElement;
 
@@ -92,7 +93,6 @@ public class InventoryScript : MonoBehaviour
 
             if (value)
             {
-                document.rootVisualElement.style.display = DisplayStyle.Flex;
                 inventoryContentContainer.style.translate = new Translate(Length.Percent(0), 0, 0);
                 equipSection.style.translate = new Translate(Length.Percent(0), 0, 0);
             }
@@ -106,7 +106,15 @@ public class InventoryScript : MonoBehaviour
     }
     void OnEnable()
     {
-        var root = document.rootVisualElement;
+        document.RegisterUIReloadCallback(OnUIReload);
+        GeneralPlayerDataManager.OnWeaponEquipChanged += OnEquipWeapon;
+        GeneralPlayerDataManager.OnWeaponInventoryChanged += PopulateInventorySlots;
+    }
+
+    void OnUIReload(PanelRenderer renderer, VisualElement _root, int currentVer)
+    {
+        root = _root;
+
         equipSection = root.Q<VisualElement>("equip-section");
         weaponsEquipElement = equipSection.Q<VisualElement>("weapon-equip-container");
 
@@ -149,18 +157,22 @@ public class InventoryScript : MonoBehaviour
         equipSection.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         inventoryContentContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
 
-
-        GeneralPlayerDataManager.OnWeaponEquipChanged += OnEquipWeapon;
-        GeneralPlayerDataManager.OnWeaponInventoryChanged += PopulateInventorySlots;
+        OnEquipWeapon(GeneralPlayerDataManager.PrimaryWeapon, WeaponType.Primary);
+        slotDictionary[WeaponType.Primary] = GeneralPlayerDataManager.PrimaryWeapon;
+        OnEquipWeapon(GeneralPlayerDataManager.SecondaryWeapon, WeaponType.Secondary);
+        slotDictionary[WeaponType.Secondary] = GeneralPlayerDataManager.SecondaryWeapon;
+        OnEquipWeapon(GeneralPlayerDataManager.ToolWeapon, WeaponType.Tools);
+        slotDictionary[WeaponType.Tools] = GeneralPlayerDataManager.ToolWeapon;
+        PopulateInventorySlots();
     }
 
     void OnDisable()
     {
-        equipButton.UnregisterAllRemovableCallbacks();
-        propertiesContainer.UnregisterAllRemovableCallbacks();
-        propertiesCloseBtn.UnregisterAllRemovableCallbacks();
-        closeBtn.UnregisterAllRemovableCallbacks();
-        inventoryContainer.UnregisterAllRemovableCallbacks();
+        equipButton?.UnregisterAllRemovableCallbacks();
+        propertiesContainer?.UnregisterAllRemovableCallbacks();
+        propertiesCloseBtn?.UnregisterAllRemovableCallbacks();
+        closeBtn?.UnregisterAllRemovableCallbacks();
+        inventoryContainer?.UnregisterAllRemovableCallbacks();
         GeneralPlayerDataManager.OnWeaponEquipChanged -= OnEquipWeapon;
         GeneralPlayerDataManager.OnWeaponInventoryChanged -= PopulateInventorySlots;
         gameManager.OnMenuStateChanged -= OpenInventory;
@@ -170,6 +182,8 @@ public class InventoryScript : MonoBehaviour
             Button unequipButton = children.Q<Button>("slot-close-button");
             unequipButton?.UnregisterAllRemovableCallbacks();
         }
+        document.UnregisterUIReloadCallback(OnUIReload);
+        
     }
 
     void Start()
@@ -177,13 +191,7 @@ public class InventoryScript : MonoBehaviour
         // document.rootVisualElement.style.display = DisplayStyle.None;
         // propertiesContainer.style.display = DisplayStyle.None;
 
-        OnEquipWeapon(GeneralPlayerDataManager.PrimaryWeapon, WeaponType.Primary);
-        slotDictionary[WeaponType.Primary] = GeneralPlayerDataManager.PrimaryWeapon;
-        OnEquipWeapon(GeneralPlayerDataManager.SecondaryWeapon, WeaponType.Secondary);
-        slotDictionary[WeaponType.Secondary] = GeneralPlayerDataManager.SecondaryWeapon;
-        OnEquipWeapon(GeneralPlayerDataManager.ToolWeapon, WeaponType.Tools);
-        slotDictionary[WeaponType.Tools] = GeneralPlayerDataManager.ToolWeapon;
-        PopulateInventorySlots();
+        
     }
 
     void Update()
@@ -211,7 +219,6 @@ public class InventoryScript : MonoBehaviour
             {
                 equipSection.style.display = DisplayStyle.None;
                 inventoryContentContainer.style.display = DisplayStyle.None;
-                document.rootVisualElement.style.display = DisplayStyle.None;
                 gameManager.OnEventNotifierChanged(MenuState.MainMenu);
             }
         }
@@ -451,6 +458,7 @@ public class InventoryScript : MonoBehaviour
             return;
         }
         VisualElement element = weaponTypeToSlot[type];
+        if (element == null) return;
         var data = GetWeaponData(item);
         if (data == null)
         {

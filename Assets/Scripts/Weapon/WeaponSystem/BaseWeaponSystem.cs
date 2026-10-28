@@ -54,9 +54,8 @@ public class BaseWeaponSystem : MonoBehaviour
     private bool isOnCooldown;
     private bool isReloading;
     public bool IsReloading {get => isReloading; set => isReloading = value;}
-    public Dictionary<string, Weapon> weaponInventory = new();
 
-    public Coroutine coroutine;
+    [NonSerialized] public Coroutine coroutine;
     public int Ammo
     {
         get => currentWeapon.ammo;
@@ -177,7 +176,7 @@ public class BaseWeaponSystem : MonoBehaviour
         projectile.OnBulletHit -= OnHit;
     }
 
-    public IEnumerator HandleReload()
+    protected virtual IEnumerator HandleReload()
     {
         isReloading = true;
         OnWeaponReload?.Invoke(true);

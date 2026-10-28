@@ -5,7 +5,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UIElements;
-using BaseUIControls;
 using Game.ScriptableObjects.Settings;
 
 namespace BasicUIControls
@@ -152,6 +151,12 @@ namespace BasicUIControls
                dataSourceType = typeof(BasicSettingsObject),
                dataSourcePath = new(nameof(BasicSettingsObject.Title)),
                bindingMode = BindingMode.ToTarget
+            });
+
+            titleLabel.SetBinding(nameof(Label.text), new DataBinding()
+            {
+               dataSourcePath = new(nameof(Title)),
+               bindingMode = BindingMode.ToTarget 
             });
             titleLabel.AddToClassList(titleClass);
             container.Add(titleLabel);

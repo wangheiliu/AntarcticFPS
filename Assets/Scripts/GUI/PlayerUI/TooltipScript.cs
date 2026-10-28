@@ -7,20 +7,31 @@ using UnityEngine.EventSystems;
 
 public class TooltipScript : MonoBehaviour
 {
-    [SerializeField] private UIDocument tooltipDocument;
-    private UIDocument[] documents;
+    [SerializeField] private PanelRenderer tooltipDocument;
+    private VisualElement root;
     private Label tooltipText;
     private VisualElement container;
     private IPanel panel;
 
     void OnEnable()
     {
-        var root = tooltipDocument.rootVisualElement;
+        tooltipDocument.RegisterUIReloadCallback(OnGUIReload);
+        
+        Hide();
+    }
+
+    private void OnGUIReload(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    {
+        root = _root;
         tooltipText = root.Q<Label>(className: "tooltip-label");
         container = root.Q<VisualElement>(className: "tooltip-container");
 
         panel = root.panel;
-        Hide();
+    }
+
+    private void OnDisable()
+    {
+        tooltipDocument.UnregisterUIReloadCallback(OnGUIReload);
     }
 
     void Update()
@@ -62,7 +73,15 @@ public class TooltipScript : MonoBehaviour
 
     private void Hide()
     {
-        container.style.display = DisplayStyle.None;
-        tooltipText.text = "";
+        if (container != null)
+        {
+            container.style.display = DisplayStyle.None;
+        }
+        
+        if (tooltipText != null)
+        {
+            tooltipText.text = "";
+        }
+        
     }
 }

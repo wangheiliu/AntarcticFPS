@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -10,13 +11,14 @@ namespace Game.GUI.Menu
         private const string PAUSE_ENABLED_CLASS = "pause-enabled";
         private const string PAUSE_DISABLED_CLASS = "pause-disabled";
         [Header("UI Documents")]
-        [SerializeField] private UIDocument pauseDocument;
+        [SerializeField] private PanelRenderer pauseDocument;
         [SerializeField] private GameManager menuDocument;
 
         #region UI variables
-            private VisualElement btnGroup;
-            private List<Button> btns;
-            private VisualElement container;
+        private VisualElement root;
+        private VisualElement btnGroup;
+        private List<Button> btns = new();
+        private VisualElement container;
         #endregion
         private MenuState currentState;
         private bool isClosing = false;
@@ -29,16 +31,27 @@ namespace Game.GUI.Menu
         };
         void OnEnable()
         {
-            container = pauseDocument.rootVisualElement.Q<VisualElement>("container");
-            btnGroup = container.Q<VisualElement>("btn-group");
+            pauseDocument.RegisterUIReloadCallback(OnGUIRefresh);
+        }
+
+        private void OnGUIRefresh(PanelRenderer renderer, VisualElement _root, int currentVersion)
+        {
+            root = _root;
+            Debug.Log(root.name);
+            container = root.Q<VisualElement>("container");
+            btnGroup = root.Q<VisualElement>("btn-group");
             btns = btnGroup.Query<Button>().ToList();
+
+            Debug.Log(btns.Count);
             
             foreach (Button btn in btns)
             {
+                Debug.Log("Registered button");
                 btn.RegisterCallback<ClickEvent>(evt =>
                 {
                     if (buttonStates.TryGetValue(btn.name, out MenuState state))
                     {
+                        Debug.Log("Clicked!");
                         isClosing = true;
                         currentState = state;
                         if (currentState == MenuState.MainMenu)
@@ -46,25 +59,32 @@ namespace Game.GUI.Menu
                             menuDocument.OnPauseEventNotifier(false);
                         }
                         EnablePauseMenu(false);
+                    } else
+                    {
+                        Debug.LogWarning("You clicked the wrong type fool!");
                     }
                 }, CallbackOptions.Removable);
             }
 
             menuDocument.OnMenuStateChanged += OnPlayerPause;
             container.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
+            bool isPaused = menuDocument.playerState == MenuState.Paused;
+            root.style.display = isPaused ? DisplayStyle.Flex : DisplayStyle.None;
+            EnablePauseMenu(isPaused);
         }
 
         void Start()
         {
-            EnablePauseMenu(false);
+            
         }
 
         void OnDisable()
         {
             menuDocument.OnMenuStateChanged -= OnPlayerPause;
-            container.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
-            btns.ForEach(btn => btn.UnregisterAllRemovableCallbacks());
-            btns.Clear();
+            container?.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
+            btns?.ForEach(btn => btn.UnregisterAllRemovableCallbacks());
+            btns?.Clear();
+            pauseDocument.UnregisterUIReloadCallback(OnGUIRefresh);
         }
 
         void OnTransitionEnd(TransitionEndEvent evt)
@@ -74,7 +94,7 @@ namespace Game.GUI.Menu
                 isClosing = false;
                 Debug.Log("Pause menu transition ended. Opening menu items for state: " + currentState);
                 menuDocument.OnEventNotifierChanged(currentState);
-                pauseDocument.rootVisualElement.style.display = DisplayStyle.None;
+                root.style.display = DisplayStyle.None;
             }
         }
 
@@ -84,7 +104,7 @@ namespace Game.GUI.Menu
             {
                 Debug.Log("Player paused the game. Opening pause menu.");
                 currentState = MenuState.Paused;
-                pauseDocument.rootVisualElement.style.display = DisplayStyle.Flex;
+                root.style.display = DisplayStyle.Flex;
                 EnablePauseMenu(true);
 
                 menuDocument.OnPauseEventNotifier(true);
@@ -93,9 +113,8 @@ namespace Game.GUI.Menu
 
         private void EnablePauseMenu(bool toggle)
         {
-            container.EnableInClassList(PAUSE_ENABLED_CLASS, toggle);
-            container.EnableInClassList(PAUSE_DISABLED_CLASS, !toggle);
+            container?.EnableInClassList(PAUSE_ENABLED_CLASS, toggle);
+            container?.EnableInClassList(PAUSE_DISABLED_CLASS, !toggle);
         }
     }
 }
-
