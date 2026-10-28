@@ -24,34 +24,47 @@ public class NametagScript : MonoBehaviour
             nameElement.text = _username;
         }
     }
-    [SerializeField] private UIDocument nameUI;
+    [SerializeField] private PanelRenderer nameUI;
     private TextElement nameElement;
-    [SerializeField] private UIDocument UIInputDocument;
+    [SerializeField] private PanelRenderer UIInputDocument;
+
+    private VisualElement nameVisualRoot;
+    private VisualElement nameInputRoot;
     private Button submitButton;
     private TextField usernameInputField;
-    private TextElement errorMessageText;
+    private Label errorMessageText;
     private bool isValidUsername;
     private readonly string pattern = @"^[a-zA-Z0-9]{3,15}$";
 
     void OnEnable()
     {
         // set the username and last username to be the player's preferred username if possible
-        UIInputDocument.rootVisualElement.style.display = DisplayStyle.Flex;
-        nameElement = nameUI.rootVisualElement.Q<TextElement>("username-text");
-        submitButton = UIInputDocument.rootVisualElement.Q<Button>("submit-button");
-        usernameInputField = UIInputDocument.rootVisualElement.Q<TextField>("username-input");
-        errorMessageText = UIInputDocument.rootVisualElement.Q<TextElement>("error-message");
-        submitButton.RegisterCallback<ClickEvent>(OnSubmit);
-        usernameInputField.RegisterValueChangedCallback(CheckUsername);
+        nameUI.RegisterUIReloadCallback(OnUIRefresh);
+        UIInputDocument.RegisterUIReloadCallback(OnUIRefresh);
+    }
+
+    void OnUIRefresh(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    {
+        nameInputRoot = _root;
+        nameVisualRoot = _root;
+
+        nameInputRoot.style.display = DisplayStyle.None;
+        nameElement = nameVisualRoot.Q<TextElement>("username-text");
+        submitButton = nameInputRoot.Q<Button>("submit-button");
+        usernameInputField = nameInputRoot.Q<TextField>("username-input");
+        errorMessageText = nameInputRoot.Q<Label>("error-message");
+        submitButton?.RegisterCallback<ClickEvent>(OnSubmit);
+        usernameInputField?.RegisterValueChangedCallback(CheckUsername);
 
         GeneralPlayerDataManager.OnUsernameChanged += SetUsernameDisplay;
 
         if (CurrentPlayerData.Data != null)
         {
-            if (CurrentPlayerData.Data.hasSetUserName)
+            if (!CurrentPlayerData.Data.hasSetUserName)
             {
-                UIInputDocument.rootVisualElement.style.display = DisplayStyle.None;
-                nameElement.text = CurrentPlayerData.Data.username;
+                if (nameInputRoot == null) return;
+                if (nameElement == null) return;
+                nameInputRoot.style.display = DisplayStyle.Flex;
             }
         } else
         {
@@ -65,8 +78,16 @@ public class NametagScript : MonoBehaviour
         {
             if (CurrentPlayerData.Data.hasSetUserName)
             {
-                UIInputDocument.rootVisualElement.style.display = DisplayStyle.None;
-                nameElement.text = CurrentPlayerData.Data.username;
+                if (nameInputRoot != null)
+                {
+                    nameInputRoot.style.display = DisplayStyle.None;
+                }
+                
+                if (nameElement != null)
+                {
+                    nameElement.text = CurrentPlayerData.Data.username;
+                }
+                
             }
         }
     }
@@ -100,7 +121,7 @@ public class NametagScript : MonoBehaviour
             CurrentPlayerData.Save();
         }
 
-        UIInputDocument.rootVisualElement.style.display = DisplayStyle.None;
+        nameInputRoot.style.display = DisplayStyle.None;
 
 
     }
@@ -144,5 +165,8 @@ public class NametagScript : MonoBehaviour
         GeneralPlayerDataManager.OnUsernameChanged -= SetUsernameDisplay;
         submitButton.UnregisterCallback<ClickEvent>(OnSubmit);
         usernameInputField.UnregisterValueChangedCallback(CheckUsername);
+
+        nameUI.RegisterUIReloadCallback(OnUIRefresh);
+        UIInputDocument.RegisterUIReloadCallback(OnUIRefresh);
     }
 }

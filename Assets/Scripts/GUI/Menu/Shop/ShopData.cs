@@ -23,13 +23,26 @@ public enum ShopItemCatagory
 
 public class ShopData : MonoBehaviour
 {
+    [Serializable] public struct ShopLookupTable
+    {
+        [NonSerialized] public Foldout category;
+        public ShopItemData item;
+        [NonSerialized] public VisualElement element;
+
+        public ShopLookupTable(Foldout foldout, ShopItemData itemData, VisualElement element)
+        {
+            this.category = foldout;
+            this.item = itemData;
+            this.element = element;
+        }
+    }
     [Header("ShopMenuScript")]
     [SerializeField] private ShopMenuScript shopMenuScript;
     //gui references
     [Header("GUI")]
     [SerializeField] private VisualTreeAsset shopCardTemplate;
     [SerializeField] private VisualTreeAsset infoCardTemplate;
-    [SerializeField] private UIDocument shopDocument;
+    [SerializeField] private PanelRenderer shopDocument;
     [SerializeField] private ShopDatabase database;
     
     private VisualElement root;
@@ -40,7 +53,7 @@ public class ShopData : MonoBehaviour
     private Label moneyDisplay;
 
     private Dictionary<string, Foldout> foldouts = new();
-    public List<(Foldout, ShopItemData, VisualElement)> lookUpTable = new();
+    public List<ShopLookupTable> lookUpTable = new();
     private Action viewButtonLambda;
 
     private ShopItemData currentItem;
@@ -48,7 +61,14 @@ public class ShopData : MonoBehaviour
     
     void OnEnable()
     {
-        root = shopDocument.rootVisualElement;
+        shopDocument.RegisterUIReloadCallback(OnUIReloaded);
+        ProgressionDataManager.OnProgressionDataChanged += MoneyDisplay;
+        
+    }
+
+    void OnUIReloaded(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    {
+        root = _root;
         infoScrollContainer = root.Q<ScrollView>("info-scroller");
         purchaseButton = root.Q<Button>("prompt-purchase-button");
         infoPurchaseButton = root.Q<Button>("purchase-button");
@@ -63,15 +83,8 @@ public class ShopData : MonoBehaviour
         {
             ProgressionDataManager.OnProgressionDataChanged += CheckPurchasedLambda;
         }
-        ProgressionDataManager.OnProgressionDataChanged += MoneyDisplay;
-        
-        
-        PopulateUI(database);
-        
-    }
 
-    void Start()
-    {
+        PopulateUI(database);
         MoneyDisplay();
     }
 
@@ -126,7 +139,7 @@ public class ShopData : MonoBehaviour
             viewButtonLambda = () => OnViewClick(item);
             viewButton.clicked += viewButtonLambda;
             foldoutContainer.Add(templateUI);
-            lookUpTable.Add((foldoutContainer, item, templateUI));
+            lookUpTable.Add(new(foldoutContainer, item, templateUI));
         }
     }
 

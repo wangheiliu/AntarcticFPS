@@ -13,7 +13,7 @@ public class HotbarScript : MonoBehaviour
     [SerializeField] private BaseWeaponSystem weaponSystem;
     [SerializeField] private GameObject weaponContainer;
     [Header("GUI")]
-    [SerializeField] private UIDocument hotbarUIDocument;
+    [SerializeField] private PanelRenderer hotbarUIDocument;
     [SerializeField] private VisualTreeAsset hotbarItemUIDocument;
     [Header("Weapon Info")]
     [SerializeField] private Weapon primaryWeapon;
@@ -34,10 +34,20 @@ public class HotbarScript : MonoBehaviour
     }
     void OnEnable()
     {
-        root = hotbarUIDocument.rootVisualElement;       
+        hotbarUIDocument.RegisterUIReloadCallback(OnUIReload);
+    }
+
+    void OnDisable()
+    {
+        hotbarUIDocument.UnregisterUIReloadCallback(OnUIReload);
+    }
+
+    void OnUIReload(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    {
+        root = _root;
         container = root.Q<VisualElement>("inventory-container");
         FillHotbar();
-        
+        EquipTransition(weapons[0]);
     }
 
     void Start()
@@ -59,7 +69,7 @@ public class HotbarScript : MonoBehaviour
             weapon.ammo = weapon.data.clipSize;
         }
 
-        EquipTransition(weapons[0]);
+        
     }
 
     void Update()
@@ -106,6 +116,7 @@ public class HotbarScript : MonoBehaviour
         }
 
         VisualElement chosenElement = hotbarSlotsList[weapon];
+        if (chosenElement == null) return;
         if (!hotbarSlotsList.TryGetValue(weapon, out VisualElement element)) 
             return;
         

@@ -9,7 +9,8 @@ public class ShopFilter : MonoBehaviour
 {
     [SerializeField] private ShopData shopData;
     [SerializeField] private ShopMenuScript shopMenuScript;
-    [SerializeField] private UIDocument shopDocument;
+    [SerializeField] private PanelRenderer shopDocument;
+    private VisualElement root;
     private TextField searchField;
     private EnumField enumField;
     private TabView shopTabView;
@@ -23,14 +24,14 @@ public class ShopFilter : MonoBehaviour
       {"type", item => item.type}
     }; // good lookup for larger shops
 
-    void Start()
-    {
-        
-    }
-
     void OnEnable()
     {
-        var root = shopDocument.rootVisualElement;
+        shopDocument.RegisterUIReloadCallback(OnUIRefresh);
+    }
+
+    void OnUIRefresh(PanelRenderer renderer,VisualElement _root, int currentVersion)
+    {
+        var root = _root;
         searchField = root.Q<TextField>("search-field");
         enumField = root.Q<EnumField>("type-enum");
         shopTabView = root.Q<TabView>("tab-container");
@@ -57,16 +58,6 @@ public class ShopFilter : MonoBehaviour
         }
 
         enumField?.RegisterValueChangedCallback(HandleEnumChange);
-    }
-
-    void Update()
-    {
-        
-    }
-
-    private void RefreshList()
-    {
-        
     }
 
     public void DisplayFoldouts(string foldoutId)
@@ -116,37 +107,35 @@ public class ShopFilter : MonoBehaviour
         
         if (!shopMenuScript.isFiltersOpen)
         {
-            foreach ((Foldout _, ShopItemData _, VisualElement element) in shopData.lookUpTable)
+            foreach (ShopData.ShopLookupTable shopLookupTable in shopData.lookUpTable)
             {
-                element.style.display = DisplayStyle.Flex;
-                // foldout.value = false;
+                shopLookupTable.element.style.display = DisplayStyle.Flex;
             }
             return;
         }
 
-        foreach ((Foldout _, ShopItemData _, VisualElement element) in shopData.lookUpTable)
-        {
-            element.style.display = DisplayStyle.None;
-        }
+        foreach (ShopData.ShopLookupTable shopLookupTable in shopData.lookUpTable)
+            {
+                shopLookupTable.element.style.display = DisplayStyle.None;
+            }
 
 
 
         if (selectors.TryGetValue(statName, out var selector))
         {
-            foreach ((Foldout foldout, ShopItemData itemData, VisualElement element) in shopData.lookUpTable)
+            foreach (ShopData.ShopLookupTable shopLookupTable in shopData.lookUpTable)
             {
-                object selected = selector(itemData);
+                object selected = selector(shopLookupTable.item);
                 if (selected is string strData && strData.Contains(strValue))
                 {
-                    element.style.display = DisplayStyle.Flex;
-                    foldout.value = true;
+                    shopLookupTable.element.style.display = DisplayStyle.Flex;
+                    shopLookupTable.category.value = true;
                 }
                 
                 if (selected is int intData && integerValue <= intData)
                 {
-                    Debug.Log($"Weapon name: {itemData.name}. Selected: {selected}");
-                    element.style.display = DisplayStyle.Flex;
-                    foldout.value = true;
+                    shopLookupTable.element.style.display = DisplayStyle.Flex;
+                    shopLookupTable.category.value = true;
                 }
             }
         }
@@ -160,9 +149,9 @@ public class ShopFilter : MonoBehaviour
             f.style.display = DisplayStyle.Flex;
         }
 
-        foreach ((Foldout _, ShopItemData _, VisualElement element) in shopData.lookUpTable)
+        foreach (ShopData.ShopLookupTable shopLookupTable in shopData.lookUpTable)
         {
-            element.style.display = DisplayStyle.Flex;
+            shopLookupTable.element.style.display = DisplayStyle.Flex;
             // foldout.value = false;
         }
     }
@@ -186,5 +175,6 @@ public class ShopFilter : MonoBehaviour
     private void OnDisable()
     {
         enumField?.UnregisterValueChangedCallback(HandleEnumChange);
+        shopDocument.UnregisterUIReloadCallback(OnUIRefresh);
     }
 }

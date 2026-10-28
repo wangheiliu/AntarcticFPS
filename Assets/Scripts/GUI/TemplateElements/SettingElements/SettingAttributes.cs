@@ -2,7 +2,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace BaseUIControls
+namespace BasicUIControls
 {
     public interface ISettingAttributes
     {

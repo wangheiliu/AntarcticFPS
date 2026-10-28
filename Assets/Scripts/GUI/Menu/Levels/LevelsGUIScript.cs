@@ -1,6 +1,5 @@
 using System.Runtime.CompilerServices;
 using Game.ScriptableObjects.Levels;
-using BaseUIControls;
 using UnityEngine;
 using UnityEngine.UIElements;
 using BasicUIControls;
@@ -9,6 +8,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 
 public class LevelsGUIScript : MonoBehaviour
 {
@@ -20,12 +20,13 @@ public class LevelsGUIScript : MonoBehaviour
     [SerializeField] private LevelDatabase levelDatabase;
 
     [Header("UI")]
-    [SerializeField] private UIDocument document;
+    [SerializeField] private PanelRenderer document;
     [SerializeField] private GameManager mainMenuScript;
 
     private bool canOpenMenu = false;
     private bool isClickingOnPlayBtn = false;
 
+    private VisualElement root;
     private VisualElement levelSelectContainer;
     private VisualElement propContainer;
     private Label propTitle;
@@ -37,8 +38,8 @@ public class LevelsGUIScript : MonoBehaviour
     private ScrollView propScrollView;
 
     private LevelsData currentLevelDisplay;
-    public Dictionary<LevelInfoElement, LevelsData> levelLookup = new();
-    public Dictionary<string, StatDisplay> statDisplays = new();
+    [NonSerialized] public Dictionary<LevelInfoElement, LevelsData> levelLookup = new();
+    [NonSerialized] public Dictionary<string, StatDisplay> statDisplays = new();
     private readonly PropertyInfo[] fields = typeof(LevelsData).GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
     void Awake()
     {
@@ -54,16 +55,17 @@ public class LevelsGUIScript : MonoBehaviour
     }
     void Start()
     {
-        document.rootVisualElement.style.display = DisplayStyle.None;
-        EnableElement(levelSelectContainer, false);
-        levelSelectContainer.style.display = DisplayStyle.None;
-        EnableElement(propContainer, false);
-        propContainer.style.display = DisplayStyle.None;
+        
     }
 
     void OnEnable()
     {
-        var root = document.rootVisualElement;
+        document.RegisterUIReloadCallback(OnGUIReload);
+    }
+
+    private void OnGUIReload(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    {
+        root = _root;
         levelSelectContainer = root.Q<VisualElement>("selection-container");
         propContainer = root.Q<VisualElement>("properties");
 
@@ -90,6 +92,24 @@ public class LevelsGUIScript : MonoBehaviour
         #endregion
         mainMenuScript.OnMenuStateChanged += Open;
         FillLevels();
+        root.style.display = DisplayStyle.None;
+        EnableElement(levelSelectContainer, false);
+        levelSelectContainer.style.display = DisplayStyle.None;
+        EnableElement(propContainer, false);
+        propContainer.style.display = DisplayStyle.None;
+    }
+
+    void OnDisable()
+    {
+        propContainer.UnregisterAllRemovableCallbacks();
+        levelSelectContainer.UnregisterAllRemovableCallbacks();
+        levelCloseBtn.UnregisterAllRemovableCallbacks();
+        propCloseBtn.UnregisterAllRemovableCallbacks();
+        playButton.UnregisterAllRemovableCallbacks();
+
+        mainMenuScript.OnMenuStateChanged -= Open;
+        levelLookup.Clear();
+        document.UnregisterUIReloadCallback(OnGUIReload);
     }
 
     private void OnTransitionEnd(TransitionEndEvent evt)
@@ -103,7 +123,7 @@ public class LevelsGUIScript : MonoBehaviour
             levelSelectContainer.style.display = levelSelectContainer.ClassListContains("level-select--disabled") ? DisplayStyle.None : DisplayStyle.Flex;
             if (levelSelectContainer.ClassListContains("level-select--disabled"))
             {
-                document.rootVisualElement.style.display = DisplayStyle.None;
+                root.style.display = DisplayStyle.None;
             }
         }
 
@@ -118,11 +138,6 @@ public class LevelsGUIScript : MonoBehaviour
             isClickingOnPlayBtn = false;
             mainMenuScript.OpenMenuItems(MenuState.Playing);
         }
-    }
-
-    void OnDisable()
-    {
-        levelLookup.Clear();
     }
 
     #region UI Functions
@@ -241,7 +256,7 @@ public class LevelsGUIScript : MonoBehaviour
         {
             return;
         }
-        document.rootVisualElement.style.display = DisplayStyle.Flex;
+        root.style.display = DisplayStyle.Flex;
         levelSelectContainer.style.display = DisplayStyle.Flex;
         EnableElement(levelSelectContainer, true);
     }

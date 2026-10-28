@@ -8,12 +8,12 @@ using UnityEngine.UIElements;
 public class WeaponGui : MonoBehaviour
 {
     [Header("UI Document")]
-    [SerializeField] private UIDocument uiDocument;
+    [SerializeField] private PanelRenderer uiDocument;
     [SerializeField] private BaseWeaponSystem weaponSystem;
 
     private VisualElement container;
-    private TextElement nameLabel;
-    private TextElement ammoLabel;
+    private Label nameLabel;
+    private Label ammoLabel;
     private VisualElement root;
 
     private WeaponData currentWeapon;
@@ -21,10 +21,15 @@ public class WeaponGui : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void OnEnable()
     {
-        root = uiDocument.rootVisualElement;
+        uiDocument.RegisterUIReloadCallback(OnUIReload);
+    }
+
+    void OnUIReload(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    {
+        root = _root;
         container = root.Q<VisualElement>("container");
-        nameLabel = root.Q<TextElement>("weapon-name");
-        ammoLabel = root.Q<TextElement>("ammo-count");
+        nameLabel = root.Q<Label>("weapon-name");
+        ammoLabel = root.Q<Label>("ammo-count");
         
         weaponSystem.OnWeaponChanged += WeaponGuiUpdate;
         weaponSystem.OnWeaponReload += UpdateReloading;
@@ -33,6 +38,7 @@ public class WeaponGui : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (nameLabel == null || ammoLabel == null) return;
         if (weaponSystem.CurrentWeapon == null)
         {
             root.style.display = DisplayStyle.None;
@@ -44,6 +50,13 @@ public class WeaponGui : MonoBehaviour
             root.style.display = DisplayStyle.Flex;
         }
         ammoLabel.text = $"{weaponSystem.Ammo}/{weaponSystem.CurrentWeapon.data.clipSize}";
+    }
+
+    void OnDisable()
+    {
+        uiDocument.UnregisterUIReloadCallback(OnUIReload);
+        weaponSystem.OnWeaponChanged -= WeaponGuiUpdate;
+        weaponSystem.OnWeaponReload -= UpdateReloading;
     }
 
     private void WeaponGuiUpdate(WeaponData weapon)

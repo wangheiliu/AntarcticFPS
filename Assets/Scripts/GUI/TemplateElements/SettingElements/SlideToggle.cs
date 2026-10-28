@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using BaseUIControls;
 using Game.ScriptableObjects.Settings;
 using UnityEditor.UI;
 using UnityEngine;

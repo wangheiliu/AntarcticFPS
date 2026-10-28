@@ -270,18 +270,23 @@ public class PlayerMovement : MonoBehaviour
         if (slideCoolDownTimer > 0 && !isSliding)
         {
             slideCoolDownTimer -= Time.deltaTime;
+
+            if (hudScript.cooldownLabel == null) return;
             hudScript.cooldownLabel.text = $"Sliding: {(float)Math.Round(slideCoolDownTimer, 1)}"; // explicitly rounds the timer to 1 decimal place, Mathf is kinda bad here, so we need System
         }
         else if (isSliding)
         {
+            if (hudScript.cooldownLabel == null) return;
             hudScript.cooldownLabel.text = "Sliding";
         }
         else if (slideCoolDownTimer <= 0 && hudScript.Stamina > 15)
         {
+            if (hudScript.cooldownLabel == null) return;
             hudScript.cooldownLabel.text = "Sliding: ready";
         } 
         else
         {
+            if (hudScript.cooldownLabel == null) return;
             hudScript.cooldownLabel.text = "You need rest!";    
         }
 

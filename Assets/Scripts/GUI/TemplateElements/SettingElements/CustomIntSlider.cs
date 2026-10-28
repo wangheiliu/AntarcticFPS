@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
-using BaseUIControls;
 using Game.ScriptableObjects.Settings;
 using Player.PlayerData;
 
@@ -13,19 +12,24 @@ namespace BasicUIControls
     [UxmlElement]
     public partial class CustomIntSlider : VisualElement, ISettingAttributes
     {
+        #region Class Names
         private readonly string className = "custom-int-slider";
         private readonly string intSliderClassName = "custom-int-slider__input";
         private readonly string intSliderTextFieldClass = "custom-int-slider__input-field";
         private readonly string fieldContainerClass = "custom-int-slider-field-container";
         private readonly string containerClass = "custom-int-slider-container";
         private readonly string intSliderTitleClass = "custom-int-slider-title";
+        #endregion
 
+        #region UI Elements
         private VisualElement container;
         private VisualElement fieldContainer;
         private SliderInt slider;
         private IntegerField intField;
         private Label titleLabel;
+        #endregion
 
+        #region UI Attributes
         [Header("Title")]
         private string title = "Title";
         [UxmlAttribute] public string Title
@@ -125,6 +129,8 @@ namespace BasicUIControls
 
         [UxmlAttribute] public string DataName { get; set; } = "";
 
+        #endregion
+
         public void OnFieldChanged(ChangeEvent<int> evt)
         {
             intValue = Mathf.Clamp(evt.newValue, slider.lowValue, slider.highValue);
@@ -164,7 +170,7 @@ namespace BasicUIControls
             SetBinding(nameof(Title), new DataBinding()
             {
                 dataSourcePath = new(nameof(SliderInfoObj.Title)),
-                bindingMode = BindingMode.ToTarget
+                bindingMode = BindingMode.TwoWay
             });
             AddToClassList(className);
             container = new();
@@ -175,6 +181,12 @@ namespace BasicUIControls
             {
                 text = "Title"
             };
+
+            titleLabel.SetBinding(nameof(Label.text), new DataBinding()
+            {
+               dataSourcePath = new(nameof(Title)),
+               bindingMode = BindingMode.ToTarget 
+            });
             titleLabel.AddToClassList(intSliderTitleClass);
             container.Add(titleLabel);
 
@@ -186,12 +198,24 @@ namespace BasicUIControls
 
             slider = new()
             {
-                lowValue = lowestValue,
-                highValue = highestValue,
+                lowValue = LowestValue,
+                highValue = HighestValue,
                 value = intValue,
                 focusable = false
             };
+
+            slider.SetBinding(nameof(Slider.lowValue), new DataBinding()
+            {
+               dataSourcePath = new(nameof(LowestValue)),
+               bindingMode = BindingMode.ToTarget
+            });
             
+            slider.SetBinding(nameof(Slider.highValue), new DataBinding()
+            {
+               dataSourcePath = new(nameof(HighestValue)),
+               bindingMode = BindingMode.ToTarget
+            });
+
             slider.AddToClassList(intSliderClassName);
             fieldContainer.Add(slider);
 

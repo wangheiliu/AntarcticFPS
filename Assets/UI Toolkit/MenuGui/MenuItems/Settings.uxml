@@ -12,8 +12,8 @@
                 <ui:Tab label="General">
                     <ui:ScrollView name="general-container" horizontal-scroller-visibility="Hidden" class="settings-container">
                         <BasicUIControls.SlideToggle name="" enabled-color="rgb(49, 65, 89)" data-name="vSync" data-source="" label="" value="false" class="setting-item" style="flex-shrink: 1; flex-grow: 1; align-content: auto;"/>
-                        <BasicUIControls.CustomIntSlider data-name="volume" data-source="" title="Slider Setting" class="setting-item"/>
-                        <BasicUIControls.CustomDropDownOption selected-color="rgb(0, 0, 0)" unchecked-color="rgb(255, 255, 255)" data-source="project://database/Assets/ScriptableObject/Settings/Dropdown/Test.asset?fileID=11400000&amp;guid=d18bd3aa0d00b0449bdfadba5995e04d&amp;type=2#Test" options="Fizz,Buzz" class="setting-item"/>
+                        <BasicUIControls.CustomIntSlider data-name="volume" title="Title" class="setting-item"/>
+                        <BasicUIControls.CustomDropDownOption selected-color="rgb(0, 0, 0)" unchecked-color="rgb(255, 255, 255)" data-source="" options="Fizz,Buzz" class="setting-item"/>
                         <BasicUIControls.CustomDropDownOption options="Hello,Buzz" selected-color="rgb(0, 0, 0)" class="setting-item"/>
                         <BasicUIControls.CustomDropDownOption options="Hello,Buzz" selected-color="rgb(0, 0, 0)" class="setting-item"/>
                         <BasicUIControls.CustomDropDownOption options="Hello,Buzz" selected-color="rgb(0, 0, 0)" class="setting-item"/>

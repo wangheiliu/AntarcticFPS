@@ -1,3 +1,4 @@
+using System.Reflection.Metadata;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -6,15 +7,15 @@ public class ShopMenuScript : MonoBehaviour
     [Header("Shop Scripts")]
     [SerializeField] private ShopFilter shopFilterScript;
     [Header("UI Documents")]
-    [SerializeField] private UIDocument uIDocument;
-    [SerializeField] private UIDocument menuDocument;
+    [SerializeField] private PanelRenderer uIDocument;
+    [SerializeField] private PanelRenderer menuDocument;
     [Header("Main Menu Camera")]
     [SerializeField] private Camera menuCamera;
     [Header("Game Manager")]
     [SerializeField] private GameManager gameManager;
 
 
-    private bool waitingShopTransition;
+    private bool waitingShopTransition = false;
 
     // maybe use a ternrary operator for these?
     private bool isOpen = false;
@@ -27,6 +28,8 @@ public class ShopMenuScript : MonoBehaviour
     private static readonly Translate infoClosedTransitionValue = new(Length.Percent(120), 0, 0);
     private static readonly Translate filtersClosedTransition = new(Length.Percent(-75), 0, 0);
     private static readonly Translate promptClosedTransition = new(0, Length.Percent(105), 0);
+
+    private VisualElement root;
     private TabView tabContainer;
     private VisualElement titleContainer;
     private VisualElement infoElement;
@@ -42,7 +45,12 @@ public class ShopMenuScript : MonoBehaviour
 
     void OnEnable()
     {
-        var root = uIDocument.rootVisualElement;
+        uIDocument.RegisterUIReloadCallback(OnUIReloaded);
+    }
+
+    void OnUIReloaded(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    {
+        root = _root;
         infoElement = root.Q<VisualElement>("info-container");
         filtersContainer = root.Q<VisualElement>("filter-container");
         shopContainer = root.Q<VisualElement>("shop-container");
@@ -54,8 +62,6 @@ public class ShopMenuScript : MonoBehaviour
         purchaseButton = infoElement.Q<Button>("purchase-button");
         cancelPurchase = promptContainer.Q<Button>("prompt-cancel-button");
 
-
-        root.style.display = DisplayStyle.None;
         shopContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         infoElement.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         promptContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
@@ -74,9 +80,9 @@ public class ShopMenuScript : MonoBehaviour
     {
         if (evt.target == shopContainer)
         {
-            waitingShopTransition = false;
             if (!isOpen)
             {
+                Debug.Log("Shop isn't open");
                 gameManager.OnEventNotifierChanged(MenuState.MainMenu);
             }
         } else if (evt.target == infoElement)
@@ -96,12 +102,6 @@ public class ShopMenuScript : MonoBehaviour
 
     public void CloseShop(ClickEvent _)
     {
-        if (waitingShopTransition)
-        {
-            //Debug.Log("waitingShopTransition was true");
-            return;
-        }
-        waitingShopTransition = true;
         isOpen = false;
 
         shopContainer.style.translate = shopClosedTransitionValue;
@@ -133,13 +133,11 @@ public class ShopMenuScript : MonoBehaviour
 
     public void OpenShop()
     {
-        uIDocument.rootVisualElement.style.display = DisplayStyle.Flex;
-        if (waitingShopTransition)
-        {
-            return;
-        }
-        waitingShopTransition = true;
+        Debug.Log("Running...");
         isOpen = true;
+        root.style.display = DisplayStyle.Flex;
+        
+        
         shopContainer.style.translate = defaultTransitionValue;
     }
 
@@ -167,11 +165,6 @@ public class ShopMenuScript : MonoBehaviour
     {
         if (closeItems)
         {
-            if (waitingShopTransition)
-            {
-                return;
-            }
-            waitingShopTransition = true;
             shopContainer.style.translate = shopClosedTransitionValue;
             infoElement.style.translate = infoClosedTransitionValue;
             isFiltersOpen = true;
@@ -182,7 +175,6 @@ public class ShopMenuScript : MonoBehaviour
             promptContainer.style.translate = defaultTransitionValue;
         } else
         {
-            waitingShopTransition = true;
             shopContainer.style.translate = defaultTransitionValue;
             infoElement.style.translate = defaultTransitionValue;
 
@@ -195,12 +187,16 @@ public class ShopMenuScript : MonoBehaviour
     {
         if (state == MenuState.Shop)
         {
+            Debug.Log("Opening shop...");
+            uIDocument.enabled = true;
+            root.style.display = DisplayStyle.Flex;
             OpenShop();
         }
     }
 
     private void OnDisable()
     {
+        
         shopContainer?.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
         infoElement?.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
 
@@ -210,5 +206,6 @@ public class ShopMenuScript : MonoBehaviour
         purchaseButton?.UnregisterAllRemovableCallbacks();
         cancelPurchase?.UnregisterAllRemovableCallbacks();
         gameManager.OnMenuStateChanged -= OnShopOpen;
+        uIDocument.UnregisterUIReloadCallback(OnUIReloaded);
     }
 }
