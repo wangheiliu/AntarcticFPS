@@ -101,11 +101,11 @@ public class LevelsGUIScript : MonoBehaviour
 
     void OnDisable()
     {
-        propContainer.UnregisterAllRemovableCallbacks();
-        levelSelectContainer.UnregisterAllRemovableCallbacks();
-        levelCloseBtn.UnregisterAllRemovableCallbacks();
-        propCloseBtn.UnregisterAllRemovableCallbacks();
-        playButton.UnregisterAllRemovableCallbacks();
+        propContainer?.UnregisterAllRemovableCallbacks();
+        levelSelectContainer?.UnregisterAllRemovableCallbacks();
+        levelCloseBtn?.UnregisterAllRemovableCallbacks();
+        propCloseBtn?.UnregisterAllRemovableCallbacks();
+        playButton?.UnregisterAllRemovableCallbacks();
 
         mainMenuScript.OnMenuStateChanged -= Open;
         levelLookup.Clear();
@@ -258,7 +258,12 @@ public class LevelsGUIScript : MonoBehaviour
         }
         root.style.display = DisplayStyle.Flex;
         levelSelectContainer.style.display = DisplayStyle.Flex;
-        EnableElement(levelSelectContainer, true);
+
+        root.schedule.Execute(() =>
+        {
+            if (levelSelectContainer == null) return;
+            EnableElement(levelSelectContainer, true);
+        }).StartingIn(100);
     }
 
     #endregion

@@ -4,21 +4,28 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine.UIElements;
+using Game.Weapons;
+using Game.Weapons.WeaponSystem;
 
 public class HotbarScript : MonoBehaviour
 {
     [Header("Main Menu")]
     [SerializeField] private GameManager gameManager;
+
     [Header("Weapon System")]
     [SerializeField] private BaseWeaponSystem weaponSystem;
     [SerializeField] private GameObject weaponContainer;
+
     [Header("GUI")]
     [SerializeField] private PanelRenderer hotbarUIDocument;
     [SerializeField] private VisualTreeAsset hotbarItemUIDocument;
+
     [Header("Weapon Info")]
     [SerializeField] private Weapon primaryWeapon;
     [SerializeField] private Weapon secondaryWeapon;
     [SerializeField] private Weapon tools;
+
+    private bool isUIReady = false;
     private List<Weapon> weapons = new();
     private Dictionary<Weapon, VisualElement> hotbarSlotsList = new();
     public List<GameObject> weaponModels = new();
@@ -46,6 +53,7 @@ public class HotbarScript : MonoBehaviour
     {
         root = _root;
         container = root.Q<VisualElement>("inventory-container");
+        root.style.display = DisplayStyle.Flex;
         FillHotbar();
         EquipTransition(weapons[0]);
     }

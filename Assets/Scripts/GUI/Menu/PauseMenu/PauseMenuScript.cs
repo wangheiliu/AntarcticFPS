@@ -105,7 +105,13 @@ namespace Game.GUI.Menu
                 Debug.Log("Player paused the game. Opening pause menu.");
                 currentState = MenuState.Paused;
                 root.style.display = DisplayStyle.Flex;
-                EnablePauseMenu(true);
+
+                root.schedule.Execute(() =>
+                {
+                    if (container == null) return;
+                    EnablePauseMenu(true);
+                }).StartingIn(100);
+                
 
                 menuDocument.OnPauseEventNotifier(true);
             }

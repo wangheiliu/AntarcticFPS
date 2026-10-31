@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using Game.ScriptableObjects.Shop;
 using Game.Weapons;
+using Game.Weapons.Projectiles;
 
 public enum WeaponType
 {
@@ -27,6 +28,9 @@ public enum WeaponType
     [StatDisplay(displayName: "Damage", group: "Weapon Information")]
     public float damage;
     public int ammo;
+    public int bulletsPerFire = 1;
+    public float spread = 0f;
+
     [Header("Weapon Metadata")]
     public string modelName;
     public ProjectileTypes projectileType = ProjectileTypes.Bullet;
