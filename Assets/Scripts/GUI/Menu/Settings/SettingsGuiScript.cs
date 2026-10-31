@@ -306,7 +306,11 @@ public class SettingsScript : MonoBehaviour
         {
             document.enabled = true;
             root.style.display = DisplayStyle.Flex;
-            SettingsTransition();
+            settingsContainer.style.display = DisplayStyle.Flex;
+            root.schedule.Execute(() =>
+            {
+                SettingsTransition();
+            }).StartingIn(100);
         }
     }
 

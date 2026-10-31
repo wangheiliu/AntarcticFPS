@@ -9,7 +9,7 @@ using UnityEditor;
 
 
 
-namespace Game.Weapons
+namespace Game.Weapons.Projectiles
 {
     public enum ProjectileTypes
     {

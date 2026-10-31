@@ -57,7 +57,7 @@ public class InventoryScript : MonoBehaviour
 
             _isPropertyOpen = value;
 
-            if (propertiesContainer == null)
+            if (propertiesContainer == null || root == null)
             {
                 return;
             }
@@ -91,10 +91,16 @@ public class InventoryScript : MonoBehaviour
 
             _isInventoryOpen = value;
 
+            if (root == null) return;
+
             if (value)
             {
-                inventoryContentContainer.style.translate = new Translate(Length.Percent(0), 0, 0);
-                equipSection.style.translate = new Translate(Length.Percent(0), 0, 0);
+                root.schedule.Execute(()=>
+                {
+                    if (inventoryContainer == null || equipSection == null) return;
+                    inventoryContentContainer.style.translate = new Translate(Length.Percent(0), 0, 0);
+                    equipSection.style.translate = new Translate(Length.Percent(0), 0, 0);
+                }).StartingIn(100);
             }
             else
             {
@@ -176,6 +182,8 @@ public class InventoryScript : MonoBehaviour
         GeneralPlayerDataManager.OnWeaponEquipChanged -= OnEquipWeapon;
         GeneralPlayerDataManager.OnWeaponInventoryChanged -= PopulateInventorySlots;
         gameManager.OnMenuStateChanged -= OpenInventory;
+
+        if (weaponsEquipElement == null) return;
 
         foreach (var children in weaponsEquipElement.Children())
         {

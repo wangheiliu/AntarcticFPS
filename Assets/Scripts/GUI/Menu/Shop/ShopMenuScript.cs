@@ -16,6 +16,7 @@ public class ShopMenuScript : MonoBehaviour
 
 
     private bool waitingShopTransition = false;
+    private bool openShopWhenUIReady;
 
     // maybe use a ternrary operator for these?
     private bool isOpen = false;
@@ -46,6 +47,7 @@ public class ShopMenuScript : MonoBehaviour
     void OnEnable()
     {
         uIDocument.RegisterUIReloadCallback(OnUIReloaded);
+        gameManager.OnMenuStateChanged += OnShopOpen;
     }
 
     void OnUIReloaded(PanelRenderer renderer, VisualElement _root, int currentVersion)
@@ -73,7 +75,10 @@ public class ShopMenuScript : MonoBehaviour
         purchaseButton?.RegisterCallback<ClickEvent>(evt => OnPurchasePrompt(evt, true), CallbackOptions.Removable);
         cancelPurchase?.RegisterCallback<ClickEvent>(evt => OnPurchasePrompt(evt, false), CallbackOptions.Removable);
 
-        gameManager.OnMenuStateChanged += OnShopOpen;
+        if (openShopWhenUIReady)
+        {
+            OpenShop();
+        }
     }
 
     private void OnTransitionEnd(TransitionEndEvent evt)
@@ -133,12 +138,22 @@ public class ShopMenuScript : MonoBehaviour
 
     public void OpenShop()
     {
+        if (root == null || shopContainer == null)
+        {
+            openShopWhenUIReady = true;
+            return;
+        }
+
+        openShopWhenUIReady = false;
         Debug.Log("Running...");
         isOpen = true;
         root.style.display = DisplayStyle.Flex;
         
-        
-        shopContainer.style.translate = defaultTransitionValue;
+        root.schedule.Execute(() =>
+        {
+            if (!isOpen) return;
+            shopContainer.style.translate = defaultTransitionValue;
+        }).StartingIn(100);
     }
 
     public void FiltersTransition(ClickEvent _)
@@ -187,9 +202,7 @@ public class ShopMenuScript : MonoBehaviour
     {
         if (state == MenuState.Shop)
         {
-            Debug.Log("Opening shop...");
             uIDocument.enabled = true;
-            root.style.display = DisplayStyle.Flex;
             OpenShop();
         }
     }
