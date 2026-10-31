@@ -4,7 +4,7 @@ using UnityEngine.Pool;
 using System.Collections;
 using System;
 
-namespace Game.Weapons
+namespace Game.Weapons.Projectiles
 {
     public class Projectile : MonoBehaviour
     {

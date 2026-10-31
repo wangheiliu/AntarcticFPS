@@ -178,6 +178,11 @@ public static class CurrentPlayerData
         Data = SaveData.Load() ?? new PlayerData();
     }
 
+    public static PlayerData GetPlayerData()
+    {
+        return Data;
+    }
+
     public static void Save()
     {
         Debug.Log("Saving data...");

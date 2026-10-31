@@ -8,199 +8,208 @@ using UnityEngine.InputSystem;
 using UnityEngine.Pool;
 
 using Game.Weapons;
+using Game.Weapons.Projectiles;
 
 
-[Serializable]
-public class Weapon
+namespace Game.Weapons
 {
-    public WeaponData data;
-    public int ammo;
+    [Serializable]
+    public class Weapon
+    {
+        public WeaponData data;
+        public int ammo;
+    }
 }
 
 
-public class BaseWeaponSystem : MonoBehaviour
+namespace Game.Weapons.WeaponSystem
 {
-    #region Serialized Variables
-    [Header("Player Info")]
-    [SerializeField] private GameObject playerCharacter;
-    [SerializeField] private GameManager gameManager;
-    [SerializeField] private Weapon currentWeapon;
-    public Weapon CurrentWeapon
+    public class BaseWeaponSystem : MonoBehaviour
     {
-        get => currentWeapon;
-        set
+        #region Serialized Variables
+        [Header("Player Info")]
+        [SerializeField] private GameObject playerCharacter;
+        [SerializeField] private GameManager gameManager;
+        [SerializeField] private Weapon currentWeapon;
+        public Weapon CurrentWeapon
         {
-            if (currentWeapon == value || value == null) return;
-            currentWeapon = value;
-            OnWeaponChanged?.Invoke(value.data);
+            get => currentWeapon;
+            set
+            {
+                if (currentWeapon == value || value == null) return;
+                currentWeapon = value;
+                OnWeaponChanged?.Invoke(value.data);
+            }
         }
-    }
-    public GameObject currentWeaponModel;
-    [SerializeField] private Camera gameCam;
+        public GameObject currentWeaponModel;
+        [SerializeField] private Camera gameCam;
 
-    [Header("Weapon Information")]
-    [SerializeField] private HotbarScript hotbarScript;
-    [SerializeField] private GameObject weaponContainer;
+        [Header("Weapon Information")]
+        [SerializeField] private HotbarScript hotbarScript;
+        [SerializeField] private GameObject weaponContainer;
 
-    [Header("Bullet Information")]
-    [SerializeField] private ProjectileManager projectileManager;
-    protected event Action<Projectile> OnBulletFired;
-    public event Action<WeaponData> OnWeaponChanged;
-    public event Action<bool> OnWeaponReload;
+        [Header("Bullet Information")]
+        [SerializeField] private ProjectileManager projectileManager;
+        protected event Action<Projectile> OnBulletFired;
+        public event Action<WeaponData> OnWeaponChanged;
+        public event Action<bool> OnWeaponReload;
 
-    #endregion
+        #endregion
 
-    public bool isWeaponEquipped;
-    private bool isOnCooldown;
-    private bool isReloading;
-    public bool IsReloading {get => isReloading; set => isReloading = value;}
+        public bool isWeaponEquipped;
+        private bool isOnCooldown;
+        private bool isReloading;
+        public bool IsReloading { get => isReloading; set => isReloading = value; }
 
-    [NonSerialized] public Coroutine coroutine;
-    public int Ammo
-    {
-        get => currentWeapon.ammo;
-        set
+        [NonSerialized] public Coroutine coroutine;
+        public int Ammo
         {
-            currentWeapon.ammo = Mathf.Clamp(value, 0, currentWeapon.data.clipSize);
+            get => currentWeapon.ammo;
+            set
+            {
+                currentWeapon.ammo = Mathf.Clamp(value, 0, currentWeapon.data.clipSize);
+            }
         }
-    }
 
-    void Awake()
-    {
-        
-    }
-    void Start()
-    {
-        if (CurrentWeapon != null)
+        void Awake()
         {
-            OnWeaponChanged?.Invoke(CurrentWeapon.data);
-        }
-        Ammo = currentWeapon.data.clipSize;
-    }
 
-    // Update is called once per frame
-    protected virtual void Update()
-    {
-        if (gameManager.playerState != MenuState.Playing)
-        {
-            return;
         }
-        if (Mouse.current.leftButton.isPressed) // left click
+        void Start()
         {
-            if (Ammo <= 0 || isReloading)
+            if (CurrentWeapon != null)
+            {
+                OnWeaponChanged?.Invoke(CurrentWeapon.data);
+            }
+            Ammo = currentWeapon.data.clipSize;
+        }
+
+        // Update is called once per frame
+        protected virtual void Update()
+        {
+            if (gameManager.playerState != MenuState.Playing)
             {
                 return;
             }
-            StartCoroutine(HandleFire(CurrentWeapon.data.fireRate / 60f));
-        }
-
-        if (Keyboard.current.rKey.wasPressedThisFrame) // reload
-        {
-            if (Ammo >= CurrentWeapon.data.clipSize)
+            if (Mouse.current.leftButton.isPressed) // left click
             {
-                return;
-            }
-            if (!isReloading)
-            {
-                coroutine = StartCoroutine(HandleReload());
-            }
-        }
-    }
-
-    public virtual IEnumerator HandleFire(float cooldown = 0.5f)
-    {
-        if (isOnCooldown || gameManager.playerState != MenuState.Playing)
-        {
-            yield break;
-        }
-        if (currentWeaponModel == null)
-        {
-            yield break;
-        }
-        Transform muzzle = currentWeaponModel.transform.Find("Barrel");
-        Ray camRay = gameCam.ScreenPointToRay(Mouse.current.position.ReadValue());
-        if (Physics.Raycast(camRay, out RaycastHit hit, 300f))
-        {
-            Vector3 muzzleDir = (hit.point - muzzle.position).normalized;
-            Ray ray = new(muzzle.position, muzzleDir);
-            if (Physics.Raycast(ray, out RaycastHit targetHit, 300f))
-            {
-                if (IsHittingOwnChar(targetHit))
+                if (Ammo <= 0 || isReloading)
                 {
-                    yield break;
+                    return;
                 }
+                StartCoroutine(HandleFire(CurrentWeapon.data.fireRate / 60f));
+            }
 
-                HUDScript healthManager = hit.transform.GetComponentInChildren<HUDScript>();
-                if (healthManager != null)
+            if (Keyboard.current.rKey.wasPressedThisFrame) // reload
+            {
+                if (Ammo >= CurrentWeapon.data.clipSize)
                 {
-                    healthManager.DamageHealth(currentWeapon.data.damage);
+                    return;
+                }
+                if (!isReloading)
+                {
+                    coroutine = StartCoroutine(HandleReload());
                 }
             }
-
-            
         }
 
-        Fire();
-        
-        Debug.DrawRay(muzzle.position, Mouse.current.position.ReadValue(), Color.red);
-        Ammo -= 1;
-        isOnCooldown = true;
-
-        yield return new WaitForSeconds(cooldown);
-        isOnCooldown = false;
-    }
-
-    protected virtual void Fire()
-    {
-        Transform muzzle = currentWeaponModel.transform.Find("Barrel");
-        Projectile projectile = projectileManager.GetProjectile(CurrentWeapon.data.projectileType);
-        projectile.transform.position = muzzle.position;
-        projectile.transform.rotation = muzzle.rotation;
-
-        projectile.OnBulletHit += OnHit;
-        projectile.Launch(muzzle.forward, 5f);
-
-        OnBulletFired?.Invoke(projectile);
-        if (projectile != null)
+        public virtual IEnumerator HandleFire(float cooldown = 0.5f)
         {
-            Debug.Log(projectile.gameObject.name);
-        } else
-        {
-            Debug.LogWarning("No projectile");
-        }
-        
-    }
-
-    protected void OnHit(Projectile projectile, GameObject hit)
-    {
-        projectile.OnBulletHit -= OnHit;
-    }
-
-    protected virtual IEnumerator HandleReload()
-    {
-        isReloading = true;
-        OnWeaponReload?.Invoke(true);
-        yield return new WaitForSeconds(CurrentWeapon.data.reloadTime);
-        Ammo = CurrentWeapon.data.clipSize;
-        isReloading = false;
-        OnWeaponReload?.Invoke(false);
-    }
-    public bool IsHittingOwnChar(RaycastHit hit)
-    {
-        return hit.transform.root == playerCharacter.transform;
-    }
-
-    private GameObject FindGameObjectByTag(GameObject parent, string tag)
-    {
-        foreach (Transform child in parent.transform)
-        {
-            if (child.CompareTag(tag))
+            if (isOnCooldown || gameManager.playerState != MenuState.Playing)
             {
-                return child.gameObject;
+                yield break;
             }
+            if (currentWeaponModel == null)
+            {
+                yield break;
+            }
+            Transform muzzle = currentWeaponModel.transform.Find("Barrel");
+            Ray camRay = gameCam.ScreenPointToRay(Mouse.current.position.ReadValue());
+            if (Physics.Raycast(camRay, out RaycastHit hit, 300f))
+            {
+                Vector3 muzzleDir = (hit.point - muzzle.position).normalized;
+                Ray ray = new(muzzle.position, muzzleDir);
+                if (Physics.Raycast(ray, out RaycastHit targetHit, 300f))
+                {
+                    if (IsHittingOwnChar(targetHit))
+                    {
+                        yield break;
+                    }
+
+                    HUDScript healthManager = hit.transform.GetComponentInChildren<HUDScript>();
+                    if (healthManager != null)
+                    {
+                        healthManager.DamageHealth(currentWeapon.data.damage);
+                    }
+                }
+
+
+            }
+
+            Fire();
+
+            Debug.DrawRay(muzzle.position, Mouse.current.position.ReadValue(), Color.red);
+            Ammo -= 1;
+            isOnCooldown = true;
+
+            yield return new WaitForSeconds(cooldown);
+            isOnCooldown = false;
         }
-        return null;
+        // add another firing mechanic for different types
+        protected virtual void Fire()
+        {
+            Transform muzzle = currentWeaponModel.transform.Find("Barrel");
+            Projectile projectile = projectileManager.GetProjectile(CurrentWeapon.data.projectileType);
+            projectile.transform.position = muzzle.position;
+            projectile.transform.rotation = muzzle.rotation;
+
+            projectile.OnBulletHit += OnHit;
+            projectile.Launch(muzzle.forward, 5f);
+
+            OnBulletFired?.Invoke(projectile);
+            if (projectile != null)
+            {
+                Debug.Log(projectile.gameObject.name);
+            }
+            else
+            {
+                Debug.LogWarning("No projectile");
+            }
+
+        }
+
+        protected void OnHit(Projectile projectile, GameObject hit)
+        {
+            projectile.OnBulletHit -= OnHit;
+        }
+
+        protected virtual IEnumerator HandleReload()
+        {
+            isReloading = true;
+            OnWeaponReload?.Invoke(true);
+            yield return new WaitForSeconds(CurrentWeapon.data.reloadTime);
+            Ammo = CurrentWeapon.data.clipSize;
+            isReloading = false;
+            OnWeaponReload?.Invoke(false);
+        }
+        public bool IsHittingOwnChar(RaycastHit hit)
+        {
+            return hit.transform.root == playerCharacter.transform;
+        }
+
+        private GameObject FindGameObjectByTag(GameObject parent, string tag)
+        {
+            foreach (Transform child in parent.transform)
+            {
+                if (child.CompareTag(tag))
+                {
+                    return child.gameObject;
+                }
+            }
+            return null;
+        }
     }
 }
+
 
 

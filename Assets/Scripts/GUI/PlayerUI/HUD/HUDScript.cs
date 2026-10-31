@@ -63,7 +63,9 @@ public class HUDScript : MonoBehaviour
 
         OnHealthChanged += UpdateHealthGUI;
         OnStaminaChanged += UpdateStaminaGUI;
-        root.style.display = DisplayStyle.None;
+
+        root.style.display = DisplayStyle.Flex;
+        
         UpdateHealthGUI();
         UpdateStaminaGUI();
     }

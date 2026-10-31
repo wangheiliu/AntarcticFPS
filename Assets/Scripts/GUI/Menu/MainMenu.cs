@@ -147,14 +147,13 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        Debug.Log(playerState);
         CloseAllItems();
         var documentsToOpen = menuStateDictionary[playerState].documents;
         waitingToClose = false;
 
         foreach (PanelRenderer document in documentsToOpen)
         {
-            Debug.Log("Enabling a document...");
+            Debug.Log($"Enabling a document... {document.gameObject.name}");
             document.enabled = true;
         }
 
@@ -197,11 +196,16 @@ public class GameManager : MonoBehaviour
         {
             CloseAllItems();
             isMenuOpen = true;
-            MenuTranslate(menuOpenTransition);
             foreach (PanelRenderer document in documentsToOpen)
             {
                 document.enabled = true;
             }
+            root.style.display = DisplayStyle.Flex;
+            root.schedule.Execute(() =>
+            {
+                if (!isMenuOpen) return;
+                MenuTranslate(menuOpenTransition);
+            }).StartingIn(100);
         }
 
 
