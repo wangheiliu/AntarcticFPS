@@ -18,6 +18,7 @@ public class SettingsScript : MonoBehaviour
     [SerializeField] private PanelRenderer document;
     [Header("Settings")]
     [SerializeField] private SettingsDatabase settingsDatabase;
+    #region UI Element Variables
     private VisualElement root;
     private VisualElement settingsContainer;
     private Button closeButton;
@@ -25,15 +26,17 @@ public class SettingsScript : MonoBehaviour
     private Button resetButton;
     private Button restoreDefaultsButton;
     private ScrollView[] settingsScrollView;
+    #endregion
     private List<ISettingAttributes> settingElements = new List<ISettingAttributes>();
     private Dictionary<string, object> settingElementsDictionary = new Dictionary<string, object>(); // load in settings first, then load in the data to the settings elements
+    #region Settings to Type Mapping
     private Dictionary<Type, Type> settingsToType = new()
     {
         {typeof(CustomIntSlider), typeof(int)},
         {typeof(SlideToggle), typeof(bool)},
         {typeof(CustomDropDownOption), typeof(string)}
     };
-
+    #endregion
     private bool isOpen = false;
     private PlayerSettings settingData;
     private PlayerData playerData;
@@ -65,9 +68,9 @@ public class SettingsScript : MonoBehaviour
         gameManager.OnMenuStateChanged += OnSettingsOpen;
     }
 
-    void Start()
+    async void Start()
     {
-        playerData = CurrentPlayerData.Data;
+        playerData = await CurrentPlayerData.LoadDataAsync();
         if (playerData == null)
         {
             Debug.LogWarning("No save data found. Creating default settings data.");
@@ -85,7 +88,7 @@ public class SettingsScript : MonoBehaviour
     }
 
     // data display
-    private void SaveDefaultSettingsData()
+    private async void SaveDefaultSettingsData()
     {
         settingData = new PlayerSettings()
         {
@@ -98,7 +101,7 @@ public class SettingsScript : MonoBehaviour
 
         playerData.settings = settingData;
         lastSavedSettings = CloneSettings(settingData);
-        SaveData.Save(playerData);
+        await SaveData.Save(playerData);
     }
 
     private PlayerSettings CloneSettings(PlayerSettings source)
@@ -162,8 +165,10 @@ public class SettingsScript : MonoBehaviour
             {
                 if (element is ISettingAttributes && element.ClassListContains("setting-item"))
                 {
-                    settingElements.Add(element as ISettingAttributes);
-                    RegisterValueChanged(element, (element as ISettingAttributes).DataName);
+                    var elementSettingAttributes = element as ISettingAttributes;
+                    settingElements.Add(elementSettingAttributes);
+                    
+                    RegisterValueChanged(element, elementSettingAttributes.DataName);
                 }
             }
         }
@@ -189,14 +194,9 @@ public class SettingsScript : MonoBehaviour
             if (settingElement is CustomIntSlider slider)
             {
                 slider.Value = Convert.ToInt32(fieldValue);
-                slider.Title = field.GetCustomAttribute<SettingsAttribute>()?.settingName ?? fieldName;
-
-                slider.LowestValue = rangeAttribute != null ? (int)rangeAttribute.min : 0;
-                slider.HighestValue = rangeAttribute != null ? (int)rangeAttribute.max : 100;
             }
             else if (settingElement is SlideToggle toggle)
             {
-                toggle.TitleName = field.GetCustomAttribute<SettingsAttribute>()?.settingName ?? fieldName;
                 toggle.value = Convert.ToBoolean(fieldValue);
             }
             else
@@ -205,15 +205,6 @@ public class SettingsScript : MonoBehaviour
             }
         }
     }
-
-    /*private void FillSettings()
-    {
-        foreach (BasicSettingsObject settingsObject in settingsDatabase.settingsObjects)
-        {
-            var element = settingElementInit[settingsObject.controlType];   
-            element.dataSource = settingsObject;
-        }
-    }*/
 
     private void LoadSettingsElement<T>(T element, BasicSettingsObject settingsObject) where T : VisualElement
     {
@@ -228,7 +219,6 @@ public class SettingsScript : MonoBehaviour
         FieldInfo field = typeof(PlayerSettings).GetField(dataName, BindingFlags.Public | BindingFlags.Instance);
         if (field == null)
         {
-            Debug.LogWarning($"Field '{dataName}' not found in PlayerSettings.");
             return;
         }
 
@@ -237,11 +227,11 @@ public class SettingsScript : MonoBehaviour
         settingElementsDictionary[dataName] = convertedValue;
     }
 
-    private void SaveSettings()
+    private async void SaveSettings()
     {
         lastSavedSettings = CloneSettings(settingData);
         playerData.settings = settingData;
-        CurrentPlayerData.Save();
+        await CurrentPlayerData.Save();
     }
 
     private void ResetToDefault()
@@ -276,7 +266,7 @@ public class SettingsScript : MonoBehaviour
     #endregion
 
     #region Events
-
+    #region Value Changed Events
     private void OnValueChangedEvt<T>(ChangeEvent<T> evt, string dataName)
     {
         ValueChanged(dataName, evt.newValue);
@@ -284,6 +274,7 @@ public class SettingsScript : MonoBehaviour
 
     private void RegisterValueChanged<T>(T field, string dataName)
     {
+        Debug.Log($"Registering value changed for {dataName} of type {field.GetType()}");
         if (settingsToType.TryGetValue(field.GetType(), out Type value))
         {
             var method = GetType().GetMethod(nameof(RegisterCallbackGeneric), BindingFlags.Instance | BindingFlags.NonPublic);
@@ -299,6 +290,7 @@ public class SettingsScript : MonoBehaviour
     {
         element.RegisterCallback<ChangeEvent<TValue>>(evt => OnValueChangedEvt(evt, dataName), CallbackOptions.Removable);
     }
+    #endregion
 
     private void OnSettingsOpen(MenuState state)
     {

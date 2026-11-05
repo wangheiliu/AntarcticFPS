@@ -231,7 +231,7 @@ public class ShopData : MonoBehaviour
         CheckItemPurchased(item);
     }
 
-    private void HandlePurchase(ShopItemData item)
+    private async void HandlePurchase(ShopItemData item)
     {
         if (CurrentPlayerData.Data != null)
         {
@@ -261,7 +261,7 @@ public class ShopData : MonoBehaviour
 
             CurrentPlayerData.Data = data;
 
-            CurrentPlayerData.Save();
+            await CurrentPlayerData.Save();
             shopMenuScript.HandlePrompt(false);
             
             CheckItemPurchased(item);

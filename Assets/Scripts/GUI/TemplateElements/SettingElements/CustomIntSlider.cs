@@ -5,12 +5,13 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Game.ScriptableObjects.Settings;
 using Player.PlayerData;
+using Unity.Properties;
 
 
 namespace BasicUIControls
 {
     [UxmlElement]
-    public partial class CustomIntSlider : VisualElement, ISettingAttributes
+    public partial class CustomIntSlider : BaseSettingElement
     {
         #region Class Names
         private readonly string className = "custom-int-slider";
@@ -31,24 +32,6 @@ namespace BasicUIControls
 
         #region UI Attributes
         [Header("Title")]
-        private string title = "Title";
-        [UxmlAttribute] public string Title
-        {
-            get => title;
-            set
-            {
-                if (title == value)
-                {
-                    return;
-                }
-
-                title = value;
-                if (titleLabel != null)
-                {
-                    titleLabel.text = title;
-                }
-            }
-        }
 
         [Header("Values")]
         private int intValue = 10;
@@ -79,7 +62,12 @@ namespace BasicUIControls
             }
         }
 
-        [UxmlAttribute]
+        public DataBinding lowestValueBinding = new()
+        {
+            dataSourcePath = new(nameof(SliderInfoObj.LowerRange)),
+            bindingMode = BindingMode.ToTarget
+        };
+        [UxmlAttribute, CreateProperty]
         public int LowestValue
         {
             get => lowestValue;
@@ -89,6 +77,7 @@ namespace BasicUIControls
                 {
                     return;
                 }
+                lowestValueBinding.MarkDirty();
                 lowestValue = value;
 
                 if (lowestValue >= highestValue)
@@ -99,10 +88,17 @@ namespace BasicUIControls
                 if (slider != null)
                 {
                     slider.lowValue = lowestValue;
+                    UpdateVisuals();
                 }
             }
         }
-        [UxmlAttribute]
+
+        public DataBinding highestValueBinding = new()
+        {
+            dataSourcePath = new(nameof(SliderInfoObj.HighRange)),
+            bindingMode = BindingMode.ToTarget
+        };
+        [UxmlAttribute, CreateProperty]
         public int HighestValue
         {
             get => highestValue;
@@ -112,7 +108,7 @@ namespace BasicUIControls
                 {
                     return;
                 }
-                
+                highestValueBinding.MarkDirty();
                 highestValue = value;
 
                 if (highestValue <= lowestValue)
@@ -123,55 +119,40 @@ namespace BasicUIControls
                 if (slider != null)
                 {
                     slider.highValue = highestValue;
+                    UpdateVisuals();
                 }
             }
         }
-
-        [UxmlAttribute] public string DataName { get; set; } = "";
 
         #endregion
 
         public void OnFieldChanged(ChangeEvent<int> evt)
         {
-            intValue = Mathf.Clamp(evt.newValue, slider.lowValue, slider.highValue);
+            Value = Mathf.Clamp(evt.newValue, slider.lowValue, slider.highValue);
             if (slider != null)
             {
-                slider.value = intValue;
+                slider.value = Value;
             }
 
             if (intField != null)
             {
-                intField.value = intValue;
+                intField.value = Value;
             }
 
         }
         public CustomIntSlider()
         {
+            InitBaseDataBinding();
             dataSourceType = typeof(SliderInfoObj);
-            SetBinding(nameof(LowestValue), new DataBinding()
-            {
-               dataSourcePath = new(nameof(SliderInfoObj.LowerRange)),
-               bindingMode = BindingMode.ToTarget
-            });
 
-            SetBinding(nameof(HighestValue), new DataBinding()
-            {
-               dataSourcePath = new(nameof(SliderInfoObj.HighRange)),
-               bindingMode = BindingMode.ToTarget
-            });
+            SetBinding(nameof(Title), titleBinding);
+            
+            SetBinding(nameof(DataName), dataNameBinding);
 
-            /* SetBinding(nameof(Value), new DataBinding()
-            {
-               dataSourceType = typeof(PlayerSettings),
-               dataSourcePath = new(nameof(PlayerSettings.volume)),
-               bindingMode = BindingMode.TwoWay
-            }); */
+            SetBinding(nameof(LowestValue), lowestValueBinding);
 
-            SetBinding(nameof(Title), new DataBinding()
-            {
-                dataSourcePath = new(nameof(SliderInfoObj.Title)),
-                bindingMode = BindingMode.TwoWay
-            });
+            SetBinding(nameof(HighestValue), highestValueBinding);
+
             AddToClassList(className);
             container = new();
             container.AddToClassList(containerClass);
@@ -179,22 +160,16 @@ namespace BasicUIControls
 
             titleLabel = new()
             {
-                text = "Title"
+                text = Title
             };
 
-            titleLabel.SetBinding(nameof(Label.text), new DataBinding()
-            {
-               dataSourcePath = new(nameof(Title)),
-               bindingMode = BindingMode.ToTarget 
-            });
+            titleLabel.SetBinding(nameof(Label.text), titleBinding);
             titleLabel.AddToClassList(intSliderTitleClass);
             container.Add(titleLabel);
 
             fieldContainer = new();
             fieldContainer.AddToClassList(fieldContainerClass);
             container.Add(fieldContainer);
-
-
 
             slider = new()
             {
@@ -204,24 +179,15 @@ namespace BasicUIControls
                 focusable = false
             };
 
-            slider.SetBinding(nameof(Slider.lowValue), new DataBinding()
-            {
-               dataSourcePath = new(nameof(LowestValue)),
-               bindingMode = BindingMode.ToTarget
-            });
-            
-            slider.SetBinding(nameof(Slider.highValue), new DataBinding()
-            {
-               dataSourcePath = new(nameof(HighestValue)),
-               bindingMode = BindingMode.ToTarget
-            });
+            slider.SetBinding(nameof(SliderInt.lowValue), lowestValueBinding);
+            slider.SetBinding(nameof(SliderInt.highValue), highestValueBinding);
 
             slider.AddToClassList(intSliderClassName);
             fieldContainer.Add(slider);
 
             intField = new()
             {
-                value = intValue
+                value = Value
             };
             intField.AddToClassList(intSliderTextFieldClass);
             fieldContainer.Add(intField);
@@ -231,12 +197,20 @@ namespace BasicUIControls
             RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
         }
 
-        private void OnAttachToPanel(AttachToPanelEvent evt)
+        protected override void UpdateVisuals()
+        {
+            if (slider != null)
+            {
+                slider.value = Mathf.Clamp(Value, slider.lowValue, slider.highValue);
+            }
+        }
+
+        protected override void OnAttachToPanel(AttachToPanelEvent evt)
         {
             slider?.RegisterValueChangedCallback(OnFieldChanged);
             intField?.RegisterValueChangedCallback(OnFieldChanged);
         }
-        private void OnDetachFromPanel(DetachFromPanelEvent evt)
+        protected override void OnDetachFromPanel(DetachFromPanelEvent evt)
         {
             slider?.UnregisterValueChangedCallback(OnFieldChanged);
             intField?.UnregisterValueChangedCallback(OnFieldChanged);

@@ -73,7 +73,6 @@ public class PlayerMovement : MonoBehaviour
 
     #region UI variables
     [Header("HUD")]
-    [SerializeField] private UIDocument hudDocument;
     [SerializeField] private HUDScript hudScript;
     #endregion
     //private Transform transform;
@@ -169,6 +168,8 @@ public class PlayerMovement : MonoBehaviour
         {
             IsLanded = false;
         }
+
+        #region Input
         // Movement input
         Vector2 moveInput = Vector2.zero;
 
@@ -192,6 +193,8 @@ public class PlayerMovement : MonoBehaviour
         camRight = Vector3.Cross(Vector3.up, camForward);
 
         Vector3 move = camForward * moveInput.x + camRight * moveInput.y;
+        #endregion
+
         CheckSlope();
 
         isOnWalkableSlope = onSlope && Vector3.Angle(slopeNormal, Vector3.up) <= charController.slopeLimit;
@@ -393,7 +396,7 @@ public class PlayerMovement : MonoBehaviour
                     ).normalized;
                     
                     float t = Mathf.InverseLerp(charController.slopeLimit, 90f, slopeAngle);
-                    float slopeGravity = -gravity * t;
+                    float slopeGravity = -gravity * 3f * t;
                     slopeVelocity += slopeGravity * Time.deltaTime * downhillDirection;
                     
                     move += slopeVelocity;

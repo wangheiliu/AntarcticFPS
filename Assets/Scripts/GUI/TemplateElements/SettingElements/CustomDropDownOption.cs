@@ -6,11 +6,12 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 using Game.ScriptableObjects.Settings;
+using Unity.Properties;
 
 namespace BasicUIControls
 {
     [UxmlElement]
-    public partial class CustomDropDownOption : VisualElement, ISettingAttributes
+    public partial class CustomDropDownOption : BaseSettingElement
     {
         private static readonly string className = "custom-horizontal-dropdown";
         private static readonly string containerClass = "custom-horizontal-dropdown-container";
@@ -85,34 +86,46 @@ namespace BasicUIControls
                 dropdownContainer.style.backgroundColor = new Color(defaultColor.r, defaultColor.g, defaultColor.b, 0.5f);
             }
         }
-        private string title = "Title";
-        [UxmlAttribute]
-        public string Title
+        public DataBinding optionsBinding = new()
         {
-            get => title;
-            set
-            {
-                if (title == value)
-                {
-                    return;
-                }
-
-                title = value;
-                titleLabel.text = title;
-            }
-        }
-
-        [UxmlAttribute]
+            dataSourcePath = new(nameof(DropDownInfo.Options)),
+            bindingMode = BindingMode.ToTarget
+        };
+        [UxmlAttribute, CreateProperty]
         public List<string> Options
         {
             get => options.ToList();
             set
             {
                 options = value ?? new List<string>();  
+                optionsBinding.MarkDirty();
                 OnListChanged();
             }
         }
-        [UxmlAttribute] public string DataName {get; set;} = "";
+
+        private string option;
+        [UxmlAttribute, CreateProperty] public string Option
+        {
+            get => option;
+            set
+            {
+                if (option == null)
+                {
+                    if (Options == null || Options.Count == 0)
+                    {
+                        option = "Error";
+                        return;
+                    }
+                    option = Options[0];
+                    return;
+                }
+                if (option == value)
+                {
+                    return;
+                }
+                option = value;
+            }
+        }
         public Label selected;
         public Label Selected
         {
@@ -130,12 +143,10 @@ namespace BasicUIControls
 
         public CustomDropDownOption()
         {
-            SetBinding(nameof(Options), new DataBinding()
-            {
-               dataSourceType = typeof(DropDownInfo),
-               dataSourcePath = new(nameof(DropDownInfo.Option)),
-               bindingMode = BindingMode.ToTarget
-            });
+            InitBaseDataBinding();
+            SetBinding(nameof(Options), optionsBinding);
+            
+            SetBinding(nameof(DataName), dataNameBinding);
             AddToClassList(className);
 
             container = new();
@@ -146,18 +157,9 @@ namespace BasicUIControls
                 text = "Title"
             };
 
-            SetBinding(nameof(Title), new DataBinding()
-            {
-               dataSourceType = typeof(BasicSettingsObject),
-               dataSourcePath = new(nameof(BasicSettingsObject.Title)),
-               bindingMode = BindingMode.ToTarget
-            });
+            SetBinding(nameof(Title), titleBinding);
 
-            titleLabel.SetBinding(nameof(Label.text), new DataBinding()
-            {
-               dataSourcePath = new(nameof(Title)),
-               bindingMode = BindingMode.ToTarget 
-            });
+            titleLabel.SetBinding(nameof(Label.text), titleBinding);
             titleLabel.AddToClassList(titleClass);
             container.Add(titleLabel);
 
@@ -219,6 +221,7 @@ namespace BasicUIControls
                 selected = labelOptions[0];
             }
             selected = label;
+            Option = selected.text;
             selected.style.backgroundColor = selectedColor;
             selected.EnableInClassList(selectedClass, true);
             selected.style.color = GetTextColor(selectedColor);

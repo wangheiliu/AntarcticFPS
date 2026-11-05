@@ -7,10 +7,17 @@ using Unity.VisualScripting;
 using System.Threading.Tasks;
 public class PlayerDataManager : MonoBehaviour
 {
-    void Awake()
+    async void Awake()
     {
-        CurrentPlayerData.Initialize();
-        CurrentPlayerData.Data = SaveData.UpdateData(CurrentPlayerData.Data);
+        try
+        {
+            CurrentPlayerData.Data = await CurrentPlayerData.LoadDataAsync();
+            CurrentPlayerData.Data = await SaveData.UpdateData(CurrentPlayerData.Data);
+        } catch (Exception ex)
+        {
+            Debug.LogError($"Failed to initialize player data: {ex.Message}");
+        }
+        
     }
 }
 public static class GeneralPlayerDataManager

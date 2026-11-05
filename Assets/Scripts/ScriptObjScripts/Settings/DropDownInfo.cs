@@ -10,8 +10,19 @@ namespace Game.ScriptableObjects.Settings
     [CreateAssetMenu(fileName = "DropDownInfo", menuName = "Settings/DropDownInfo")]
     public class DropDownInfo : BasicSettingsObject
     {
-        [CreateProperty] [field: SerializeField] public List<string> Options { get; set; }
-        [DontCreateProperty] private string _option;
+        [SerializeField, DontCreateProperty] private List<string> options;
+        [CreateProperty] public List<string> Options
+        {
+            get => options;
+            set
+            {
+                if (options == value) return;
+                options = value;
+                Option = options[0];
+                UpdateProp();
+            }
+        }
+        [SerializeField, DontCreateProperty] private string _option;
         [CreateProperty] public string Option
         {
             get => _option;

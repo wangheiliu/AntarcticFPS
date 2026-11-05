@@ -10,9 +10,37 @@ namespace Game.ScriptableObjects.Settings
     public class SliderInfoObj : BasicSettingsObject
     {
         [Header("Slider Information")]
-        [CreateProperty] [field: SerializeField] public string ValueTitle {get; set;}
-        [CreateProperty] [field: SerializeField] public int LowerRange {get; set;} = 0;
-        [CreateProperty] [field: SerializeField] public int HighRange {get; set;} = 100;
+        [SerializeField, DontCreateProperty] private string valueTitle;
+        [CreateProperty] public string ValueTitle {get => valueTitle; set
+            {
+                if (valueTitle == value) return;
+                valueTitle = value;
+                UpdateProp();
+            }
+        }
+
+        [SerializeField, DontCreateProperty] private int lowerRange = 0;
+        [CreateProperty] public int LowerRange
+        {
+            get => lowerRange;
+            set
+            {
+                if (lowerRange == value) return;
+                lowerRange = value;
+                UpdateProp();
+            }   
+        }
+        [SerializeField, DontCreateProperty] private int highRange = 100;
+        [CreateProperty] public int HighRange
+        {
+            get => highRange;
+            set
+            {
+                if (highRange == value) return;
+                highRange = value;
+                UpdateProp();
+            }
+        }
         [SerializeField, DontCreateProperty] private int _value;
         [CreateProperty] public int Value
         {

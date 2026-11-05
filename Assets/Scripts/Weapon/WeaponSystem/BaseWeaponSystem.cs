@@ -61,7 +61,9 @@ namespace Game.Weapons.WeaponSystem
         private bool isReloading;
         public bool IsReloading { get => isReloading; set => isReloading = value; }
 
-        [NonSerialized] public Coroutine coroutine;
+        [NonSerialized] public Coroutine reloadCoroutine;
+        [NonSerialized] public Coroutine fireWeaponCoroutine;
+        [NonSerialized] public Coroutine swingKnifeCoroutine;
         public int Ammo
         {
             get => currentWeapon.ammo;
@@ -97,7 +99,15 @@ namespace Game.Weapons.WeaponSystem
                 {
                     return;
                 }
-                StartCoroutine(HandleFire(CurrentWeapon.data.fireRate / 60f));
+
+                if (currentWeapon.data.type != ShopItemCatagory.Knives)
+                {
+                    fireWeaponCoroutine = StartCoroutine(HandleFire(CurrentWeapon.data.fireRate / 60f));
+                } else
+                {
+                    swingKnifeCoroutine = StartCoroutine(SwingKnife(CurrentWeapon.data.fireRate / 60f));
+                }
+                
             }
 
             if (Keyboard.current.rKey.wasPressedThisFrame) // reload
@@ -108,7 +118,7 @@ namespace Game.Weapons.WeaponSystem
                 }
                 if (!isReloading)
                 {
-                    coroutine = StartCoroutine(HandleReload());
+                    reloadCoroutine = StartCoroutine(HandleReload());
                 }
             }
         }
@@ -154,6 +164,7 @@ namespace Game.Weapons.WeaponSystem
 
             yield return new WaitForSeconds(cooldown);
             isOnCooldown = false;
+            yield break;
         }
         // add another firing mechanic for different types
         protected virtual void Fire()
@@ -178,6 +189,27 @@ namespace Game.Weapons.WeaponSystem
 
         }
 
+        protected virtual IEnumerator SwingKnife(float cooldown = 2f)
+        {
+            if (currentWeapon.data.type != ShopItemCatagory.Knives)
+            {
+                yield break;
+            }
+
+            if (isOnCooldown) yield break;
+            isOnCooldown = true;
+            yield return new WaitForSeconds(4);
+            if (currentWeaponModel.TryGetComponent(out Collider collider))
+            {
+                if (collider.gameObject.CompareTag("Enemy"))
+                {
+                    Debug.Log("Hit enemy");
+                }
+            }
+            isOnCooldown = false;
+            yield break;
+        }
+
         protected void OnHit(Projectile projectile, GameObject hit)
         {
             projectile.OnBulletHit -= OnHit;
@@ -191,6 +223,7 @@ namespace Game.Weapons.WeaponSystem
             Ammo = CurrentWeapon.data.clipSize;
             isReloading = false;
             OnWeaponReload?.Invoke(false);
+            yield break;
         }
         public bool IsHittingOwnChar(RaycastHit hit)
         {

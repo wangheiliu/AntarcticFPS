@@ -13,7 +13,7 @@ public static class SaveData
     public static string SavePath => Path.Combine(Application.persistentDataPath, "saveData.dat");
     public static string TempSavePath => Path.Combine(Application.persistentDataPath, "saveData.tmp");
     public static string BackupSavePath => Path.Combine(Application.persistentDataPath, "saveData.bak");
-    public static void Save(PlayerData data) // i can push default data using this method
+    public static async Awaitable Save(PlayerData data) // i can push default data using this method
     {
         if (data == null)
         {
@@ -24,7 +24,7 @@ public static class SaveData
 
         try
         {
-            File.WriteAllText(TempSavePath, json);
+            await File.WriteAllTextAsync(TempSavePath, json);
 
             if (File.Exists(SavePath))
             {
@@ -59,13 +59,13 @@ public static class SaveData
         }
     }
 
-    public static PlayerData TryLoad(string path)
+    public static async Awaitable<PlayerData> TryLoad(string path)
     {
         if (File.Exists(path))
         {
             try
             {
-                string json = File.ReadAllText(path);
+                string json = await File.ReadAllTextAsync(path); // make await statement here
                 if (string.IsNullOrWhiteSpace(json))
                 {
                     Debug.LogWarning($"Save file at {path} is empty.");
@@ -81,24 +81,24 @@ public static class SaveData
         return null;
     }
 
-    public static PlayerData Load()
+    public static async Awaitable<PlayerData> Load()
     {
         PlayerData data;
-        data = TryLoad(SavePath);
+        data = await TryLoad(SavePath);
         if (data != null)
         {
             Debug.Log("Loaded normal data");
             return data;
         }
 
-        data = TryLoad(BackupSavePath);
+        data = await TryLoad(BackupSavePath);
         if (data != null)
         {
             Debug.Log("Loaded backup");
             return data;
         }
 
-        data = TryLoad(TempSavePath);
+        data = await TryLoad(TempSavePath);
         if (data != null)
         {
             try
@@ -119,7 +119,7 @@ public static class SaveData
         return null;
     }
 
-    public static PlayerData UpdateData(PlayerData data)
+    public static async Awaitable<PlayerData> UpdateData(PlayerData data)
     {
         var defaultData = new PlayerData();
         FieldInfo[] fields = typeof(PlayerData).GetFields(BindingFlags.Public | BindingFlags.Instance); // this should get the current data model's fields
@@ -165,7 +165,7 @@ public static class SaveData
             }
         }
 
-        Save(data);
+        await Save(data);
         return data;
     }
 }
@@ -173,9 +173,10 @@ public static class SaveData
 public static class CurrentPlayerData
 {
     public static PlayerData Data {get; set;}
-    public static void Initialize()
+    public static async Awaitable<PlayerData> LoadDataAsync()
     {
-        Data = SaveData.Load() ?? new PlayerData();
+        Data = await SaveData.Load() ?? new PlayerData();
+        return Data;
     }
 
     public static PlayerData GetPlayerData()
@@ -183,11 +184,11 @@ public static class CurrentPlayerData
         return Data;
     }
 
-    public static void Save()
+    public static async Awaitable Save()
     {
         Debug.Log("Saving data...");
-        SaveData.Save(Data);
-        Data = SaveData.Load();
+        await SaveData.Save(Data);
+        Data = await SaveData.Load();
     }
 }
 

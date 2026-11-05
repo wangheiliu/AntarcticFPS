@@ -58,6 +58,12 @@
     border-top-right-radius: 5px;
 }
 
+.settings-category-text {
+    font-size: 30px;
+    color: white;
+    -unity-font-style: bold;
+}
+
 #close-button:hover {
     scale: 1.1;
     background-color: rgb(118, 12, 12);
