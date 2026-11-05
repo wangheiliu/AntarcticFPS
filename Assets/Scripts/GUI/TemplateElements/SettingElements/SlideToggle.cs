@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System;
 using Game.ScriptableObjects.Settings;
 using UnityEditor.UI;
 using UnityEngine;
@@ -36,7 +37,13 @@ namespace BasicUIControls
             set => disabledColor = value;
         }
         [UxmlAttribute] public Color EnabledColor { get => enabledColor; set => enabledColor = value; }
-        [UxmlAttribute] public string TitleName
+
+        public DataBinding titleBinding = new()
+        {
+            dataSourcePath = new(nameof(ToggleInfoObj.Title)),
+            bindingMode = BindingMode.ToTarget
+        };
+        [UxmlAttribute, CreateProperty] public string TitleName
         {
             get => title;
             set
@@ -46,6 +53,7 @@ namespace BasicUIControls
                     return;
                 }
                 title = value;
+                titleBinding.MarkDirty();
                 if (titleElement != null)
                 {
                     titleElement.text = title;
@@ -53,7 +61,12 @@ namespace BasicUIControls
             }
         }
 
-        [UxmlAttribute] public string ToggleText
+        public DataBinding toggleTextBinding = new()
+        {
+            dataSourcePath = new(nameof(ToggleInfoObj.ToggledText)),
+            bindingMode = BindingMode.ToTarget
+        };
+        [UxmlAttribute, CreateProperty] public string ToggleText
         {
             get => toggled;
             set
@@ -64,11 +77,17 @@ namespace BasicUIControls
                 }
                 string prevValue = toggled;
                 toggled = value;
+                toggleTextBinding.MarkDirty();
                 UpdateVisuals();
             }
         }
 
-        [UxmlAttribute] public string UnToggleText
+        public DataBinding untoggleTextBinding = new()
+        {
+            dataSourcePath = new(nameof(ToggleInfoObj.UntoggledText)),
+            bindingMode = BindingMode.ToTarget
+        };
+        [UxmlAttribute, CreateProperty] public string UnToggleText
         {
             get => untoggled;
             set
@@ -78,40 +97,56 @@ namespace BasicUIControls
                     return;
                 }
                 untoggled = value;
-
+                untoggleTextBinding.MarkDirty();
                 UpdateVisuals();
             }
         }
 
-        [UxmlAttribute] public string DataName { get; set; } = "";
+        [CreateProperty] public string ValueDisplay => value ? ToggleText : UnToggleText;
+        
+        
+        private string dataName = "";
+        public DataBinding dataNameBinding = new()
+        {
+            dataSourcePath = new(nameof(ToggleInfoObj.DataName)),
+            bindingMode = BindingMode.ToTarget
+        };
+        [UxmlAttribute, CreateProperty] public string DataName
+        {
+            get => dataName;
+            set
+            {
+                if (String.IsNullOrEmpty(value))
+                {
+                    Debug.LogWarning("DataName cannot be null or empty.");
+                    return;
+                }
+                if (dataName == value)
+                {
+                    return;
+                }
+                dataNameBinding.MarkDirty();
+                dataName = value;
+            }
+        }
 
         //constructor class
         public SlideToggle(): base(null, new VisualElement()) // the basefield provides us with the label and the input visual element
         {
             dataSourceType = typeof(ToggleInfoObj);
-            SetBinding(nameof(TitleName), new DataBinding()
-            {
-                dataSourcePath = new(nameof(ToggleInfoObj.Title)),
-                bindingMode = BindingMode.ToTarget
-            });
+            SetBinding(nameof(TitleName), titleBinding);
 
-            SetBinding(nameof(UnToggleText), new DataBinding()
-            {
-               dataSourcePath = new(nameof(ToggleInfoObj.UntoggledText)),
-               bindingMode = BindingMode.ToTarget
-            });
+            SetBinding(nameof(UnToggleText), untoggleTextBinding);
 
-            SetBinding(nameof(ToggleText), new DataBinding()
-            {
-               dataSourcePath = new(nameof(ToggleInfoObj.ToggledText)),
-               bindingMode = BindingMode.ToTarget
-            });
+            SetBinding(nameof(ToggleText), toggleTextBinding);
 
             /* SetBinding(nameof(value), new DataBinding()
             {
                dataSourcePath = new(nameof(ToggleInfoObj.Value)),
                bindingMode = BindingMode.TwoWay
             }); */
+
+            SetBinding(nameof(DataName), dataNameBinding);
             
             AddToClassList(className);
             titleElement = new Label()
@@ -119,11 +154,7 @@ namespace BasicUIControls
                 text = TitleName
             };
 
-            titleElement.SetBinding(nameof(Label.text), new DataBinding()
-            {
-               dataSourcePath = new PropertyPath(TitleName),
-               bindingMode = BindingMode.ToTarget 
-            });
+            titleElement.SetBinding(nameof(Label.text), titleBinding);
             titleElement.AddToClassList(titleClassName);
             Add(titleElement);
 
@@ -134,7 +165,7 @@ namespace BasicUIControls
             Add(inputContainer);
 
             valueElement = new Label{
-                text = untoggled 
+                text = ValueDisplay
             };
             valueElement.AddToClassList(valueLabelClassName);
             inputContainer.Add(valueElement);
@@ -168,7 +199,7 @@ namespace BasicUIControls
         {
             inputElement.EnableInClassList(checkedInputClassName, value);
             inputElement.style.backgroundColor = value ? EnabledColor : DisabledColor;
-            valueElement.text = value ? ToggleText : UnToggleText;
+            valueElement.text = ValueDisplay;
         }
     }
 }

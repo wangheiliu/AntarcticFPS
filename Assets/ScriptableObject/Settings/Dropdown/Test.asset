@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa1ad9547ba40294fadcbf792c1f9134, type: 3}
   m_Name: Test
   m_EditorClassIdentifier: Assembly-CSharp::Game.ScriptableObjects.Settings.DropDownInfo
-  <Title>k__BackingField: Test
-  controlType: 0
+  title: Test Dropdown
+  dataName: TestDropdown
+  controlType: 2
   settingLocation: 1
-  <Options>k__BackingField:
-  - 1
-  - 2
-  - 3
-  - Yo momma fat
+  options:
+  - Fizz
+  - Buzz
+  - Fizzbuzz
+  _option: Fizz

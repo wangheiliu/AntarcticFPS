@@ -134,9 +134,9 @@ public class HotbarScript : MonoBehaviour
 
         if (weaponSystem.IsReloading)
         {
-            if (weaponSystem.coroutine != null)
+            if (weaponSystem.reloadCoroutine != null)
             {
-                weaponSystem.StopCoroutine(weaponSystem.coroutine); // when stopping coroutines, it must be used in the same monobehavior instance
+                weaponSystem.StopCoroutine(weaponSystem.reloadCoroutine); // when stopping coroutines, it must be used in the same monobehavior instance
             }
             weaponSystem.IsReloading = false;
         }

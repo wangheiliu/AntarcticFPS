@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a64ff79f9fc9ea44858b1c9ae3adc45, type: 3}
   m_Name: Sound
   m_EditorClassIdentifier: Assembly-CSharp::Game.ScriptableObjects.Settings.SliderInfoObj
-  <Title>k__BackingField: Sound
+  title: Volume
+  dataName: volume
   controlType: 0
   settingLocation: 1
-  <ValueTitle>k__BackingField: 
-  <LowerRange>k__BackingField: 0
-  <HighRange>k__BackingField: 100
+  valueTitle: Volume
+  lowerRange: 0
+  highRange: 100
   _value: 100

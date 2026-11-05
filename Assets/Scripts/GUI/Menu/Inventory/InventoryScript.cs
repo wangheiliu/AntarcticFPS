@@ -393,7 +393,7 @@ public class InventoryScript : MonoBehaviour
 
 
 
-    private void EquipWeapon(ShopItemData item, string slotName)
+    private async void EquipWeapon(ShopItemData item, string slotName)
     {
 
         if (slotName == "primary-slot")
@@ -416,10 +416,10 @@ public class InventoryScript : MonoBehaviour
         }
 
         CheckEquipped(GeneralPlayerDataManager.WeaponsOwned.Find(m => m.weaponName == item.dataName));
-        CurrentPlayerData.Save();
+        await CurrentPlayerData.Save();
     }
 
-    private void UnequipWeapon(string slotName)
+    private async void UnequipWeapon(string slotName)
     {
         switch (slotName)
         {
@@ -436,7 +436,7 @@ public class InventoryScript : MonoBehaviour
                 return;
         }
         CheckEquipped(null);
-        CurrentPlayerData.Save();
+        await CurrentPlayerData.Save();
     }
 
     private void OnWeaponUnequip(WeaponsInventory inventory, VisualElement slot)
