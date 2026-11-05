@@ -106,7 +106,7 @@ public class NametagScript : MonoBehaviour
         nameElement.text = _username;
     }
 
-    private void OnSubmit(ClickEvent evt)
+    private async void OnSubmit(ClickEvent evt)
     {
         if (!isValidUsername)
         {
@@ -118,7 +118,7 @@ public class NametagScript : MonoBehaviour
         {
             GeneralPlayerDataManager.Username = Username;
             CurrentPlayerData.Data.hasSetUserName = true;
-            CurrentPlayerData.Save();
+            await CurrentPlayerData.Save();
         }
 
         nameInputRoot.style.display = DisplayStyle.None;

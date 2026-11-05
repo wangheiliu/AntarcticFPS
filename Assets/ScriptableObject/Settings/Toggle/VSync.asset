@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c13e6fedbd7927479ac7ef4a59dffa2, type: 3}
   m_Name: VSync
   m_EditorClassIdentifier: Assembly-CSharp::Game.ScriptableObjects.Settings.ToggleInfoObj
-  <Title>k__BackingField: V-Sync
-  controlType: 0
+  title: V-Sync
+  dataName: vSync
+  controlType: 1
   settingLocation: 1
-  _value: 0
-  _unToggledText: Off
-  _toggledText: I am on
+  _unToggledText: Hi
+  _toggledText: Bye
