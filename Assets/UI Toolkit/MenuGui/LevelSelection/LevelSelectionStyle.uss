@@ -13,6 +13,8 @@
     transition-property: translate, width;
     transition-duration: 0.2s;
     translate: 0% 0 0;
+
+    min-height: 100px;
 }
 
 .level-select--disabled {
