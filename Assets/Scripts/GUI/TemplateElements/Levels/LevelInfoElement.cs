@@ -11,6 +11,8 @@ namespace BasicUIControls
     public partial class LevelInfoElement : VisualElement
     {
         private VisualElement container;
+        private VisualElement main;
+        private Label lockedLevelElement;
         private Image levelImage;
         private Label title;
         private Button _viewButton;
@@ -31,12 +33,27 @@ namespace BasicUIControls
 
         public LevelInfoElement()
         {
+            lockedLevelElement = new()
+            {
+                name = "level-info-locked",
+                text = "🔒"
+            };
+            lockedLevelElement.AddToClassList("level-info-locked");
+            
+            main = new()
+            {
+                name = "level-info-main"
+            };
+            main.AddToClassList("level-info-main");
+            Add(main);
+
             container = new()
             {
                 name = "level-info-container"
             };
             container.AddToClassList("level-info-container");
-            Add(container);
+            main.Add(lockedLevelElement);
+            main.Add(container);
 
             levelImage = new()
             {
@@ -73,11 +90,28 @@ namespace BasicUIControls
             _viewButton.AddToClassList("level-info-button");
             _viewButton.AddToClassList("base-style-button");
             container.Add(_viewButton);
+            SetLocked(true);
         }
 
         public LevelsData GetLevelsData()
         {
             return LevelData;
+        }
+
+        public void SetLocked(bool isLocked)
+        {
+            if (lockedLevelElement == null) return;
+            if (isLocked)
+            {
+                container?.EnableInClassList("level-locked", true);
+                ViewButton.SetEnabled(false);
+                lockedLevelElement.style.display = DisplayStyle.Flex;
+            } else
+            {
+                container?.EnableInClassList("level-locked", false);
+                ViewButton.SetEnabled(true);
+                lockedLevelElement.style.display = DisplayStyle.None;
+            }
         }
     }
 }
