@@ -130,12 +130,31 @@
 
 LevelInfoElement {
     aspect-ratio: 1;
-    padding: 15px;
     margin: 15px;
+    border-radius: 10px;
+    background-color: var(--main-black);
+}
+LevelInfoElement #level-info-main {
     border-width: 5px;
     border-radius: 10px;
     border-color: white;
-    background-color: var(--main-black);
+    flex-grow: 1;
+    overflow: visible;
+}
+LevelInfoElement #level-info-container {
+    margin: 15px;
+}
+
+LevelInfoElement #level-info-locked {
+    position: absolute;
+    font-size: 50px;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    -unity-text-align: middle-center;
+    background-color: rgba(0, 0, 0, 0);
 }
 
 LevelInfoElement #level-info-image {
@@ -154,4 +173,12 @@ LevelInfoElement #level-info-title {
     color: white;
     font-size: 30px;
     -unity-font-style: bold;
+}
+
+.blurred-element-scroll { /* This class is used to blur elements that are behind a scroll view.  Without it, the blur effect would not be applied correctly */
+    filter: blur(0);
+}
+
+.level-locked {
+    filter: blur(3px);
 }

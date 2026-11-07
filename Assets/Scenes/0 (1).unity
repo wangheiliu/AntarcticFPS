@@ -10049,6 +10049,7 @@ MonoBehaviour:
   playerObj: {fileID: 5137560999664054975}
   levelList: {fileID: 1336560014}
   levelDatabase: {fileID: 11400000, guid: bab8703b1af4f0b4da99d02abe15a859, type: 2}
+  defaultLevelDatabase: {fileID: 11400000, guid: bca0f0611d3510b449463e7a36f3073b, type: 2}
   document: {fileID: 1656237798}
   mainMenuScript: {fileID: 144607838}
 --- !u!1931382934 &1656237798

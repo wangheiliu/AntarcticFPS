@@ -9,6 +9,7 @@ using System.Reflection;
 using System;
 using Unity.Mathematics;
 using Unity.VisualScripting;
+using Player.PlayerData;
 
 public class LevelsGUIScript : MonoBehaviour
 {
@@ -18,6 +19,7 @@ public class LevelsGUIScript : MonoBehaviour
 
     [Header("Database")]
     [SerializeField] private LevelDatabase levelDatabase;
+    [SerializeField] private LevelDatabase defaultLevelDatabase;
 
     [Header("UI")]
     [SerializeField] private PanelRenderer document;
@@ -39,6 +41,7 @@ public class LevelsGUIScript : MonoBehaviour
 
     private LevelsData currentLevelDisplay;
     [NonSerialized] public Dictionary<LevelInfoElement, LevelsData> levelLookup = new();
+    [NonSerialized] public Dictionary<string, LevelInfoElement> levelElementLookup = new();
     [NonSerialized] public Dictionary<string, StatDisplay> statDisplays = new();
     private readonly PropertyInfo[] fields = typeof(LevelsData).GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
     void Awake()
@@ -163,10 +166,16 @@ public class LevelsGUIScript : MonoBehaviour
                 LevelData = data,
                 dataSource = data
             };
+
+            levelCard.SetLocked(true);
+
             levelSelectScrollView.Add(levelCard);
             levelLookup.TryAdd(levelCard, levelCard.GetLevelsData());
+            levelElementLookup.TryAdd(data.mapName, levelCard);
             levelCard.ViewButton.RegisterCallback<ClickEvent>(FillProperties);
         }
+
+        LoadLevelData();
     }
 
     public void FillProperties(ClickEvent evt)
@@ -264,6 +273,33 @@ public class LevelsGUIScript : MonoBehaviour
             if (levelSelectContainer == null) return;
             EnableElement(levelSelectContainer, true);
         }).StartingIn(100);
+    }
+
+    private void UnlockLevels(string levelName)
+    {
+        // Implementation for unlocking levels
+        LevelsData levelsData = levelDatabase.levels.Find(level => level.mapName == levelName);
+        if (levelElementLookup.TryGetValue(levelName, out LevelInfoElement levelElement))
+        {
+            levelElement.SetLocked(false);
+        }
+    }
+
+    private async void LoadLevelData()
+    {
+        try
+        {
+            PlayerData data = await CurrentPlayerData.LoadDataAsync();
+            List<string> unlockedLevels = data?.progressionData.levelsCompleted ?? defaultLevelDatabase.levels.ConvertAll(level => level.mapName);
+            if (unlockedLevels.Count == 0)
+            {
+                unlockedLevels = defaultLevelDatabase.levels.ConvertAll(level => level.mapName);
+            }
+            unlockedLevels.ForEach(levelName => UnlockLevels(levelName));
+        } catch (Exception ex)
+        {
+            Debug.LogError($"Failed to load player data: {ex.Message}");
+        }
     }
 
     #endregion
