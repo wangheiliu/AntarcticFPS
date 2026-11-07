@@ -8,6 +8,7 @@ using System.ComponentModel.Design.Serialization;
 using Unity.VisualScripting;
 using Game.ScriptableObjects.Shop;
 using Unity.Properties;
+using Player.PlayerData;
 
 public enum ShopItemCatagory
 {
@@ -54,10 +55,12 @@ public class ShopData : MonoBehaviour
 
     private Dictionary<string, Foldout> foldouts = new();
     public List<ShopLookupTable> lookUpTable = new();
-    private Action viewButtonLambda;
+    private event Action ViewButtonLambda;
+    private event Action CheckPurchasedLambda;
+    public event Action<WeaponsInventory> OnItemPurchased;
 
     private ShopItemData currentItem;
-    Action CheckPurchasedLambda;
+    
     
     void OnEnable()
     {
@@ -136,8 +139,8 @@ public class ShopData : MonoBehaviour
             });
             Button viewButton = templateUI.Q<Button>();
 
-            viewButtonLambda = () => OnViewClick(item);
-            viewButton.clicked += viewButtonLambda;
+            ViewButtonLambda = () => OnViewClick(item);
+            viewButton.clicked += ViewButtonLambda;
             foldoutContainer.Add(templateUI);
             lookUpTable.Add(new(foldoutContainer, item, templateUI));
         }
@@ -251,17 +254,19 @@ public class ShopData : MonoBehaviour
             }
             ProgressionDataManager.Money -= item.cost;
 
-            // work with other data models
-            data.weaponsOwned.Add(new()
+            WeaponsInventory newWeapon = new()
             {
-               weaponName = item.dataName,
-               weaponLevel = 1,
-               attachments = new List<string>() 
-            });
+                weaponName = item.dataName,
+                weaponLevel = 1,
+                attachments = new List<string>()
+            };
+            // work with other data models
+            data.weaponsOwned.Add(newWeapon);
 
             CurrentPlayerData.Data = data;
 
             await CurrentPlayerData.Save();
+            OnItemPurchased?.Invoke(newWeapon);
             shopMenuScript.HandlePrompt(false);
             
             CheckItemPurchased(item);

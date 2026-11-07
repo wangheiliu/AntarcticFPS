@@ -6,16 +6,23 @@ using Player.PlayerData;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Game.ScriptableObjects.Shop;
+using Game.Weapons;
 
 public class InventoryScript : MonoBehaviour
 {
     private static string primaryWeaponTabName = "primary-weapons-tab";
     private static string secondaryWeaponTabName = "secondary-weapons-tab";
     private static string toolsWeaponTab = "tertiary-weapons-tab";
+
+    [Header("References")]
     [SerializeField] private GameManager gameManager;
-    [SerializeField] private PanelRenderer document;
-    [SerializeField] private VisualTreeAsset propertyTree;
+
     [SerializeField] private ShopDatabase weaponDatabase;
+    [SerializeField] private ShopData shopScript;
+    [Header("GUI References")]
+    [SerializeField] private VisualTreeAsset propertyTree;
+    [SerializeField] private PanelRenderer document;
+
     // Equip section
     private VisualElement root;
     private VisualElement equipSection;
@@ -95,7 +102,7 @@ public class InventoryScript : MonoBehaviour
 
             if (value)
             {
-                root.schedule.Execute(()=>
+                root.schedule.Execute(() =>
                 {
                     if (inventoryContainer == null || equipSection == null) return;
                     inventoryContentContainer.style.translate = new Translate(Length.Percent(0), 0, 0);
@@ -170,6 +177,8 @@ public class InventoryScript : MonoBehaviour
         OnEquipWeapon(GeneralPlayerDataManager.ToolWeapon, WeaponType.Tools);
         slotDictionary[WeaponType.Tools] = GeneralPlayerDataManager.ToolWeapon;
         PopulateInventorySlots();
+
+        shopScript.OnItemPurchased += OnInventoryChange;
     }
 
     void OnDisable()
@@ -191,7 +200,7 @@ public class InventoryScript : MonoBehaviour
             unequipButton?.UnregisterAllRemovableCallbacks();
         }
         document.UnregisterUIReloadCallback(OnUIReload);
-        
+        shopScript.OnItemPurchased -= OnInventoryChange;
     }
 
     void Start()
@@ -199,7 +208,7 @@ public class InventoryScript : MonoBehaviour
         // document.rootVisualElement.style.display = DisplayStyle.None;
         // propertiesContainer.style.display = DisplayStyle.None;
 
-        
+
     }
 
     void Update()
@@ -258,47 +267,7 @@ public class InventoryScript : MonoBehaviour
         }
         foreach (WeaponsInventory weapon in inventory)
         {
-            var weaponData = GetWeaponData(weapon) as WeaponData;
-            if (weapon == null)
-            {
-                continue;
-            }
-            string tabName = GetWeaponTabName(weaponData);
-            Tab selectedTab = weaponTabView.Q<Tab>(tabName);
-
-            if (selectedTab == null)
-            {
-                return;
-            }
-
-            VisualElement element = new();
-            element.AddToClassList("weapon-inventory-card");
-            Label title = new()
-            {
-                text = weaponData.title
-            };
-            title.AddToClassList("weapon-inventory__title");
-            Image image = new();
-            image.AddToClassList("weapon-inventory__image");
-            Button viewButton = new()
-            {
-                text = "View"
-            };
-            viewButton.AddToClassList("weapon-inventory__btn");
-            viewButton.AddToClassList("white-button-transition");
-
-            element.Add(title);
-            element.Add(image);
-            element.Add(viewButton);
-
-            viewButton.RegisterCallback<ClickEvent>(evt =>
-            {
-                IsPropertyOpen = true;
-                DisplayProperty(evt, weaponData);
-            }, CallbackOptions.Removable);
-
-            ScrollView container = selectedTab.Q<ScrollView>(className: "inventory-scroll-view");
-            container?.Add(element);
+            AddWeapon(weapon);
         }
     }
 
@@ -493,6 +462,8 @@ public class InventoryScript : MonoBehaviour
         }
 
     }
+
+    #region Helper Methods
     private string GetWeaponTabName(ShopItemData inventory)
     {
         WeaponData data = inventory as WeaponData;
@@ -520,6 +491,12 @@ public class InventoryScript : MonoBehaviour
             _ => null,
         };
     }
+
+    private ShopItemData GetWeaponData(WeaponsInventory inventory)
+    {
+        return weaponDatabase.itemList.Find(m => m.dataName == inventory.weaponName);
+    }
+    #endregion
 
     private void CheckEquipped(WeaponsInventory data)
     {
@@ -556,6 +533,7 @@ public class InventoryScript : MonoBehaviour
 
     }
 
+    #region Event Callbacks
     private void OnUnequipButtonClick(ClickEvent evt)
     {
         if (evt.target is not VisualElement element)
@@ -597,10 +575,57 @@ public class InventoryScript : MonoBehaviour
         IsPropertyOpen = false;
     }
 
-    private ShopItemData GetWeaponData(WeaponsInventory inventory)
+    private void OnInventoryChange(WeaponsInventory data)
     {
-        return weaponDatabase.itemList.Find(m => m.dataName == inventory.weaponName);
+        AddWeapon(data);
     }
+    #endregion
+    private void AddWeapon(WeaponsInventory data)
+    {
+        var weaponData = GetWeaponData(data) as WeaponData;
+        if (data == null)
+        {
+            return;
+        }
+        string tabName = GetWeaponTabName(weaponData);
+        Tab selectedTab = weaponTabView.Q<Tab>(tabName);
+
+        if (selectedTab == null)
+        {
+            return;
+        }
+
+        VisualElement element = new();
+        element.AddToClassList("weapon-inventory-card");
+        Label title = new()
+        {
+            text = weaponData.title
+        };
+        title.AddToClassList("weapon-inventory__title");
+        Image image = new();
+        image.AddToClassList("weapon-inventory__image");
+        Button viewButton = new()
+        {
+            text = "View"
+        };
+        viewButton.AddToClassList("weapon-inventory__btn");
+        viewButton.AddToClassList("white-button-transition");
+
+        element.Add(title);
+        element.Add(image);
+        element.Add(viewButton);
+
+        viewButton.RegisterCallback<ClickEvent>(evt =>
+        {
+            IsPropertyOpen = true;
+            DisplayProperty(evt, weaponData);
+        }, CallbackOptions.Removable);
+
+        ScrollView container = selectedTab.Q<ScrollView>(className: "inventory-scroll-view");
+        container?.Add(element);
+    }
+
+    
 
     public void OpenInventory(MenuState state)
     {
