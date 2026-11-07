@@ -435,9 +435,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryScript
   gameManager: {fileID: 144607838}
-  document: {fileID: 141854107}
-  propertyTree: {fileID: 9197481963319205126, guid: 41b28310ef3c6204581ad03b69dc4caa, type: 3}
   weaponDatabase: {fileID: 11400000, guid: 36f46d1e5b3545a4e9d1af9d2f591683, type: 2}
+  shopScript: {fileID: 251360636}
+  propertyTree: {fileID: 9197481963319205126, guid: 41b28310ef3c6204581ad03b69dc4caa, type: 3}
+  document: {fileID: 141854107}
 --- !u!1931382934 &141854107
 PanelRenderer:
   m_ObjectHideFlags: 0
@@ -925,6 +926,17 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -1184682775895618229, guid: f1cd6800d51724d4291ee22764292e86, type: 3}
+--- !u!114 &251360636 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 869477414835593945, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+  m_PrefabInstance: {fileID: 5137560999664054974}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 960f6572df5d3b8448f406218dbdcfd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShopData
 --- !u!1 &256827603
 GameObject:
   m_ObjectHideFlags: 0
