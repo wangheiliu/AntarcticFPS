@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using Game.Weapons.WeaponSystem;
+using System;
 
 namespace Game.Weapons
 {
@@ -21,6 +22,8 @@ namespace Game.Weapons
 
         private WeaponData currentWeapon;
 
+        public event Action OnUIReady;
+
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void OnEnable()
         {
@@ -34,8 +37,10 @@ namespace Game.Weapons
             nameLabel = root.Q<Label>("weapon-name");
             ammoLabel = root.Q<Label>("ammo-count");
             
+
             weaponSystem.OnWeaponChanged += WeaponGuiUpdate;
             weaponSystem.OnWeaponReload += UpdateReloading;
+            OnUIReady?.Invoke();
         }
 
         // Update is called once per frame

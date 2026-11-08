@@ -274,7 +274,6 @@ public class SettingsScript : MonoBehaviour
 
     private void RegisterValueChanged<T>(T field, string dataName)
     {
-        Debug.Log($"Registering value changed for {dataName} of type {field.GetType()}");
         if (settingsToType.TryGetValue(field.GetType(), out Type value))
         {
             var method = GetType().GetMethod(nameof(RegisterCallbackGeneric), BindingFlags.Instance | BindingFlags.NonPublic);

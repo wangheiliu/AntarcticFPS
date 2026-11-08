@@ -161,7 +161,6 @@ public class PlayerMovement : MonoBehaviour
         isGrounded = IsGrounded();
         if (currentPlayerState == PlayerState.Falling && isGrounded)
         {
-            Debug.Log("Player has landed");
             IsLanded = true;
         }
         else

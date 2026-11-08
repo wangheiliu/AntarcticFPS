@@ -37,16 +37,12 @@ namespace Game.GUI.Menu
         private void OnGUIRefresh(PanelRenderer renderer, VisualElement _root, int currentVersion)
         {
             root = _root;
-            Debug.Log(root.name);
             container = root.Q<VisualElement>("container");
             btnGroup = root.Q<VisualElement>("btn-group");
             btns = btnGroup.Query<Button>().ToList();
-
-            Debug.Log(btns.Count);
             
             foreach (Button btn in btns)
             {
-                Debug.Log("Registered button");
                 btn.RegisterCallback<ClickEvent>(evt =>
                 {
                     if (buttonStates.TryGetValue(btn.name, out MenuState state))
@@ -102,7 +98,6 @@ namespace Game.GUI.Menu
         {
             if (state == MenuState.Paused)
             {
-                Debug.Log("Player paused the game. Opening pause menu.");
                 currentState = MenuState.Paused;
                 root.style.display = DisplayStyle.Flex;
 
