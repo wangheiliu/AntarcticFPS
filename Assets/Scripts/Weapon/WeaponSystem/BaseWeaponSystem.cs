@@ -46,6 +46,7 @@ namespace Game.Weapons.WeaponSystem
 
         [Header("Weapon Information")]
         [SerializeField] private HotbarScript hotbarScript;
+        [SerializeField] private WeaponGui weaponGui;
         [SerializeField] private GameObject weaponContainer;
 
         [Header("Bullet Information")]
@@ -77,13 +78,20 @@ namespace Game.Weapons.WeaponSystem
         {
 
         }
-        void Start()
+        void OnEnable()
         {
+            CurrentWeapon = currentWeapon;
             if (CurrentWeapon != null)
             {
                 OnWeaponChanged?.Invoke(CurrentWeapon.data);
             }
             Ammo = currentWeapon.data.clipSize;
+            weaponGui.OnUIReady += OnWeaponUIReady;
+        }
+
+        void OnDisable()
+        {
+            weaponGui.OnUIReady -= OnWeaponUIReady;
         }
 
         // Update is called once per frame
@@ -213,6 +221,11 @@ namespace Game.Weapons.WeaponSystem
         protected void OnHit(Projectile projectile, GameObject hit)
         {
             projectile.OnBulletHit -= OnHit;
+        }
+
+        private void OnWeaponUIReady()
+        {
+            OnWeaponChanged?.Invoke(CurrentWeapon.data);
         }
 
         protected virtual IEnumerator HandleReload()

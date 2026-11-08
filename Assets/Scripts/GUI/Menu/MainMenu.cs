@@ -112,7 +112,6 @@ public class GameManager : MonoBehaviour
         {
             if (!isMenuOpen && (playerState == MenuState.Playing))
             {
-                Debug.Log("Escape key pressed. Opening pause menu.");
                 OpenMenuItems(MenuState.Paused);
             }
         }
@@ -153,7 +152,6 @@ public class GameManager : MonoBehaviour
 
         foreach (PanelRenderer document in documentsToOpen)
         {
-            Debug.Log($"Enabling a document... {document.gameObject.name}");
             document.enabled = true;
         }
 
