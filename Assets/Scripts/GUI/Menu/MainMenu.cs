@@ -46,6 +46,7 @@ public class GameManager : MonoBehaviour
     private Button inventoryBtn;
     private VisualElement btnContainer;
     private Label title;
+    private int currVersion = -1;
     #endregion
 
 
@@ -79,8 +80,10 @@ public class GameManager : MonoBehaviour
         
     }
 
-    void OnUIReloaded(PanelRenderer renderer, VisualElement _root, int currentVer)
+    void OnUIReloaded(PanelRenderer renderer, VisualElement _root, int version)
     {
+        if (currVersion == version) return;
+        currVersion = version;
         root = _root;
 
         btnContainer = root.Q<VisualElement>(className: "container");
@@ -154,7 +157,7 @@ public class GameManager : MonoBehaviour
         {
             document.enabled = true;
         }
-
+        Debug.Log($"Enabling element: {playerState}");
         OnMenuStateChanged?.Invoke(playerState);
     }
 

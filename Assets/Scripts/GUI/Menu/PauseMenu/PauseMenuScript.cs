@@ -22,7 +22,8 @@ namespace Game.GUI.Menu
         #endregion
         private MenuState currentState;
         private bool isClosing = false;
-        
+        private bool isUIReady;
+
         private readonly Dictionary<string, MenuState> buttonStates = new Dictionary<string, MenuState>()
         {
             {"continue-btn", MenuState.Playing},
@@ -32,6 +33,7 @@ namespace Game.GUI.Menu
         void OnEnable()
         {
             pauseDocument.RegisterUIReloadCallback(OnGUIRefresh);
+            menuDocument.OnMenuStateChanged += OnPlayerPause;
         }
 
         private void OnGUIRefresh(PanelRenderer renderer, VisualElement _root, int currentVersion)
@@ -40,7 +42,7 @@ namespace Game.GUI.Menu
             container = root.Q<VisualElement>("container");
             btnGroup = root.Q<VisualElement>("btn-group");
             btns = btnGroup.Query<Button>().ToList();
-            
+
             foreach (Button btn in btns)
             {
                 btn.RegisterCallback<ClickEvent>(evt =>
@@ -55,23 +57,27 @@ namespace Game.GUI.Menu
                             menuDocument.OnPauseEventNotifier(false);
                         }
                         EnablePauseMenu(false);
-                    } else
+                    }
+                    else
                     {
                         Debug.LogWarning("You clicked the wrong type fool!");
                     }
                 }, CallbackOptions.Removable);
             }
 
-            menuDocument.OnMenuStateChanged += OnPlayerPause;
+
             container.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
-            bool isPaused = menuDocument.playerState == MenuState.Paused;
-            root.style.display = isPaused ? DisplayStyle.Flex : DisplayStyle.None;
-            EnablePauseMenu(isPaused);
+            EnablePauseMenu(false);
+
+            if (isUIReady)
+            {
+                OpenPauseUI();
+            }
         }
 
         void Start()
         {
-            
+
         }
 
         void OnDisable()
@@ -94,22 +100,33 @@ namespace Game.GUI.Menu
             }
         }
 
-        public void OnPlayerPause(MenuState state) 
+        public void OnPlayerPause(MenuState state)
         {
             if (state == MenuState.Paused)
             {
-                currentState = MenuState.Paused;
-                root.style.display = DisplayStyle.Flex;
-
-                root.schedule.Execute(() =>
+                if (root == null)
                 {
-                    if (container == null) return;
-                    EnablePauseMenu(true);
-                }).StartingIn(100);
-                
+                    isUIReady = true;
+                    return;
+                }
+                isUIReady = false;
+                currentState = MenuState.Paused;
+
+                OpenPauseUI();
 
                 menuDocument.OnPauseEventNotifier(true);
             }
+        }
+
+        private void OpenPauseUI()
+        {
+            root.style.display = DisplayStyle.Flex;
+
+            root.schedule.Execute(() =>
+            {
+                if (container == null) return;
+                EnablePauseMenu(true);
+            }).StartingIn(100);
         }
 
         private void EnablePauseMenu(bool toggle)

@@ -1,0 +1,68 @@
+:root {
+    --main-black-light: rgba(27, 27, 27, 0.5);
+}
+
+.prompt-container {
+    border-radius: 10px;
+    border-bottom-width: 5px;
+    border-color: white;
+    padding: 10px 20px;
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: center;
+    height: auto;
+    background-color: var(--main-black-light);
+}
+
+.prompt-progress {
+    background-color: rgba(25, 25, 25, 0.65);
+    position: absolute;
+    width: 100%;
+    align-self: center;
+    border-radius: 20px 20px 0 0;
+    height: 0%;
+
+    transition-property: height, width;
+    transition-duration: 0.25s;
+}
+
+.prompt-box {
+    background-color: white;
+    border-width: 2.5px;
+    border-color: white;
+    width: 50px;
+    max-width: 20%;
+    border-radius: 20px;
+    aspect-ratio: 1;
+    flex-direction: column-reverse;
+    overflow: hidden;
+    flex-grow: 1;
+    -unity-text-align: middle-center;
+    font-size: 85px;
+    -unity-font-style: bold;
+    margin: 10px;
+    margin-right: 20px;
+}
+
+.prompt-text-container {
+    flex-direction: column;
+    flex-grow: 1;
+    width: auto;
+}
+
+.prompt-title {
+    color: white;
+    font-size: 50px;
+    width: 100%;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.prompt-subtitle {
+    color: white;
+    font-size: 25px;
+    width: 100%;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}

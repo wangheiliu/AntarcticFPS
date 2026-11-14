@@ -1,0 +1,12 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/BaseUSSClasses/BasePromptStyles.uss?fileID=7433441132597879392&amp;guid=255fb3fba437bf24abdde75c53410956&amp;type=3#BasePromptStyles"/>
+    <ui:VisualElement name="container" class="prompt-container" style="flex-grow: 1;">
+        <ui:Label text="E" name="prompt" class="prompt-box" style="font-size: 85px; -unity-text-auto-size: best-fit 25px 100px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;">
+            <ui:VisualElement name="prompt-progress" class="prompt-progress" style="flex-grow: 1; filter: none; background-color: rgba(36, 36, 36, 0.784); width: 100%; backdrop-filter: none; height: 0%;"/>
+        </ui:Label>
+        <ui:VisualElement name="prompt-text-container" class="prompt-text-container" style="flex-grow: 1; height: auto; flex-shrink: 1;">
+            <ui:Label text="Proximity Prompt" name="prompt-title" class="prompt-title" style="-unity-text-auto-size: best-fit 10px 50px;"/>
+            <ui:Label text="subtitle here" name="prompt-subtitle" class="prompt-subtitle" style="-unity-text-auto-size: best-fit 10px 25px;"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

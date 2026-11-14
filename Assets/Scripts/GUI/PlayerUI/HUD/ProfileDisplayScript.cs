@@ -10,14 +10,17 @@ public class ProfileDisplayScript : MonoBehaviour
     private VisualElement root;
     private Label usernameLabel;
     private VisualElement textContainer;
+    private int currVersion = -1;
     void OnEnable()
     {
         document.RegisterUIReloadCallback(OnGUIRefresh);
         
     }
 
-    private void OnGUIRefresh(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    private void OnGUIRefresh(PanelRenderer renderer, VisualElement _root, int version)
     {
+        if (currVersion == version) return;
+        currVersion = version;
         root = _root;
         usernameLabel = root.Q<Label>("username-label");
         textContainer = root.Q<VisualElement>("text-container");

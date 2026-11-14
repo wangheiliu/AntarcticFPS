@@ -16,6 +16,7 @@ public class ShopFilter : MonoBehaviour
     private TabView shopTabView;
     private List<FilterAttributes> filterFields = new();
     private Foldout[] allFoldouts;
+    private int currVersion = -1;
 
     private readonly Dictionary<string, Func<ShopItemData, object>> selectors = new()
     {
@@ -29,8 +30,10 @@ public class ShopFilter : MonoBehaviour
         shopDocument.RegisterUIReloadCallback(OnUIRefresh);
     }
 
-    void OnUIRefresh(PanelRenderer renderer,VisualElement _root, int currentVersion)
+    void OnUIRefresh(PanelRenderer renderer,VisualElement _root, int version)
     {
+        if (currVersion == version) return;
+        currVersion = version;
         var root = _root;
         searchField = root.Q<TextField>("search-field");
         enumField = root.Q<EnumField>("type-enum");

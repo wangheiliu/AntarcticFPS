@@ -14,7 +14,7 @@ public class ShopMenuScript : MonoBehaviour
     [Header("Game Manager")]
     [SerializeField] private GameManager gameManager;
 
-
+    #region Shop State Variables
     private bool waitingShopTransition = false;
     private bool openShopWhenUIReady;
 
@@ -23,13 +23,17 @@ public class ShopMenuScript : MonoBehaviour
     public bool isInfoOpen = false;
     public bool isFiltersOpen = false;
     private bool isPromptOpen = false; 
+    #endregion
 
+    #region Traslation UI constants
     private static readonly Translate defaultTransitionValue = new(Length.Percent(0), 0, 0);
     private static readonly Translate shopClosedTransitionValue = new(Length.Percent(-120), 0, 0);
     private static readonly Translate infoClosedTransitionValue = new(Length.Percent(120), 0, 0);
     private static readonly Translate filtersClosedTransition = new(Length.Percent(-75), 0, 0);
     private static readonly Translate promptClosedTransition = new(0, Length.Percent(105), 0);
+    #endregion
 
+    #region UI Variables
     private VisualElement root;
     private TabView tabContainer;
     private VisualElement titleContainer;
@@ -43,6 +47,8 @@ public class ShopMenuScript : MonoBehaviour
     private Button purchaseButton;
     private Button cancelPurchase;
 
+    private int currVersion = -1;
+    #endregion
 
     void OnEnable()
     {
@@ -50,8 +56,11 @@ public class ShopMenuScript : MonoBehaviour
         gameManager.OnMenuStateChanged += OnShopOpen;
     }
 
-    void OnUIReloaded(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    void OnUIReloaded(PanelRenderer renderer, VisualElement _root, int version)
     {
+        if (currVersion == version) return;
+        currVersion = version;
+        
         root = _root;
         infoElement = root.Q<VisualElement>("info-container");
         filtersContainer = root.Q<VisualElement>("filter-container");
