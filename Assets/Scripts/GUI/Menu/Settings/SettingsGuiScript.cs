@@ -26,6 +26,7 @@ public class SettingsScript : MonoBehaviour
     private Button resetButton;
     private Button restoreDefaultsButton;
     private ScrollView[] settingsScrollView;
+    private int currVersion = -1;
     #endregion
     private List<ISettingAttributes> settingElements = new List<ISettingAttributes>();
     private Dictionary<string, object> settingElementsDictionary = new Dictionary<string, object>(); // load in settings first, then load in the data to the settings elements
@@ -38,6 +39,7 @@ public class SettingsScript : MonoBehaviour
     };
     #endregion
     private bool isOpen = false;
+    private bool isUIReady;
     private PlayerSettings settingData;
     private PlayerData playerData;
     private PlayerSettings lastSavedSettings;
@@ -45,10 +47,13 @@ public class SettingsScript : MonoBehaviour
     void OnEnable()
     {
         document.RegisterUIReloadCallback(OnUIReload);
+        gameManager.OnMenuStateChanged += OnSettingsOpen;
     }
 
-    void OnUIReload(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    void OnUIReload(PanelRenderer renderer, VisualElement _root, int version)
     {
+        if (currVersion == version) return;
+        currVersion = version;
         root = _root;
         settingsContainer = root.Q<VisualElement>("main-container");
         closeButton = settingsContainer.Q<Button>("close-button");
@@ -65,7 +70,10 @@ public class SettingsScript : MonoBehaviour
         restoreDefaultsButton.clicked += ResetToDefault;
         resetButton.clicked += ResetSettings;
 
-        gameManager.OnMenuStateChanged += OnSettingsOpen;
+        if (isUIReady)
+        {
+            OpenSettings();
+        }
     }
 
     async void Start()
@@ -141,6 +149,9 @@ public class SettingsScript : MonoBehaviour
 
     public void SettingsTransition()
     {
+        
+        Debug.Log($"Called Settings Transition. IsOpen is {isOpen}");
+
         if (isOpen)
         {
             Debug.Log("Closing settings");
@@ -150,10 +161,25 @@ public class SettingsScript : MonoBehaviour
         else
         {
             Debug.Log("Opening settings");
-            settingsContainer.style.display = DisplayStyle.Flex;
             isOpen = true;
             settingsContainer.style.translate = new Translate(0, Length.Percent(0), 0);
         }
+    }
+
+    private void OpenSettings()
+    {
+        if (root == null || settingsContainer == null)
+        {
+            isUIReady = true;
+            return;
+        }
+        isUIReady = false;
+        root.style.display = DisplayStyle.Flex;
+        settingsContainer.style.display = DisplayStyle.Flex;
+        root.schedule.Execute(() =>
+        {
+            SettingsTransition();
+        }).StartingIn(100);
     }
 
     #region Loading GUI
@@ -167,7 +193,7 @@ public class SettingsScript : MonoBehaviour
                 {
                     var elementSettingAttributes = element as ISettingAttributes;
                     settingElements.Add(elementSettingAttributes);
-                    
+
                     RegisterValueChanged(element, elementSettingAttributes.DataName);
                 }
             }
@@ -296,12 +322,8 @@ public class SettingsScript : MonoBehaviour
         if (state == MenuState.Settings)
         {
             document.enabled = true;
-            root.style.display = DisplayStyle.Flex;
-            settingsContainer.style.display = DisplayStyle.Flex;
-            root.schedule.Execute(() =>
-            {
-                SettingsTransition();
-            }).StartingIn(100);
+            Debug.Log("Receieved event. Opening settings");
+            OpenSettings();
         }
     }
 
@@ -309,22 +331,37 @@ public class SettingsScript : MonoBehaviour
 
     void OnDisable()
     {
-        closeButton.clicked -= SettingsTransition;
-        saveButton.clicked -= SaveSettings;
-        restoreDefaultsButton.clicked -= ResetToDefault;
+        if (closeButton != null)
+        {
+            closeButton.clicked -= SettingsTransition;
+        }
+
+        if (saveButton != null)
+        {
+            closeButton.clicked -= SettingsTransition;
+        }
+
+        if (closeButton != null)
+        {
+            restoreDefaultsButton.clicked -= ResetToDefault;
+        }
         gameManager.OnMenuStateChanged -= OnSettingsOpen;
         settingsContainer?.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
 
-        foreach (ScrollView scrollView in settingsScrollView)
+        if (settingsScrollView != null)
         {
-            foreach (var element in scrollView.contentContainer.Children())
+            foreach (ScrollView scrollView in settingsScrollView)
             {
-                if (element is ISettingAttributes && element.ClassListContains("setting-item"))
+                foreach (var element in scrollView.contentContainer.Children())
                 {
-                    element.UnregisterAllRemovableCallbacks();
+                    if (element is ISettingAttributes && element.ClassListContains("setting-item"))
+                    {
+                        element?.UnregisterAllRemovableCallbacks();
+                    }
                 }
             }
         }
+
 
         document.UnregisterUIReloadCallback(OnUIReload);
     }

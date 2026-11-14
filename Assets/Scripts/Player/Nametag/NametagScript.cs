@@ -34,6 +34,7 @@ public class NametagScript : MonoBehaviour
     private TextField usernameInputField;
     private Label errorMessageText;
     private bool isValidUsername;
+    private int currVersion;
     private readonly string pattern = @"^[a-zA-Z0-9]{3,15}$";
 
     void OnEnable()
@@ -43,8 +44,11 @@ public class NametagScript : MonoBehaviour
         UIInputDocument.RegisterUIReloadCallback(OnUIRefresh);
     }
 
-    void OnUIRefresh(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    void OnUIRefresh(PanelRenderer renderer, VisualElement _root, int version)
     {
+        if (currVersion == version) return;
+        currVersion = version;
+        
         nameInputRoot = _root;
         nameVisualRoot = _root;
 
@@ -163,10 +167,10 @@ public class NametagScript : MonoBehaviour
     void OnDisable()
     {
         GeneralPlayerDataManager.OnUsernameChanged -= SetUsernameDisplay;
-        submitButton.UnregisterCallback<ClickEvent>(OnSubmit);
-        usernameInputField.UnregisterValueChangedCallback(CheckUsername);
+        submitButton?.UnregisterCallback<ClickEvent>(OnSubmit);
+        usernameInputField?.UnregisterValueChangedCallback(CheckUsername);
 
-        nameUI.RegisterUIReloadCallback(OnUIRefresh);
-        UIInputDocument.RegisterUIReloadCallback(OnUIRefresh);
+        nameUI.UnregisterUIReloadCallback(OnUIRefresh);
+        UIInputDocument.UnregisterUIReloadCallback(OnUIRefresh);
     }
 }

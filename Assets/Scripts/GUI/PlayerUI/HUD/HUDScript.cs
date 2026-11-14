@@ -45,6 +45,7 @@ public class HUDScript : MonoBehaviour
     [NonSerialized] public Label cooldownLabel;
     private VisualElement healthProgressElement;
     private VisualElement staminaProgressElement;
+    private int currVersion = -1;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     void OnEnable()
@@ -52,8 +53,11 @@ public class HUDScript : MonoBehaviour
         uIDocument.RegisterUIReloadCallback(OnGUIReload);
     }
 
-    private void OnGUIReload(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    private void OnGUIReload(PanelRenderer renderer, VisualElement _root, int version)
     {
+        if (currVersion == version) return;
+        currVersion = version;
+
         root = _root;
         healthLabel = root.Q<Label>("health-label");
         staminaLabel = root.Q<Label>("stamina-label");
