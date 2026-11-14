@@ -54,6 +54,7 @@ public class ShopData : MonoBehaviour
     private Label moneyDisplay;
 
     private Dictionary<string, Foldout> foldouts = new();
+    private int currVersion = -1;
     public List<ShopLookupTable> lookUpTable = new();
     private event Action ViewButtonLambda;
     private event Action CheckPurchasedLambda;
@@ -69,8 +70,10 @@ public class ShopData : MonoBehaviour
         
     }
 
-    void OnUIReloaded(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    void OnUIReloaded(PanelRenderer renderer, VisualElement _root, int version)
     {
+        if (currVersion == version) return;
+        currVersion = version;
         root = _root;
         infoScrollContainer = root.Q<ScrollView>("info-scroller");
         purchaseButton = root.Q<Button>("prompt-purchase-button");

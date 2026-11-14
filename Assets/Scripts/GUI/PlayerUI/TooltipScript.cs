@@ -12,6 +12,7 @@ public class TooltipScript : MonoBehaviour
     private Label tooltipText;
     private VisualElement container;
     private IPanel panel;
+    private int currVersion = -1;
 
     void OnEnable()
     {
@@ -20,8 +21,10 @@ public class TooltipScript : MonoBehaviour
         Hide();
     }
 
-    private void OnGUIReload(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    private void OnGUIReload(PanelRenderer renderer, VisualElement _root, int version)
     {
+        if (currVersion == version) return;
+        currVersion = version;
         root = _root;
         tooltipText = root.Q<Label>(className: "tooltip-label");
         container = root.Q<VisualElement>(className: "tooltip-container");

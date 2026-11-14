@@ -23,6 +23,7 @@ public class InventoryScript : MonoBehaviour
     [SerializeField] private VisualTreeAsset propertyTree;
     [SerializeField] private PanelRenderer document;
 
+    #region UI Variables
     // Equip section
     private VisualElement root;
     private VisualElement equipSection;
@@ -43,6 +44,7 @@ public class InventoryScript : MonoBehaviour
     private Button closeBtn;
     private Button propertiesCloseBtn;
     private ShopItemData currentItem; // remember to get the tabview and the tab names
+    #endregion
 
     // Weapons Tab
     private TabView weaponTabView;
@@ -117,15 +119,19 @@ public class InventoryScript : MonoBehaviour
             }
         }
     }
+
+    private bool isUIReady;
     void OnEnable()
     {
         document.RegisterUIReloadCallback(OnUIReload);
         GeneralPlayerDataManager.OnWeaponEquipChanged += OnEquipWeapon;
         GeneralPlayerDataManager.OnWeaponInventoryChanged += PopulateInventorySlots;
+        gameManager.OnMenuStateChanged += OnOpenInventory;
     }
 
     void OnUIReload(PanelRenderer renderer, VisualElement _root, int currentVer)
     {
+        #region UI Init
         root = _root;
 
         equipSection = root.Q<VisualElement>("equip-section");
@@ -152,6 +158,8 @@ public class InventoryScript : MonoBehaviour
             { WeaponType.Tools, weaponsEquipElement.Q<VisualElement>("tertiary-slot") }
         };
 
+        #endregion
+
         equipButton.RegisterCallback<ClickEvent>(OnEquipButtonClick);
         propertiesCloseBtn.RegisterCallback<ClickEvent>(OnPropertyClose);
         closeBtn.RegisterCallback<ClickEvent>(evt =>
@@ -164,21 +172,28 @@ public class InventoryScript : MonoBehaviour
             Button unequipButton = children.Q<Button>("slot-close-button");
             unequipButton?.RegisterCallback<ClickEvent>(OnUnequipButtonClick);
         }
-        gameManager.OnMenuStateChanged += OpenInventory;
+        
 
         propertiesContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         equipSection.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         inventoryContentContainer.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
-
+        #region Weapon Data init
         OnEquipWeapon(GeneralPlayerDataManager.PrimaryWeapon, WeaponType.Primary);
         slotDictionary[WeaponType.Primary] = GeneralPlayerDataManager.PrimaryWeapon;
         OnEquipWeapon(GeneralPlayerDataManager.SecondaryWeapon, WeaponType.Secondary);
         slotDictionary[WeaponType.Secondary] = GeneralPlayerDataManager.SecondaryWeapon;
         OnEquipWeapon(GeneralPlayerDataManager.ToolWeapon, WeaponType.Tools);
         slotDictionary[WeaponType.Tools] = GeneralPlayerDataManager.ToolWeapon;
+        #endregion
+        
         PopulateInventorySlots();
 
         shopScript.OnItemPurchased += OnInventoryChange;
+
+        if (isUIReady)
+        {
+            OpenInventory();
+        }
     }
 
     void OnDisable()
@@ -190,7 +205,7 @@ public class InventoryScript : MonoBehaviour
         inventoryContainer?.UnregisterAllRemovableCallbacks();
         GeneralPlayerDataManager.OnWeaponEquipChanged -= OnEquipWeapon;
         GeneralPlayerDataManager.OnWeaponInventoryChanged -= PopulateInventorySlots;
-        gameManager.OnMenuStateChanged -= OpenInventory;
+        gameManager.OnMenuStateChanged -= OnOpenInventory;
 
         if (weaponsEquipElement == null) return;
 
@@ -627,13 +642,25 @@ public class InventoryScript : MonoBehaviour
 
     
 
-    public void OpenInventory(MenuState state)
+    private void OpenInventory()
+    {
+        if (root == null || equipSection == null || inventoryContainer == null)
+        {
+            isUIReady = true;
+            return;
+        }
+        isUIReady = false;
+        equipSection.style.display = DisplayStyle.Flex;
+        inventoryContentContainer.style.display = DisplayStyle.Flex;
+        IsInventoryOpen = true;
+        
+    }
+
+    private void OnOpenInventory(MenuState state)
     {
         if (state == MenuState.Inventory)
         {
-            equipSection.style.display = DisplayStyle.Flex;
-            inventoryContentContainer.style.display = DisplayStyle.Flex;
-            IsInventoryOpen = true;
+            OpenInventory();
         }
     }
 }

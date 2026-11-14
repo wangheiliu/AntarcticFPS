@@ -27,6 +27,7 @@ public class LevelsGUIScript : MonoBehaviour
 
     private bool canOpenMenu = false;
     private bool isClickingOnPlayBtn = false;
+    private bool isUIReady;
 
     private VisualElement root;
     private VisualElement levelSelectContainer;
@@ -64,6 +65,7 @@ public class LevelsGUIScript : MonoBehaviour
     void OnEnable()
     {
         document.RegisterUIReloadCallback(OnGUIReload);
+        mainMenuScript.OnMenuStateChanged += Open;
     }
 
     private void OnGUIReload(PanelRenderer renderer, VisualElement _root, int currentVersion)
@@ -93,13 +95,18 @@ public class LevelsGUIScript : MonoBehaviour
         propCloseBtn.RegisterCallback<ClickEvent>(OnCloseButtonClick);
         playButton.RegisterCallback<ClickEvent>(evt => SpawnPlayer(currentLevelDisplay.mapName), CallbackOptions.Removable);
         #endregion
-        mainMenuScript.OnMenuStateChanged += Open;
+        
         FillLevels();
         root.style.display = DisplayStyle.None;
         EnableElement(levelSelectContainer, false);
         levelSelectContainer.style.display = DisplayStyle.None;
         EnableElement(propContainer, false);
         propContainer.style.display = DisplayStyle.None;
+
+        if (isUIReady)
+        {
+            OpenLevelGUI();
+        }
     }
 
     void OnDisable()
@@ -247,6 +254,7 @@ public class LevelsGUIScript : MonoBehaviour
 
     private void EnableElement(VisualElement element, bool isOpen)
     {
+        Debug.Log("Enabling element");
         if (element == propContainer)
         {
             element.EnableInClassList("property-select--enabled", isOpen);
@@ -265,9 +273,21 @@ public class LevelsGUIScript : MonoBehaviour
         {
             return;
         }
+        
+        OpenLevelGUI();
+    }
+
+    private void OpenLevelGUI()
+    {
+        if (root == null || levelSelectContainer == null)
+        {
+            isUIReady = true;
+            return;
+        }
+        isUIReady = false;
         root.style.display = DisplayStyle.Flex;
         levelSelectContainer.style.display = DisplayStyle.Flex;
-
+        Debug.Log("Making root visible...");
         root.schedule.Execute(() =>
         {
             if (levelSelectContainer == null) return;

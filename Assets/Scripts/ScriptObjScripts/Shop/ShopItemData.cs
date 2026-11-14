@@ -29,6 +29,9 @@ namespace Game.ScriptableObjects.Shop
         [CreateProperty] public string description;
         [CreateProperty] public Image icon;
         public string dataName;
+
+        [Header("Proximity Prompt")]
+        public string promptSubtitle = "";
     }
 }
 

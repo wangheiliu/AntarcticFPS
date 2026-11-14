@@ -34,6 +34,7 @@ public class HotbarScript : MonoBehaviour
 
     private VisualElement root;
     private VisualElement container;
+    private int currVersion = -1;
 
     void Awake()
     {
@@ -49,8 +50,11 @@ public class HotbarScript : MonoBehaviour
         hotbarUIDocument.UnregisterUIReloadCallback(OnUIReload);
     }
 
-    void OnUIReload(PanelRenderer renderer, VisualElement _root, int currentVersion)
+    void OnUIReload(PanelRenderer renderer, VisualElement _root, int version)
     {
+        if (currVersion == version) return;
+        currVersion = version;
+        
         root = _root;
         container = root.Q<VisualElement>("inventory-container");
         root.style.display = DisplayStyle.Flex;
