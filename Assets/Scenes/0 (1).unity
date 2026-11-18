@@ -9678,7 +9678,7 @@ MonoBehaviour:
   playerCamera: {fileID: 1218873617}
   character: {fileID: 1418771229}
   key: 19
-  visibilityDistance: 30
+  visibilityDistance: 10
   maxHeldTime: 3
 --- !u!1931382934 &1750152189
 PanelRenderer:
@@ -11598,6 +11598,22 @@ PrefabInstance:
       propertyPath: levelList
       value: 
       objectReference: {fileID: 1336560014}
+    - target: {fileID: 2104828320150345789, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2410592326555754252, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2478572139782692124, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3510609401531900872, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3852551257452437950, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
       propertyPath: menuStateDictionary.Array.data[6].value.camera
       value: 
@@ -11640,6 +11656,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5474894314067739932, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6946091684769533845, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9061400031016554100, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using BasicUIControls;
 using Game.ScriptableObjects.Settings;
+using System.Threading.Tasks;
 
 
 public class SettingsScript : MonoBehaviour
@@ -66,8 +67,8 @@ public class SettingsScript : MonoBehaviour
 
         settingsContainer?.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
         closeButton.clicked += SettingsTransition;
-        saveButton.clicked += SaveSettings;
-        restoreDefaultsButton.clicked += ResetToDefault;
+        saveButton.RegisterCallback<ClickEvent>(OnSaveButtonClicked);
+        restoreDefaultsButton.RegisterCallback<ClickEvent>(OnResetButtonClicked);
         resetButton.clicked += ResetSettings;
 
         if (isUIReady)
@@ -76,13 +77,20 @@ public class SettingsScript : MonoBehaviour
         }
     }
 
-    async void Start()
+    async Awaitable Start()
     {
-        playerData = await CurrentPlayerData.LoadDataAsync();
+        try
+        {
+            playerData = await CurrentPlayerData.LoadDataAsync();
+        } catch (Exception e)
+        {
+            throw new Exception($"Player Data loading error. Error message: {e}");
+        }
+        
         if (playerData == null)
         {
             Debug.LogWarning("No save data found. Creating default settings data.");
-            SaveDefaultSettingsData();
+            await SaveDefaultSettingsData();
             playerData = CurrentPlayerData.Data;
             settingData = playerData.settings;
         }
@@ -96,7 +104,7 @@ public class SettingsScript : MonoBehaviour
     }
 
     // data display
-    private async void SaveDefaultSettingsData()
+    private async Awaitable SaveDefaultSettingsData()
     {
         settingData = new PlayerSettings()
         {
@@ -253,16 +261,16 @@ public class SettingsScript : MonoBehaviour
         settingElementsDictionary[dataName] = convertedValue;
     }
 
-    private async void SaveSettings()
+    private async Awaitable SaveSettings()
     {
         lastSavedSettings = CloneSettings(settingData);
         playerData.settings = settingData;
         await CurrentPlayerData.Save();
     }
 
-    private void ResetToDefault()
+    private async Awaitable ResetToDefault()
     {
-        SaveDefaultSettingsData();
+        await SaveDefaultSettingsData();
         playerData = CurrentPlayerData.Data;
         if (playerData != null)
         {
@@ -315,6 +323,16 @@ public class SettingsScript : MonoBehaviour
     {
         element.RegisterCallback<ChangeEvent<TValue>>(evt => OnValueChangedEvt(evt, dataName), CallbackOptions.Removable);
     }
+
+    private async void OnSaveButtonClicked(ClickEvent _)
+    {
+        await SaveSettings();
+    }
+
+    private async void OnResetButtonClicked(ClickEvent _)
+    {
+        await ResetToDefault();
+    }
     #endregion
 
     private void OnSettingsOpen(MenuState state)
@@ -341,12 +359,10 @@ public class SettingsScript : MonoBehaviour
             closeButton.clicked -= SettingsTransition;
         }
 
-        if (closeButton != null)
-        {
-            restoreDefaultsButton.clicked -= ResetToDefault;
-        }
         gameManager.OnMenuStateChanged -= OnSettingsOpen;
         settingsContainer?.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
+        saveButton?.UnregisterCallback<ClickEvent>(OnSaveButtonClicked);
+        restoreDefaultsButton?.UnregisterCallback<ClickEvent>(OnResetButtonClicked);
 
         if (settingsScrollView != null)
         {

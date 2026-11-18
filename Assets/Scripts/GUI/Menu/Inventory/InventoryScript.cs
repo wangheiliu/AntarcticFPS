@@ -377,7 +377,7 @@ public class InventoryScript : MonoBehaviour
 
 
 
-    private async void EquipWeapon(ShopItemData item, string slotName)
+    private async Awaitable EquipWeapon(ShopItemData item, string slotName)
     {
 
         if (slotName == "primary-slot")
@@ -400,7 +400,14 @@ public class InventoryScript : MonoBehaviour
         }
 
         CheckEquipped(GeneralPlayerDataManager.WeaponsOwned.Find(m => m.weaponName == item.dataName));
-        await CurrentPlayerData.Save();
+        try
+        {
+            await CurrentPlayerData.Save();
+        } catch (Exception e)
+        {
+            throw new Exception($"Error saving weapons. Error message: ${e}");
+        }
+        
     }
 
     private async void UnequipWeapon(string slotName)
@@ -576,12 +583,12 @@ public class InventoryScript : MonoBehaviour
         OnWeaponUnequip(item, element);
     }
 
-    private void OnEquipButtonClick(ClickEvent evt)
+    private async void OnEquipButtonClick(ClickEvent evt)
     {
         WeaponData data = currentItem as WeaponData;
         if (data != null)
         {
-            EquipWeapon(currentItem, GetWeaponSlotName(data.weaponType));
+            await EquipWeapon(currentItem, GetWeaponSlotName(data.weaponType));
         }
     }
 
