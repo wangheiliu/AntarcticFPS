@@ -15,7 +15,6 @@ public class ShopMenuScript : MonoBehaviour
     [SerializeField] private GameManager gameManager;
 
     #region Shop State Variables
-    private bool waitingShopTransition = false;
     private bool openShopWhenUIReady;
 
     // maybe use a ternrary operator for these?

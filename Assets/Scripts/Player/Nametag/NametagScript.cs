@@ -4,6 +4,8 @@ using System;
 using System.Text.RegularExpressions;
 using Unity.VisualScripting;
 using UnityEngine.Rendering;
+using Unity.Multiplayer.PlayMode;
+using Player.PlayerData;
 
 public class NametagScript : MonoBehaviour
 {
@@ -21,6 +23,7 @@ public class NametagScript : MonoBehaviour
                 return;
             }
             _username = value;
+            if (nameElement == null) return;
             nameElement.text = _username;
         }
     }
@@ -34,7 +37,8 @@ public class NametagScript : MonoBehaviour
     private TextField usernameInputField;
     private Label errorMessageText;
     private bool isValidUsername;
-    private int currVersion;
+    private bool isUIReady = false;
+    private int currVersion = -1;
     private readonly string pattern = @"^[a-zA-Z0-9]{3,15}$";
 
     void OnEnable()
@@ -46,13 +50,9 @@ public class NametagScript : MonoBehaviour
 
     void OnUIRefresh(PanelRenderer renderer, VisualElement _root, int version)
     {
-        if (currVersion == version) return;
-        currVersion = version;
-        
         nameInputRoot = _root;
         nameVisualRoot = _root;
 
-        nameInputRoot.style.display = DisplayStyle.None;
         nameElement = nameVisualRoot.Q<TextElement>("username-text");
         submitButton = nameInputRoot.Q<Button>("submit-button");
         usernameInputField = nameInputRoot.Q<TextField>("username-input");
@@ -74,17 +74,32 @@ public class NametagScript : MonoBehaviour
         {
             Debug.LogWarning("Player data not loaded in yet");
         }
+
+        if (isUIReady)
+        {
+            SetUsernameDisplay();
+        }
     }
 
-    void Start()
+    async void Start()
     {
-        if (CurrentPlayerData.Data != null)
+        PlayerData tmp = await CurrentPlayerData.LoadDataAsync();
+        if (tmp != null)
         {
-            if (CurrentPlayerData.Data.hasSetUserName)
+            if (string.IsNullOrWhiteSpace(tmp.username))
             {
+                Debug.LogWarning("User's username is empty");
+                UIInputDocument.enabled = true;
+                CurrentPlayerData.Data.hasSetUserName = false;
+                await CurrentPlayerData.Save();
+                return;
+            }
+            if (tmp.hasSetUserName)
+            {
+                Debug.Log("Player has set username");
                 if (nameInputRoot != null)
                 {
-                    nameInputRoot.style.display = DisplayStyle.None;
+                    UIInputDocument.enabled = false;
                 }
                 
                 if (nameElement != null)
@@ -92,7 +107,14 @@ public class NametagScript : MonoBehaviour
                     nameElement.text = CurrentPlayerData.Data.username;
                 }
                 
+            } else
+            {
+                Debug.LogWarning("Username not found. Prompting user");
+                UIInputDocument.enabled = true;
             }
+        } else
+        {
+            Debug.LogWarning("Data not found nor loaded in yet");
         }
     }
 
@@ -123,11 +145,8 @@ public class NametagScript : MonoBehaviour
             GeneralPlayerDataManager.Username = Username;
             CurrentPlayerData.Data.hasSetUserName = true;
             await CurrentPlayerData.Save();
+            UIInputDocument.enabled = false;
         }
-
-        nameInputRoot.style.display = DisplayStyle.None;
-
-
     }
 
     private void CheckUsername(ChangeEvent<string> evt)
@@ -151,6 +170,12 @@ public class NametagScript : MonoBehaviour
     #region UI Display
     private void SetUsernameDisplay()
     {
+        if (nameElement == null)
+        {
+            isUIReady = true;
+            return;
+        }
+        isUIReady = false;
         nameElement.text = GeneralPlayerDataManager.Username;
     }
 

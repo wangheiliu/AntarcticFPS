@@ -6,6 +6,9 @@ using UnityEngine.InputSystem.Controls;
 using UnityEngine.UIElements;
 using Game.Weapons;
 using Game.Weapons.WeaponSystem;
+using System;
+using Unity.VisualScripting;
+using Player.PlayerData;
 
 public class HotbarScript : MonoBehaviour
 {
@@ -28,6 +31,7 @@ public class HotbarScript : MonoBehaviour
     private bool isUIReady = false;
     private List<Weapon> weapons = new();
     private Dictionary<Weapon, VisualElement> hotbarSlotsList = new();
+    private Dictionary<VisualElement, Weapon> weaponToSlot = new();
     public List<GameObject> weaponModels = new();
     private readonly Key[] numKeys = {Key.Digit1, Key.Digit2, Key.Digit3, Key.Digit4, Key.Digit5, Key.Digit6, Key.Digit7, Key.Digit8, Key.Digit9, Key.Digit0};
 
@@ -58,6 +62,7 @@ public class HotbarScript : MonoBehaviour
         root = _root;
         container = root.Q<VisualElement>("inventory-container");
         root.style.display = DisplayStyle.Flex;
+        PickableWeapon.OnWeaponPickup += OnWeaponPickUp;
         FillHotbar();
         EquipTransition(weapons[0]);
     }
@@ -136,16 +141,7 @@ public class HotbarScript : MonoBehaviour
         backgroundElement.style.backgroundColor = new StyleColor(new Color32(27,27,27,255));
         backgroundElement.style.borderBottomWidth = 5;
 
-        if (weaponSystem.IsReloading)
-        {
-            if (weaponSystem.reloadCoroutine != null)
-            {
-                weaponSystem.StopCoroutine(weaponSystem.reloadCoroutine); // when stopping coroutines, it must be used in the same monobehavior instance
-            }
-            weaponSystem.IsReloading = false;
-        }
-
-        
+        weaponSystem.StopReloading();
         weaponSystem.CurrentWeapon = weapon;
 
         foreach (GameObject weaponModel in weaponModels)
@@ -169,15 +165,22 @@ public class HotbarScript : MonoBehaviour
         }
     }
 
-    public void AddItem(Weapon weapon)
+    private async Awaitable LoadWeaponFromInventory()
     {
-        weapons.Add(weapon);
-        FillHotbar();
+        try
+        {
+            var data = await CurrentPlayerData.LoadDataAsync();
+
+        } catch (Exception e)
+        {
+            Debug.LogError($"Error: failed to load weapons. Error Log: ${e}");
+        }
     }
 
-    public void RemoveItem(Weapon weapon)
+    
+
+    public void OnWeaponPickUp(WeaponData data)
     {
-        weapons.Remove(weapon);
-        FillHotbar();
+        
     }
 }

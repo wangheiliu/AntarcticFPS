@@ -7,7 +7,7 @@ using Unity.VisualScripting;
 using System.Threading.Tasks;
 public class PlayerDataManager : MonoBehaviour
 {
-    async void Awake()
+    async Awaitable Awake()
     {
         try
         {

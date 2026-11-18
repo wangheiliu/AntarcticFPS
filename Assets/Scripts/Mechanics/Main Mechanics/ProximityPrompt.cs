@@ -42,8 +42,6 @@ public class ProximityPrompt : MonoBehaviour
         }
     }
 
-    private bool canInteract = false;
-
     #region UI Variables
     private VisualElement root;
     private Label prompt;
@@ -73,7 +71,7 @@ public class ProximityPrompt : MonoBehaviour
     {
         if (currVersion == version) return;
         currVersion = version;
-        
+
         root = _root;
         prompt = root.Q<Label>(className: "prompt-box");
         promptProgress = prompt.Q<VisualElement>(className: "prompt-progress");
@@ -85,7 +83,7 @@ public class ProximityPrompt : MonoBehaviour
 
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -93,9 +91,21 @@ public class ProximityPrompt : MonoBehaviour
     {
         FacePromptBox();
 
+        if (root != null)
+        {
+            if (CalculateDistance())
+            {
+                root.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                root.style.display = DisplayStyle.None;
+            }
+        }
+
         if (Keyboard.current != null)
         {
-            if (Keyboard.current[key].isPressed)
+            if (Keyboard.current[key].isPressed && CalculateDistance())
             {
                 if (maxHeldTime == 0f)
                 {
@@ -112,22 +122,22 @@ public class ProximityPrompt : MonoBehaviour
                 // do logic here
             }
 
-            if (Keyboard.current[key].wasReleasedThisFrame)
+            if (Keyboard.current[key].wasReleasedThisFrame || !CalculateDistance())
             {
                 WasHeldFor = 0f;
             }
-            
+
         }
     }
 
     private void FacePromptBox()
     {
-        
+
         if (playerCamera == null) return;
         if (root == null) return;
-        
+
         transform.rotation = Quaternion.LookRotation(playerCamera.transform.forward);
-        root.style.display = DisplayStyle.Flex;  
+        root.style.display = DisplayStyle.Flex;
         /* if (Physics.Raycast(origin: transform.position, 
             direction: character.transform.position, 
             maxDistance: visibilityDistance, 
@@ -165,11 +175,11 @@ public class ProximityPrompt : MonoBehaviour
         float height = prompt.resolvedStyle.height;
 
         if (float.IsNaN(width) || float.IsNaN(height)) return;
-        
+
         float targetRadius = Mathf.Max(0, 20f);
         float progressWidth = Mathf.Max(0f, width * progress);
         float maxFilledHeight = Mathf.Max(0f, height);
-        
+
 
         float maxSafeRadius = Mathf.Min(progressWidth, maxFilledHeight) * 0.75f;
         float safeRadius = Mathf.Min(targetRadius, maxSafeRadius);
@@ -181,5 +191,20 @@ public class ProximityPrompt : MonoBehaviour
         promptProgress.style.borderTopRightRadius = safeRadius;
         promptProgress.style.borderBottomLeftRadius = safeRadius;
         promptProgress.style.borderBottomRightRadius = safeRadius;
+    }
+
+    private bool CalculateDistance()
+    {
+        Vector3 distance = character.transform.position - transform.position;
+        float magnitude = distance.sqrMagnitude;
+
+        if (magnitude < (visibilityDistance * visibilityDistance))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }
