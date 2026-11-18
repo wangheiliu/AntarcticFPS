@@ -237,7 +237,7 @@ public class ShopData : MonoBehaviour
         CheckItemPurchased(item);
     }
 
-    private async void HandlePurchase(ShopItemData item)
+    private async Awaitable HandlePurchase(ShopItemData item)
     {
         if (CurrentPlayerData.Data != null)
         {
@@ -268,7 +268,14 @@ public class ShopData : MonoBehaviour
 
             CurrentPlayerData.Data = data;
 
-            await CurrentPlayerData.Save();
+            try
+            {
+                await CurrentPlayerData.Save();
+            } catch (Exception e)
+            {
+                throw new Exception($"Error purchasing item. Error message: ${e}");
+            }
+            
             OnItemPurchased?.Invoke(newWeapon);
             shopMenuScript.HandlePrompt(false);
             
@@ -300,13 +307,13 @@ public class ShopData : MonoBehaviour
         return false;
     }
 
-    private void OnPurchaseButtonClicked(ClickEvent evt)
+    private async void OnPurchaseButtonClicked(ClickEvent evt)
     {
         // use this data to check if the name is on the player's data, if so, then return it
         
         if (currentItem != null)
         {
-            HandlePurchase(currentItem);
+            await HandlePurchase(currentItem);
         }
     }
 

@@ -18,6 +18,12 @@ namespace Game.Weapons
     {
         public WeaponData data;
         public int ammo;
+
+        public Weapon(WeaponData data, int ammo)
+        {
+            this.data = data;
+            this.ammo = ammo;
+        }
     }
 }
 
@@ -62,9 +68,9 @@ namespace Game.Weapons.WeaponSystem
         private bool isReloading;
         public bool IsReloading { get => isReloading; set => isReloading = value; }
 
-        [NonSerialized] public Coroutine reloadCoroutine;
-        [NonSerialized] public Coroutine fireWeaponCoroutine;
-        [NonSerialized] public Coroutine swingKnifeCoroutine;
+        private Coroutine reloadCoroutine;
+        private Coroutine fireWeaponCoroutine;
+        private Coroutine swingKnifeCoroutine;
         public int Ammo
         {
             get => currentWeapon.ammo;
@@ -111,11 +117,12 @@ namespace Game.Weapons.WeaponSystem
                 if (currentWeapon.data.type != ShopItemCatagory.Knives)
                 {
                     fireWeaponCoroutine = StartCoroutine(HandleFire(CurrentWeapon.data.fireRate / 60f));
-                } else
+                }
+                else
                 {
                     swingKnifeCoroutine = StartCoroutine(SwingKnife(CurrentWeapon.data.fireRate / 60f));
                 }
-                
+
             }
 
             if (Keyboard.current.rKey.wasPressedThisFrame) // reload
@@ -243,16 +250,16 @@ namespace Game.Weapons.WeaponSystem
             return hit.transform.root == playerCharacter.transform;
         }
 
-        private GameObject FindGameObjectByTag(GameObject parent, string tag)
+        public void StopReloading()
         {
-            foreach (Transform child in parent.transform)
+            if (IsReloading)
             {
-                if (child.CompareTag(tag))
+                if (reloadCoroutine != null)
                 {
-                    return child.gameObject;
+                    StopCoroutine(reloadCoroutine); // when stopping coroutines, it must be used in the same monobehavior instance
                 }
+                IsReloading = false;
             }
-            return null;
         }
     }
 }
