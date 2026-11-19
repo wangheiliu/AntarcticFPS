@@ -29,7 +29,7 @@ public class SettingsScript : MonoBehaviour
     private ScrollView[] settingsScrollView;
     private int currVersion = -1;
     #endregion
-    private List<ISettingAttributes> settingElements = new List<ISettingAttributes>();
+    private List<ISettingAttributes> basicSettingsObjects = new();
     private Dictionary<string, object> settingElementsDictionary = new Dictionary<string, object>(); // load in settings first, then load in the data to the settings elements
     #region Settings to Type Mapping
     private Dictionary<Type, Type> settingsToType = new()
@@ -65,11 +65,14 @@ public class SettingsScript : MonoBehaviour
 
         LoadSettingsElement();
 
-        settingsContainer?.RegisterCallback<TransitionEndEvent>(OnTransitionEnd);
+        settingsContainer?.RegisterCallback<TransitionEndEvent>(async (evt) =>
+        {
+            await OnTransitionEnd(evt);
+        }, CallbackOptions.Removable);
         closeButton.clicked += SettingsTransition;
         saveButton.RegisterCallback<ClickEvent>(OnSaveButtonClicked);
-        restoreDefaultsButton.RegisterCallback<ClickEvent>(OnResetButtonClicked);
-        resetButton.clicked += ResetSettings;
+        restoreDefaultsButton.RegisterCallback<ClickEvent>(OnResetDefaultButtonClicked);
+        resetButton.RegisterCallback<ClickEvent>(OnResetButtonClicked);
 
         if (isUIReady)
         {
@@ -82,11 +85,12 @@ public class SettingsScript : MonoBehaviour
         try
         {
             playerData = await CurrentPlayerData.LoadDataAsync();
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             throw new Exception($"Player Data loading error. Error message: {e}");
         }
-        
+
         if (playerData == null)
         {
             Debug.LogWarning("No save data found. Creating default settings data.");
@@ -117,7 +121,16 @@ public class SettingsScript : MonoBehaviour
 
         playerData.settings = settingData;
         lastSavedSettings = CloneSettings(settingData);
-        await SaveData.Save(playerData);
+
+        try
+        {
+            await SaveData.Save(playerData);
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Error saving settings. Error message: ${e}");
+        }
+
     }
 
     private PlayerSettings CloneSettings(PlayerSettings source)
@@ -138,13 +151,13 @@ public class SettingsScript : MonoBehaviour
 
 
     // ui display
-    void OnTransitionEnd(TransitionEndEvent evt)
+    async Awaitable OnTransitionEnd(TransitionEndEvent evt)
     {
         if (evt.target == settingsContainer)
         {
             if (isOpen == false)
             {
-                ResetSettings();
+                await ResetSettings();
                 settingsContainer.style.display = DisplayStyle.None;
                 gameManager.OnEventNotifierChanged(gameManager.IsPaused ? MenuState.Paused : MenuState.MainMenu);
             }
@@ -157,9 +170,6 @@ public class SettingsScript : MonoBehaviour
 
     public void SettingsTransition()
     {
-        
-        Debug.Log($"Called Settings Transition. IsOpen is {isOpen}");
-
         if (isOpen)
         {
             Debug.Log("Closing settings");
@@ -197,12 +207,15 @@ public class SettingsScript : MonoBehaviour
         {
             foreach (var element in scrollView.contentContainer.Children())
             {
-                if (element is ISettingAttributes && element.ClassListContains("setting-item"))
+                if (element.dataSource is BasicSettingsObject data)
                 {
-                    var elementSettingAttributes = element as ISettingAttributes;
-                    settingElements.Add(elementSettingAttributes);
+                    Debug.Log(data.DataName);
+                    RegisterValueChanged(element, data.DataName);
 
-                    RegisterValueChanged(element, elementSettingAttributes.DataName);
+                    if (element is ISettingAttributes settingAttributes)
+                    {
+                        basicSettingsObjects.Add(settingAttributes);
+                    }
                 }
             }
         }
@@ -213,7 +226,7 @@ public class SettingsScript : MonoBehaviour
         FieldInfo[] fields = typeof(PlayerSettings).GetFields(BindingFlags.Public | BindingFlags.Instance);
         foreach (var field in fields)
         {
-            var settingElement = settingElements.Find(e => e.DataName.ToLower() == field.Name.ToLower());
+            var settingElement = basicSettingsObjects.Find(e => e.DataName.ToLower() == field.Name.ToLower());
             string fieldName = field.Name;
             object fieldValue = field.GetValue(settingData);
             RangeAttribute rangeAttribute = field.GetCustomAttribute<RangeAttribute>();
@@ -253,7 +266,7 @@ public class SettingsScript : MonoBehaviour
         FieldInfo field = typeof(PlayerSettings).GetField(dataName, BindingFlags.Public | BindingFlags.Instance);
         if (field == null)
         {
-            return;
+            return; // this is the problem affecting this
         }
 
         object convertedValue = Convert.ChangeType(newValue, field.FieldType);
@@ -265,7 +278,17 @@ public class SettingsScript : MonoBehaviour
     {
         lastSavedSettings = CloneSettings(settingData);
         playerData.settings = settingData;
-        await CurrentPlayerData.Save();
+        try
+        {
+            CurrentPlayerData.Data = playerData;
+            await CurrentPlayerData.Save();
+            Debug.Log("Saved Settings");
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Error: failed to save settings. Error Message: {e}");
+        }
+
     }
 
     private async Awaitable ResetToDefault()
@@ -280,7 +303,7 @@ public class SettingsScript : MonoBehaviour
 
     }
 
-    private void ResetSettings()
+    private async Awaitable ResetSettings()
     {
         if (lastSavedSettings != null)
         {
@@ -289,7 +312,7 @@ public class SettingsScript : MonoBehaviour
             return;
         }
 
-        playerData = CurrentPlayerData.Data;
+        playerData = await CurrentPlayerData.LoadDataAsync();
         if (playerData != null)
         {
             settingData = playerData.settings;
@@ -326,12 +349,39 @@ public class SettingsScript : MonoBehaviour
 
     private async void OnSaveButtonClicked(ClickEvent _)
     {
-        await SaveSettings();
+        try
+        {
+            await SaveSettings();
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Error Saving. Error Message: {e}");
+        }
+    }
+
+    private async void OnResetDefaultButtonClicked(ClickEvent _)
+    {
+        try
+        {
+            await ResetToDefault();
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Error resetting settings back to default. Error Message: {e}");
+        }
     }
 
     private async void OnResetButtonClicked(ClickEvent _)
     {
-        await ResetToDefault();
+        try
+        {
+            await ResetSettings();
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Error resetting settings. Error Message: {e}");
+        }
+
     }
     #endregion
 
@@ -340,7 +390,6 @@ public class SettingsScript : MonoBehaviour
         if (state == MenuState.Settings)
         {
             document.enabled = true;
-            Debug.Log("Receieved event. Opening settings");
             OpenSettings();
         }
     }
@@ -360,9 +409,10 @@ public class SettingsScript : MonoBehaviour
         }
 
         gameManager.OnMenuStateChanged -= OnSettingsOpen;
-        settingsContainer?.UnregisterCallback<TransitionEndEvent>(OnTransitionEnd);
+        settingsContainer?.UnregisterAllRemovableCallbacks();
         saveButton?.UnregisterCallback<ClickEvent>(OnSaveButtonClicked);
-        restoreDefaultsButton?.UnregisterCallback<ClickEvent>(OnResetButtonClicked);
+        restoreDefaultsButton?.UnregisterCallback<ClickEvent>(OnResetDefaultButtonClicked);
+        resetButton.UnregisterCallback<ClickEvent>(OnResetButtonClicked);
 
         if (settingsScrollView != null)
         {
@@ -370,7 +420,7 @@ public class SettingsScript : MonoBehaviour
             {
                 foreach (var element in scrollView.contentContainer.Children())
                 {
-                    if (element is ISettingAttributes && element.ClassListContains("setting-item"))
+                    if (element.dataSource is BasicSettingsObject _ && element.ClassListContains("setting-item"))
                     {
                         element?.UnregisterAllRemovableCallbacks();
                     }

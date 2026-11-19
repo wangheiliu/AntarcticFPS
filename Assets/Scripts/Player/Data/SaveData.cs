@@ -48,7 +48,7 @@ public static class SaveData
         }
         catch (IOException ex)
         {
-            Debug.LogError($"Failed to save data: {ex.Message}");
+            throw new IOException($"Failed to save data: {ex.Message}");
         }
         finally
         {
