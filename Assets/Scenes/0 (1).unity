@@ -11594,6 +11594,10 @@ PrefabInstance:
       propertyPath: projectileDatas.Array.data[0].projectilePrefab
       value: 
       objectReference: {fileID: 1314370517}
+    - target: {fileID: 1234493824884331139, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
+      propertyPath: weaponDatabase
+      value: 
+      objectReference: {fileID: 11400000, guid: 36f46d1e5b3545a4e9d1af9d2f591683, type: 2}
     - target: {fileID: 1973953251172670946, guid: 5ff94699e5e1bd0438784062b4548600, type: 3}
       propertyPath: levelList
       value: 

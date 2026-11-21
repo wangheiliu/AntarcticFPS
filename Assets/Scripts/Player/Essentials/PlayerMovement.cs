@@ -478,7 +478,6 @@ public class PlayerMovement : MonoBehaviour
         {
             CurrentPlayerState = PlayerState.Jumping;
             OnPlayerJumped?.Invoke();
-            Debug.Log("Player is jumping");
         } else if (!isGrounded)
         {
             CurrentPlayerState = PlayerState.Falling;
