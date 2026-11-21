@@ -11,6 +11,7 @@ using Unity.VisualScripting;
 using Player.PlayerData;
 using Game.ScriptableObjects.Shop;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 public class HotbarScript : MonoBehaviour
 {
@@ -95,6 +96,7 @@ public class HotbarScript : MonoBehaviour
             {
                 if (type == WeaponType.None) continue;
                 await LoadWeaponFromInventory(type);
+                
             }
         }
         catch (Exception e)
@@ -130,6 +132,7 @@ public class HotbarScript : MonoBehaviour
 
     public void FillHotbar()
     {
+        if (root == null) return;
         container.Clear();
         hotbarSlotsList.Clear();
         weaponTypeToSlot.Clear();
@@ -145,11 +148,16 @@ public class HotbarScript : MonoBehaviour
                 continue;
             }
             LoadSlotNames(item, weapons[i].data);
+            WeaponType type = (WeaponType)(i + 1);
+            if (weaponTypeToSlot.TryGetValue(type, out var tuple))
+            {
+                tuple.element = item;
+            }
 
             hotbarSlotsList.TryAdd(weapons[i], item);
-            WeaponType type = (WeaponType)(i + 1);
+            
             Debug.Log(type);
-            weaponTypeToSlot.TryAdd(type, (weapons[i], item));
+            weaponTypeToSlot.TryAdd(type, (weapons[i], item)); // try to fix the empty dictionary issue
             container.Add(item);
         }
     }
@@ -158,6 +166,7 @@ public class HotbarScript : MonoBehaviour
     {
         foreach (var (_, slot) in hotbarSlotsList)
         {
+            if (slot == null) continue;
             VisualElement background = slot.Q<VisualElement>("background");
             background.style.backgroundColor = new StyleColor(new Color32(27, 27, 27, 174));
             background.style.borderBottomWidth = 0;
@@ -174,6 +183,8 @@ public class HotbarScript : MonoBehaviour
             Debug.LogWarning($"Can't get element in hotbar. Weapon name trying to get is {weapon.data.Title}");
             return;
         }
+
+        if (chosenElement == null) return;
 
         VisualElement backgroundElement = chosenElement.Q<VisualElement>("background");
         backgroundElement.style.backgroundColor = new StyleColor(new Color32(27, 27, 27, 255));
@@ -221,9 +232,16 @@ public class HotbarScript : MonoBehaviour
             tuple.weapon = weapon;
             Debug.Log("Equipping weapon: " + tuple.weapon.data.Title);
             weapons = new List<Weapon> { primaryWeapon, secondaryWeapon, tools };
-            FillHotbar();
-            EquipTransition(weapon);
-        } else
+            
+            if (tuple.element != null)
+            {
+                LoadSlotNames(tuple.element, tuple.weapon.data);
+                hotbarSlotsList[weapon] = tuple.element;
+            }
+
+            EquipTransition(tuple.weapon);
+        }
+        else
         {
             Debug.LogWarning($"Can't extract value for {weapon.data.Title}");
         }
@@ -268,31 +286,45 @@ public class HotbarScript : MonoBehaviour
         try
         {
             var data = await CurrentPlayerData.LoadDataAsync();
-            Debug.Log($"Trying to find {type}...");
-            ShopItemData shopItemData = weaponDatabase.itemList.Find((m) =>
+            WeaponData weaponData = FindWeaponItem(data, type);
+
+            if (weaponData == null)
             {
-                return type switch
-                {
-                    WeaponType.Primary => m.dataName == data.primaryWeaponEquipped.weaponName,
-                    WeaponType.Secondary => m.dataName == data.secondaryWeaponEquipped.weaponName,
-                    WeaponType.Tools => m.dataName == data.toolsEquipped.weaponName,
-                    _ => false,
-                };
-            });
-            WeaponData weaponData = (WeaponData)shopItemData;
-            
-            if (weaponData == null) {
                 Debug.LogWarning("Weapon Data not found");
                 return;
             }
             Weapon weapon = new(weaponData, weaponData.clipSize);
             Debug.Log($"Loaded weapon: {weaponData.Title}");
+
+            weaponTypeToSlot.TryAdd(type, (weapon, null));
+            hotbarSlotsList.TryAdd(weapon, null);
+            if (weaponTypeToSlot.TryGetValue(type, out var tuple))
+            {
+                tuple.weapon = weapon;
+            }
+
             EquipWeapon(weapon);
         }
         catch (Exception e)
         {
-            Debug.LogError($"Error: failed to load weapons. Error Log: ${e}");
+            Debug.LogError($"Error: failed to load weapons. Error Log: {e}");
         }
+    }
+
+    private WeaponData FindWeaponItem(PlayerData data, WeaponType type)
+    {
+        ShopItemData shopItemData = weaponDatabase.itemList.Find((m) =>
+        {
+            return type switch
+            {
+                WeaponType.Primary => m.dataName == data.primaryWeaponEquipped.weaponName,
+                WeaponType.Secondary => m.dataName == data.secondaryWeaponEquipped.weaponName,
+                WeaponType.Tools => m.dataName == data.toolsEquipped.weaponName,
+                _ => false,
+            };
+        });
+        WeaponData weaponData = (WeaponData)shopItemData;
+        return weaponData;
     }
 
     private async void OnInventoryChanged(WeaponData data)
