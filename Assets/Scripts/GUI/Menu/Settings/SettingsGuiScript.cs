@@ -412,7 +412,7 @@ public class SettingsScript : MonoBehaviour
         settingsContainer?.UnregisterAllRemovableCallbacks();
         saveButton?.UnregisterCallback<ClickEvent>(OnSaveButtonClicked);
         restoreDefaultsButton?.UnregisterCallback<ClickEvent>(OnResetDefaultButtonClicked);
-        resetButton.UnregisterCallback<ClickEvent>(OnResetButtonClicked);
+        resetButton?.UnregisterCallback<ClickEvent>(OnResetButtonClicked);
 
         if (settingsScrollView != null)
         {

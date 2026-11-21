@@ -254,7 +254,6 @@ public class LevelsGUIScript : MonoBehaviour
 
     private void EnableElement(VisualElement element, bool isOpen)
     {
-        Debug.Log("Enabling element");
         if (element == propContainer)
         {
             element.EnableInClassList("property-select--enabled", isOpen);

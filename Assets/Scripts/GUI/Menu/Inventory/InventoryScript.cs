@@ -121,6 +121,7 @@ public class InventoryScript : MonoBehaviour
     }
 
     private bool isUIReady;
+    public static event Action<WeaponData> OnInventoryItemChanged;
     void OnEnable()
     {
         document.RegisterUIReloadCallback(OnUIReload);
@@ -223,7 +224,7 @@ public class InventoryScript : MonoBehaviour
         // document.rootVisualElement.style.display = DisplayStyle.None;
         // propertiesContainer.style.display = DisplayStyle.None;
 
-
+        
     }
 
     void Update()
@@ -403,6 +404,7 @@ public class InventoryScript : MonoBehaviour
         try
         {
             await CurrentPlayerData.Save();
+            OnInventoryItemChanged?.Invoke(item as WeaponData);
         } catch (Exception e)
         {
             throw new Exception($"Error saving weapons. Error message: ${e}");

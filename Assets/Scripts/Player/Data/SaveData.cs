@@ -175,8 +175,19 @@ public static class CurrentPlayerData
     public static PlayerData Data {get; set;}
     public static async Awaitable<PlayerData> LoadDataAsync()
     {
-        Data = await SaveData.Load() ?? new PlayerData();
-        return Data;
+        try
+        {
+            Data = await SaveData.Load();
+            if (Data == null)
+            {
+                Debug.LogWarning("Player data is null");
+            }
+            return Data;
+        } catch(Exception e)
+        {
+            throw new Exception($"Player data loading error. Error Message: {e}");
+        }
+        
     }
 
     public static PlayerData GetPlayerData()
