@@ -87,7 +87,6 @@ public static class SaveData
         data = await TryLoad(SavePath);
         if (data != null)
         {
-            Debug.Log("Loaded normal data");
             return data;
         }
 

@@ -51,6 +51,7 @@ public class HotbarScript : MonoBehaviour
     void OnEnable()
     {
         hotbarUIDocument.RegisterUIReloadCallback(OnUIReload);
+        InventoryScript.OnInventoryItemChanged += OnInventoryChanged;
     }
 
     void OnDisable()
@@ -69,7 +70,7 @@ public class HotbarScript : MonoBehaviour
         root.style.display = DisplayStyle.Flex;
         PickableWeapon.OnWeaponPickup += OnWeaponPickUp;
 
-        InventoryScript.OnInventoryItemChanged += OnInventoryChanged;
+        
         FillHotbar();
         EquipTransition(weapons[0]);
     }
@@ -238,7 +239,7 @@ public class HotbarScript : MonoBehaviour
                 LoadSlotNames(tuple.element, tuple.weapon.data);
                 hotbarSlotsList[weapon] = tuple.element;
             }
-
+            EquipWeaponModel(tuple.weapon.data.modelName);
             EquipTransition(tuple.weapon);
         }
         else
