@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(ProximityPrompt))]
 public abstract class BasePickableItems : MonoBehaviour, IProximityPromptTriggerable
 {
     [SerializeField] protected ProximityPrompt prompt;

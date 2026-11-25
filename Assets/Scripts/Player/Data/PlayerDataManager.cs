@@ -5,19 +5,60 @@ using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using System.Threading.Tasks;
+using Game.ScriptableObjects.Shop;
+using System.Linq;
+using Unity.Mathematics;
 public class PlayerDataManager : MonoBehaviour
 {
+    private PlayerData data;
+    [SerializeField] private ShopDatabase defaultDatabase;
+    [SerializeField] private ShopDatabase shopDatabase;
     async Awaitable Awake()
     {
         try
         {
+            Debug.Log("Starting to load data");
             CurrentPlayerData.Data = await CurrentPlayerData.LoadDataAsync();
             CurrentPlayerData.Data = await SaveData.UpdateData(CurrentPlayerData.Data);
+            data = CurrentPlayerData.Data;
         } catch (Exception ex)
         {
             Debug.LogError($"Failed to initialize player data: {ex.Message}");
         }
-        
+    }
+
+    private void SaveDefaultWeapons(WeaponType type)
+    {
+        if (defaultDatabase == null) return;
+        var data = defaultDatabase.itemList.Find(m =>
+        {
+            if (m is WeaponData)
+            {
+                return (m as WeaponData).weaponType == type;
+            } else
+            {
+                return false;
+            }
+        });
+        if (data == null) return;
+
+        var weaponData = data as WeaponData;
+        if (weaponData == null) return;
+
+        switch (type)
+        {
+            case WeaponType.Primary:
+                CurrentPlayerData.Data.primaryWeaponEquipped = new(weaponData.dataName, weaponData.weaponType, new());
+                break;
+            case WeaponType.Secondary:
+                CurrentPlayerData.Data.secondaryWeaponEquipped = new(weaponData.dataName, weaponData.weaponType, new());
+                break;
+            case WeaponType.Tools:
+                CurrentPlayerData.Data.toolsEquipped = new(weaponData.dataName, weaponData.weaponType, new());
+                break;
+            default:
+                break;
+        }
     }
 }
 public static class GeneralPlayerDataManager

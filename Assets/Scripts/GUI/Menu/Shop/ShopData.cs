@@ -257,12 +257,9 @@ public class ShopData : MonoBehaviour
             }
             ProgressionDataManager.Money -= item.cost;
 
-            WeaponsInventory newWeapon = new()
-            {
-                weaponName = item.dataName,
-                weaponLevel = 1,
-                attachments = new List<string>()
-            };
+            WeaponData weaponData = item as WeaponData;
+
+            WeaponsInventory newWeapon = new(item.dataName, weaponData.weaponType, new()); // maybe add a generic class where you can save things?
             // work with other data models
             data.weaponsOwned.Add(newWeapon);
 
