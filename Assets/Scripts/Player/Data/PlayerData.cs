@@ -61,6 +61,14 @@ namespace Player.PlayerData
         public string weaponType = "";
         [FormerlySerializedAs("level")] public int weaponLevel = 1;
         public List<string> attachments = new List<string>();
+
+        public WeaponsInventory(string weaponName, WeaponType weaponType, List<string> attachments, int level = 1)
+        {
+            this.weaponName = weaponName;
+            this.weaponType = Enum.GetName(typeof(WeaponType), weaponType);
+            this.attachments = attachments;
+            weaponLevel = level;
+        }
     }
 
     

@@ -1,5 +1,6 @@
 using System;
 using Game.ScriptableObjects.Shop;
+using Unity.Properties;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -23,6 +24,11 @@ public class ProximityPrompt : MonoBehaviour
     [SerializeField] private IProximityPromptTriggerable triggerableScript;
 
     [Header("Prompt Settings")]
+    [field: SerializeField, CreateProperty] private string Title
+    {
+        get; set;
+    } = "Interact";
+    [SerializeField] private string subtitle;
     [SerializeField] private Key key = Key.E;
     [SerializeField] private float visibilityDistance = 10f;
     [SerializeField] private float maxHeldTime = 3f;
@@ -56,15 +62,18 @@ public class ProximityPrompt : MonoBehaviour
     public event Action OnPromptTrigger;
     public event Action OnPromptRelease;
     public event Action OnPromptHold;
+    public event Action<bool> OnPromptEnable;
 
     void OnEnable()
     {
         document.RegisterUIReloadCallback(OnUIRefresh);
+        OnPromptEnable += PromptVisibility;
     }
 
     void OnDisable()
     {
         document.UnregisterUIReloadCallback(OnUIRefresh);
+        OnPromptEnable -= PromptVisibility;
     }
 
     void OnUIRefresh(Renderer renderer, VisualElement _root, int version)
@@ -77,6 +86,7 @@ public class ProximityPrompt : MonoBehaviour
         promptProgress = prompt.Q<VisualElement>(className: "prompt-progress");
 
         promptTitle = root.Q<Label>(className: "prompt-title");
+        promptTitle.text = Title;
         promptSubTitle = root.Q<Label>(className: "prompt-subtitle");
         SetPromptBinding();
     }
@@ -105,7 +115,7 @@ public class ProximityPrompt : MonoBehaviour
 
         if (Keyboard.current != null)
         {
-            if (Keyboard.current[key].isPressed && CalculateDistance())
+            if (Keyboard.current[key].isPressed && CalculateDistance() && document.enabled == true)
             {
                 if (maxHeldTime == 0f)
                 {
@@ -176,16 +186,14 @@ public class ProximityPrompt : MonoBehaviour
 
         if (float.IsNaN(width) || float.IsNaN(height)) return;
 
-        float targetRadius = Mathf.Max(0, 20f);
+        float targetRadius = Mathf.Max(0, 10f);
         float progressWidth = Mathf.Max(0f, width * progress);
         float maxFilledHeight = Mathf.Max(0f, height);
 
 
         float maxSafeRadius = Mathf.Min(progressWidth, maxFilledHeight) * 0.75f;
         float safeRadius = Mathf.Min(targetRadius, maxSafeRadius);
-
-        Debug.Log($"Safe radius is {safeRadius}");
-        Debug.Log($"Max Filled width is {progressWidth}");
+        
         promptProgress.style.width = Length.Percent(progress * 100f);
         promptProgress.style.borderTopLeftRadius = safeRadius;
         promptProgress.style.borderTopRightRadius = safeRadius;
@@ -206,5 +214,15 @@ public class ProximityPrompt : MonoBehaviour
         {
             return false;
         }
+    }
+
+    private void PromptVisibility(bool setting)
+    {
+        document.enabled = setting;
+    }
+
+    public void EnablePrompt(bool setting)
+    {
+        OnPromptEnable?.Invoke(setting);
     }
 }

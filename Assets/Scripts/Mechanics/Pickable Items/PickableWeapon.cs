@@ -3,12 +3,11 @@ using Game.Weapons;
 using Unity.VisualScripting;
 using UnityEngine;
 
-[RequireComponent(typeof(ProximityPrompt))]
 public class PickableWeapon : BasePickableItems
 {
     [SerializeField] private WeaponData weaponData;
     [DoNotSerialize] public WeaponData WeaponData { get; }
-    public static event Action<WeaponData> OnWeaponPickup;
+    public static event Action<PickableWeapon, Weapon> OnWeaponPickup;
 
     void OnEnable()
     {
@@ -37,6 +36,8 @@ public class PickableWeapon : BasePickableItems
 
     public override void OnProximityPromptTrigger()
     {
-        OnWeaponPickup?.Invoke(weaponData);
+        Weapon weapon = new(weaponData, weaponData.clipSize);
+        prompt.EnablePrompt(false);
+        OnWeaponPickup?.Invoke(this, weapon);
     }
 }

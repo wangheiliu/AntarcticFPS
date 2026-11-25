@@ -31,13 +31,16 @@ public class HotbarScript : MonoBehaviour
     [SerializeField] private Weapon primaryWeapon;
     [SerializeField] private Weapon secondaryWeapon;
     [SerializeField] private Weapon tools;
+    [SerializeField] private WeaponData defaultWeapon;
 
     private List<Weapon> weapons = new();
     private Dictionary<Weapon, VisualElement> hotbarSlotsList = new();
     private Dictionary<WeaponType, (Weapon weapon, VisualElement element)> weaponTypeToSlot = new();
     public List<GameObject> weaponModels = new();
     private readonly Key[] numKeys = { Key.Digit1, Key.Digit2, Key.Digit3, Key.Digit4, Key.Digit5, Key.Digit6, Key.Digit7, Key.Digit8, Key.Digit9, Key.Digit0 };
-
+    private Dictionary<Weapon, PickableWeapon> pickableWeapons = new();
+    private Weapon currentWeaponEquipped;
+    private Weapon currentEquippedPickableWeapon;
 
     private VisualElement root;
     private VisualElement container;
@@ -60,7 +63,7 @@ public class HotbarScript : MonoBehaviour
         InventoryScript.OnInventoryItemChanged -= OnInventoryChanged;
     }
 
-    async void OnUIReload(PanelRenderer renderer, VisualElement _root, int version)
+    void OnUIReload(PanelRenderer renderer, VisualElement _root, int version)
     {
         if (currVersion == version) return;
         currVersion = version;
@@ -114,7 +117,7 @@ public class HotbarScript : MonoBehaviour
 
     }
 
-    void Update()
+    async Awaitable Update()
     {
         for (int i = 0; i < weapons.Count; i++)
         {
@@ -128,6 +131,11 @@ public class HotbarScript : MonoBehaviour
                 EquipTransition(weaponSystem.CurrentWeapon);
                 break;
             }
+        }
+
+        if (Keyboard.current.backspaceKey.wasPressedThisFrame)
+        {
+            await DropWeapon(currentWeaponEquipped);
         }
     }
 
@@ -193,18 +201,8 @@ public class HotbarScript : MonoBehaviour
 
         weaponSystem.StopReloading();
         weaponSystem.CurrentWeapon = weapon;
+        currentWeaponEquipped = weapon;
         EquipWeaponModel(weapon.data.modelName);
-
-        GameObject weaponModelToEnable = weaponModels.Find(f => f.name == weapon.data.modelName);
-        if (weaponModelToEnable != null)
-        {
-            weaponSystem.currentWeaponModel = weaponModelToEnable;
-            weaponModelToEnable.SetActive(true);
-        }
-        else
-        {
-            weaponSystem.currentWeaponModel = null;
-        }
     }
 
     private void EquipWeapon(Weapon weapon)
@@ -231,7 +229,6 @@ public class HotbarScript : MonoBehaviour
             }
 
             tuple.weapon = weapon;
-            Debug.Log("Equipping weapon: " + tuple.weapon.data.Title);
             weapons = new List<Weapon> { primaryWeapon, secondaryWeapon, tools };
             
             if (tuple.element != null)
@@ -239,7 +236,6 @@ public class HotbarScript : MonoBehaviour
                 LoadSlotNames(tuple.element, tuple.weapon.data);
                 hotbarSlotsList[weapon] = tuple.element;
             }
-            EquipWeaponModel(tuple.weapon.data.modelName);
             EquipTransition(tuple.weapon);
         }
         else
@@ -258,6 +254,7 @@ public class HotbarScript : MonoBehaviour
         {
             return;
         }
+        Debug.Log(modelName);
         GameObject weaponModel = weaponModels.Find(m => m.name == modelName);
         if (weaponModel != null)
         {
@@ -266,6 +263,7 @@ public class HotbarScript : MonoBehaviour
         }
         else
         {
+            Debug.LogWarning("Can't find model name");
             weaponSystem.currentWeaponModel = null;
         }
     }
@@ -291,7 +289,6 @@ public class HotbarScript : MonoBehaviour
 
             if (weaponData == null)
             {
-                Debug.LogWarning("Weapon Data not found");
                 return;
             }
             Weapon weapon = new(weaponData, weaponData.clipSize);
@@ -328,14 +325,33 @@ public class HotbarScript : MonoBehaviour
         return weaponData;
     }
 
+    private async Awaitable DropWeapon(Weapon weapon)
+    {
+        if (pickableWeapons.TryGetValue(weapon, out var pickableWeaponComponent))
+        {
+            pickableWeaponComponent.transform.SetParent(null, worldPositionStays: true);
+            pickableWeapons.Remove(weapon);
+            await LoadWeaponFromInventory(weapon.data.weaponType);
+        }
+    }
+
     private async void OnInventoryChanged(WeaponData data)
     {
         Debug.Log($"Recieved {data.Title}");
         await LoadWeaponFromInventory(data.weaponType);
     }
 
-    public void OnWeaponPickUp(WeaponData data)
+    private void OnWeaponPickUp(PickableWeapon main, Weapon weapon)
     {
-
+        if (pickableWeapons.TryAdd(weapon, main))
+        {
+            main.transform.SetParent(weaponContainer.transform, worldPositionStays: false);
+            main.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.Euler(0,180,0));
+            Debug.Log(main.transform.position);
+            weaponModels.Add(main.gameObject);
+            currentEquippedPickableWeapon = weapon;
+            EquipWeapon(weapon);
+        }
     }
+    
 }
