@@ -7,7 +7,7 @@
         <ui:VisualElement name="prompt-text-container" class="prompt-text-container" style="flex-grow: 1; height: auto; flex-shrink: 1;">
             <ui:Label text="Interact" name="prompt-title" class="prompt-title" style="-unity-text-auto-size: none; margin-left: 2px; margin-top: 2px; font-size: 17px; padding-top: 2px; padding-bottom: 2px; margin-right: 2px;">
                 <Bindings>
-                    <ui:DataBinding property="text" data-source-type="ProximityPrompt, Assembly-CSharp" data-source-path="title" binding-mode="ToTarget"/>
+                    <ui:DataBinding property="text" data-source-type="ProximityPrompt, Assembly-CSharp" data-source-path="_Title_k__BackingField" binding-mode="ToTarget"/>
                 </Bindings>
             </ui:Label>
             <ui:Label text="subtitle here" name="prompt-subtitle" class="prompt-subtitle" style="-unity-text-auto-size: none; -unity-text-generator: advanced; font-size: 7px; padding-left: 2px; padding-top: 2px; padding-bottom: 2px; margin-top: 2px;">

@@ -3712,6 +3712,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PickableWeapon
   prompt: {fileID: 931414493}
   weaponData: {fileID: 11400000, guid: a87c4a30256bb6b4fbd7f7b242f46ad4, type: 2}
+  rb: {fileID: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -4151,8 +4152,8 @@ MonoBehaviour:
   document: {fileID: 931414494}
   playerCamera: {fileID: 1218873617}
   character: {fileID: 1418771229}
-  <Title>k__BackingField: Interact
-  subtitle: 
+  <Title>k__BackingField: Uzi
+  subtitle: Pick Up
   key: 19
   visibilityDistance: 10
   maxHeldTime: 3

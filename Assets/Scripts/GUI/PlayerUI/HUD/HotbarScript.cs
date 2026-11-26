@@ -334,7 +334,7 @@ public class HotbarScript : MonoBehaviour
         {
             await LoadWeaponFromInventory(weapon.data.weaponType);
             if (!canDropWeapon) return;
-            pickableWeaponComponent.transform.SetParent(null, worldPositionStays: true);
+            pickableWeaponComponent.InvokeEnableProximityEvent(true);
             pickableWeapons.Remove(weapon);
             canDropWeapon = false;
         }

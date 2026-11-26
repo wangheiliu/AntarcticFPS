@@ -24,11 +24,29 @@ public class ProximityPrompt : MonoBehaviour
     [SerializeField] private IProximityPromptTriggerable triggerableScript;
 
     [Header("Prompt Settings")]
-    [field: SerializeField, CreateProperty] private string Title
+    [SerializeField] private string title = "Interact";
+    [CreateProperty] public string Title
     {
-        get; set;
-    } = "Interact";
+        get => title;
+        set
+        {
+            if (title == value) return;
+            title = value;
+            titleBinding?.MarkDirty();
+        }
+    }
     [SerializeField] private string subtitle;
+
+    [CreateProperty] private string Subtitle
+    {
+        get => subtitle;
+        set
+        {
+            if (subtitle == value) return;
+            subtitle = value;
+            subtitleBinding?.MarkDirty();
+        }
+    }
     [SerializeField] private Key key = Key.E;
     [SerializeField] private float visibilityDistance = 10f;
     [SerializeField] private float maxHeldTime = 3f;
@@ -57,6 +75,17 @@ public class ProximityPrompt : MonoBehaviour
     private Label promptSubTitle;
 
     private int currVersion = -1;
+
+    private DataBinding titleBinding = new()
+    {
+        dataSourcePath = new(nameof(Title)),
+        bindingMode = BindingMode.ToTarget
+    };
+
+    private DataBinding subtitleBinding = new()
+    {
+        dataSourcePath = new(nameof(Subtitle))
+    };
     #endregion
 
     public event Action OnPromptTrigger;
@@ -82,12 +111,15 @@ public class ProximityPrompt : MonoBehaviour
         currVersion = version;
 
         root = _root;
+        root.dataSource = this;
         prompt = root.Q<Label>(className: "prompt-box");
         promptProgress = prompt.Q<VisualElement>(className: "prompt-progress");
 
         promptTitle = root.Q<Label>(className: "prompt-title");
-        promptTitle.text = Title;
+        promptTitle.SetBinding(nameof(Label.text), titleBinding);
+        //promptTitle.SetText(Title);
         promptSubTitle = root.Q<Label>(className: "prompt-subtitle");
+        //promptSubTitle.SetText(subtitle);
         SetPromptBinding();
     }
 
