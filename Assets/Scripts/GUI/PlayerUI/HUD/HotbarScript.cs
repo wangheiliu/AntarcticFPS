@@ -45,6 +45,7 @@ public class HotbarScript : MonoBehaviour
     private VisualElement root;
     private VisualElement container;
     private int currVersion = -1;
+    private bool canDropWeapon = false;
 
 
     void Awake()
@@ -289,8 +290,10 @@ public class HotbarScript : MonoBehaviour
 
             if (weaponData == null)
             {
+                canDropWeapon = false;
                 return;
             }
+            canDropWeapon = true;
             Weapon weapon = new(weaponData, weaponData.clipSize);
             Debug.Log($"Loaded weapon: {weaponData.Title}");
 
@@ -329,9 +332,11 @@ public class HotbarScript : MonoBehaviour
     {
         if (pickableWeapons.TryGetValue(weapon, out var pickableWeaponComponent))
         {
+            await LoadWeaponFromInventory(weapon.data.weaponType);
+            if (!canDropWeapon) return;
             pickableWeaponComponent.transform.SetParent(null, worldPositionStays: true);
             pickableWeapons.Remove(weapon);
-            await LoadWeaponFromInventory(weapon.data.weaponType);
+            canDropWeapon = false;
         }
     }
 
