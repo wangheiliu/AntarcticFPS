@@ -1,5 +1,12 @@
 fileFormatVersion: 2
 guid: 6a376fb3e11ce334ca96f417cead6576
+AssetOrigin:
+  serializedVersion: 1
+  productId: 151980
+  packageName: Untitled
+  packageVersion: 1.0
+  assetPath: Assets/Low Poly Weapons VOL.1/Textures_Guns.png
+  uploadId: 324403
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -65,9 +72,9 @@ TextureImporter:
   compressionQualitySet: 0
   textureFormatSet: 0
   ignorePngGamma: 0
-  applyGammaDecoding: 0
+  applyGammaDecoding: 1
   swizzle: 50462976
-  cookieLightType: 0
+  cookieLightType: 1
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
